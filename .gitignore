@@ -1,0 +1,9 @@
+/darktool
+/dist
+Discovery-DEV-Groshyr/
+Discovery-DEV-Groshyr
+__debug_bin
+**/tempdata/*
+!.gitkeep
+version.txt
+go.work*
