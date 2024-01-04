@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
 )
 
 type INIFile struct {

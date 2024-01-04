@@ -1,13 +1,13 @@
-package systems
+package systems_mapped
 
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/freelancer/data/universe"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/inireader"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/semantic"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/universe_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/inireader"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/semantic"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )
@@ -37,11 +37,11 @@ type Config struct {
 	Systems    []*System
 }
 
-func (frelconfig *Config) Read(universe_config *universe.Config, filesystem filefind.Filesystem) *Config {
+func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesystem filefind.Filesystem) *Config {
 
 	var system_files map[string]*file.File = make(map[string]*file.File)
 	for _, base := range universe_config.Bases {
-		filename := universe_config.SystemMap[universe.SystemNickname(base.System.Get())].File.FileName()
+		filename := universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Get())].File.FileName()
 		path := filesystem.GetFile(utils_types.FilePath(strings.ToLower(filename)))
 		system_files[base.System.Get()] = file.NewFile(path.GetFilepath())
 	}

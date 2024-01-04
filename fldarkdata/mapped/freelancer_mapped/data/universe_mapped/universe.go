@@ -1,14 +1,14 @@
 /*
 parse universe.ini
 */
-package universe
+package universe_mapped
 
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/inireader"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/semantic"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/inireader"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/semantic"
 )
 
 // Feel free to map it xD

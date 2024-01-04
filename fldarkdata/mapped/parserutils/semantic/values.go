@@ -6,7 +6,7 @@ package semantic
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/inireader"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/inireader"
 )
 
 // ORM values

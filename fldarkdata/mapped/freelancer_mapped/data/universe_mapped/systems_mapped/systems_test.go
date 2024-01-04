@@ -1,11 +1,11 @@
-package systems
+package systems_mapped
 
 import (
 	"testing"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/freelancer/data/universe"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/universe_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_fldarkdata/fldarkdata/settings/logus"
 
 	"github.com/darklab8/darklab_goutils/goutils/logus_core"
@@ -21,8 +21,8 @@ func TestSaveRecycleParams(t *testing.T) {
 	logus.Log.Debug("", logus_core.FilePath(freelancer_folder))
 	filesystem := filefind.FindConfigs(freelancer_folder)
 
-	universe_config := universe.Config{}
-	universe_config.Read(file.NewFile(filesystem.Hashmap[universe.FILENAME].GetFilepath()))
+	universe_config := universe_mapped.Config{}
+	universe_config.Read(file.NewFile(filesystem.Hashmap[universe_mapped.FILENAME].GetFilepath()))
 
 	systems := (&Config{}).Read(&universe_config, filesystem)
 

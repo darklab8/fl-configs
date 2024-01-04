@@ -1,4 +1,4 @@
-package parser
+package mapped
 
 import (
 	"testing"
@@ -11,6 +11,6 @@ func TestSimple(t *testing.T) {
 	current_folder := utils.GetCurrentFolder()
 	game_location := utils_filepath.Dir(utils_filepath.Dir(current_folder))
 
-	parsed := NewParsed().Read(game_location)
+	parsed := NewMapped().Read(game_location)
 	parsed.Write(IsDruRun(true))
 }

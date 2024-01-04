@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_fldarkdata/fldarkdata/settings/logus"
 
 	"github.com/darklab8/darklab_goutils/goutils/logus_core"

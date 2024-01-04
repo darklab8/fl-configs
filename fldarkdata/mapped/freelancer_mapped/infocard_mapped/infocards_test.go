@@ -1,9 +1,9 @@
-package infocard
+package infocard_mapped
 
 import (
 	"testing"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/parser/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_filepath"
