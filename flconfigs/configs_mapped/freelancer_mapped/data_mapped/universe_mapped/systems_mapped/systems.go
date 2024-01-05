@@ -3,7 +3,7 @@ package systems_mapped
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data/universe_mapped"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader"

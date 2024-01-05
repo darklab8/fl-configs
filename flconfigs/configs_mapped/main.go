@@ -4,13 +4,13 @@ Tool to parse freelancer configs
 package configs_mapped
 
 import (
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data/universe_mapped"
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data/universe_mapped/systems_mapped"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
 
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data/equipment_mapped/market_mapped"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/market_mapped"
 
 	"github.com/darklab8/darklab_goutils/goutils/logus_core"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
