@@ -11,6 +11,6 @@ func TestSimple(t *testing.T) {
 	current_folder := utils.GetCurrentFolder()
 	game_location := utils_filepath.Dir(utils_filepath.Dir(current_folder))
 
-	parsed := NewMapped().Read(game_location)
+	parsed := NewMappedConfigs().Read(game_location)
 	parsed.Write(IsDruRun(true))
 }

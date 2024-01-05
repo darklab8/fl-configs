@@ -1,22 +1,22 @@
 /*
 Tool to parse freelancer configs
 */
-package mapped
+package configs_mapped
 
 import (
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/universe_mapped"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/universe_mapped/systems_mapped"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/freelancer_mapped/data/universe_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/freelancer_mapped/data/universe_mapped/systems_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_fldarkdata/fldarkdata/settings/logus"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/equipment_mapped/market_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/freelancer_mapped/data/equipment_mapped/market_mapped"
 
 	"github.com/darklab8/darklab_goutils/goutils/logus_core"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )
 
-type Mapped struct {
+type MappedConfigs struct {
 	Universe_config *universe_mapped.Config
 	// Info_config         *infocard.Config
 	Systems             *systems_mapped.Config
@@ -25,11 +25,11 @@ type Mapped struct {
 	Market_misc         *market_mapped.Config
 }
 
-func NewMapped() *Mapped {
-	return &Mapped{}
+func NewMappedConfigs() *MappedConfigs {
+	return &MappedConfigs{}
 }
 
-func (p *Mapped) Read(file1path utils_types.FilePath) *Mapped {
+func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	logus.Log.Info("Parse START for FreelancerFolderLocation=", logus_core.FilePath(file1path))
 	filesystem := filefind.FindConfigs(file1path)
 
@@ -47,7 +47,7 @@ func (p *Mapped) Read(file1path utils_types.FilePath) *Mapped {
 
 type IsDruRun bool
 
-func (p *Mapped) Write(is_dry_run IsDruRun) {
+func (p *MappedConfigs) Write(is_dry_run IsDruRun) {
 	// write
 	files := []*file.File{}
 
