@@ -1,8 +1,6 @@
 package market_mapped
 
 import (
-	"strings"
-
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/semantic"
@@ -56,8 +54,6 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		base_to_add.Name = (&semantic.String{}).Map(section, KEY_NAME, semantic.TypeComment, inireader.OPTIONAL_p)
 		base_to_add.RecycleCandidate = (&semantic.String{}).Map(section, KEY_RECYCLE, semantic.TypeComment, inireader.OPTIONAL_p)
 		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
-
-		base_to_add.Base.Set(strings.ToLower(base_to_add.Base.Get()))
 	}
 	frelconfig.Comments = iniconfig.Comments
 	return frelconfig
