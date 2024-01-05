@@ -1,7 +1,7 @@
 package market_mapped
 
 import (
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind/file"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_filepath"

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_fldarkdata/fldarkdata/settings/logus"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils"

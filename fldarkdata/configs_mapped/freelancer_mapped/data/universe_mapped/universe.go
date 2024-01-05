@@ -6,9 +6,9 @@ package universe_mapped
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/inireader"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/semantic"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/semantic"
 )
 
 // Feel free to map it xD

@@ -3,11 +3,11 @@ package systems_mapped
 import (
 	"strings"
 
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/freelancer_mapped/data/universe_mapped"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/filefind/file"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/inireader"
-	"github.com/darklab8/darklab_fldarkdata/fldarkdata/mapped/parserutils/semantic"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/freelancer_mapped/data/universe_mapped"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/darklab_fldarkdata/fldarkdata/configs_mapped/parserutils/semantic"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )

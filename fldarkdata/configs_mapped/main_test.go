@@ -1,4 +1,4 @@
-package mapped
+package configs_mapped
 
 import (
 	"testing"
