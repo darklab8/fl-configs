@@ -4,8 +4,6 @@ parse universe.ini
 package universe_mapped
 
 import (
-	"strings"
-
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/semantic"
@@ -107,10 +105,6 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			base_to_add.System = (&semantic.String{}).Map(base, KEY_SYSTEM, semantic.TypeVisible, inireader.REQUIRED_p)
 			base_to_add.File = (&semantic.Path{}).Map(base, KEY_FILE, semantic.TypeVisible, inireader.REQUIRED_p)
 
-			base_to_add.Nickname.Set(strings.ToLower(base_to_add.Nickname.Get()))
-			base_to_add.System.Set(strings.ToLower(base_to_add.System.Get()))
-			base_to_add.File.Set(strings.ToLower(base_to_add.File.Get()))
-
 			base_to_add.Name = (&semantic.String{}).Map(base, KEY_NAME, semantic.TypeComment, inireader.OPTIONAL_p)
 			base_to_add.RecycleCandidate = (&semantic.String{}).Map(base, KEY_RECYCLE, semantic.TypeComment, inireader.OPTIONAL_p)
 
@@ -131,13 +125,6 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			system_to_add.Nickname = (&semantic.String{}).Map(system, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
 			system_to_add.File = (&semantic.Path{}).Map(system, KEY_FILE, semantic.TypeVisible, inireader.OPTIONAL_p)
 			system_to_add.Msg_id_prefix = (&semantic.String{}).Map(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.TypeVisible, inireader.OPTIONAL_p)
-
-			system_to_add.Nickname.Set(strings.ToLower(system_to_add.Nickname.Get()))
-			system_to_add.Msg_id_prefix.Set(strings.ToLower(system_to_add.Msg_id_prefix.Get()))
-
-			if system_to_add.File.Get() != "" {
-				system_to_add.File.Set(strings.ToLower(system_to_add.File.Get()))
-			}
 
 			frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
 			frelconfig.SystemMap[SystemNickname(system_to_add.Nickname.Get())] = &system_to_add
