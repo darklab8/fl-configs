@@ -97,8 +97,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 	frelconfig.SystemMap = make(map[SystemNickname]*System)
 	frelconfig.Systems = make([]*System, 0)
 
-	bases, ok := iniconfig.SectionMap[KEY_BASE_TAG]
-	if ok {
+	if bases, ok := iniconfig.SectionMap[KEY_BASE_TAG]; ok {
 		for _, base := range bases {
 			base_to_add := Base{}
 			base_to_add.Map(base)
@@ -120,8 +119,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		}
 	}
 
-	systems, ok := iniconfig.SectionMap[KEY_SYSTEM_TAG]
-	if ok {
+	if systems, ok := iniconfig.SectionMap[KEY_SYSTEM_TAG]; ok {
 		for _, system := range systems {
 			system_to_add := System{}
 			system_to_add.Map(system)
