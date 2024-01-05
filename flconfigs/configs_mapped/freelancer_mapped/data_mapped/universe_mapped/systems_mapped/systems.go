@@ -8,6 +8,7 @@ import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/lower_map"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )
@@ -28,12 +29,12 @@ type System struct {
 	semantic.ConfigModel
 	Nickname    string
 	Bases       []*Base
-	BasesByNick map[string]*Base
-	BasesByBase map[string]*Base
+	BasesByNick *lower_map.KeyLoweredMap[string, *Base]
+	BasesByBase *lower_map.KeyLoweredMap[string, *Base]
 }
 
 type Config struct {
-	SystemsMap map[string]*System
+	SystemsMap *lower_map.KeyLoweredMap[string, *System]
 	Systems    []*System
 }
 
@@ -41,7 +42,7 @@ func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesyst
 
 	var system_files map[string]*file.File = make(map[string]*file.File)
 	for _, base := range universe_config.Bases {
-		filename := universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Get())].File.FileName()
+		filename := universe_config.SystemMap.MapGet(universe_mapped.SystemNickname(base.System.Get())).File.FileName()
 		path := filesystem.GetFile(utils_types.FilePath(strings.ToLower(filename)))
 		system_files[base.System.Get()] = file.NewFile(path.GetFilepath())
 	}
@@ -52,17 +53,17 @@ func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesyst
 		system_iniconfigs[system_key] = inireader.INIFile.Read(system, file)
 	}
 
-	frelconfig.SystemsMap = make(map[string]*System)
+	frelconfig.SystemsMap = lower_map.NewKeyLoweredMap[string, *System]()
 	frelconfig.Systems = make([]*System, 0)
 	for system_key, sysiniconf := range system_iniconfigs {
 		system_to_add := System{}
 		system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
 		system_to_add.Nickname = system_key
-		system_to_add.BasesByNick = make(map[string]*Base)
-		system_to_add.BasesByBase = make(map[string]*Base)
+		system_to_add.BasesByNick = lower_map.NewKeyLoweredMap[string, *Base]()
+		system_to_add.BasesByBase = lower_map.NewKeyLoweredMap[string, *Base]()
 		system_to_add.Bases = make([]*Base, 0)
-		frelconfig.SystemsMap[system_key] = &system_to_add
+		frelconfig.SystemsMap.MapSet(system_key, &system_to_add)
 		frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
 
 		if objects, ok := sysiniconf.SectionMap[KEY_OBJECT]; ok {
@@ -78,8 +79,8 @@ func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesyst
 					base_to_add.Base = (&semantic.String{}).Map(obj, KEY_BASE, semantic.TypeVisible, inireader.REQUIRED_p)
 					base_to_add.DockWith = (&semantic.String{}).Map(obj, "dock_with", semantic.TypeVisible, inireader.OPTIONAL_p)
 
-					system_to_add.BasesByBase[base_to_add.Base.Get()] = base_to_add
-					system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
+					system_to_add.BasesByBase.MapSet(base_to_add.Base.Get(), base_to_add)
+					system_to_add.BasesByNick.MapSet(base_to_add.Nickname.Get(), base_to_add)
 					system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 				}
 			}

@@ -26,10 +26,10 @@ func TestSaveRecycleParams(t *testing.T) {
 
 	systems := (&Config{}).Read(&universe_config, filesystem)
 
-	system, ok := systems.SystemsMap["br01"]
+	system, ok := systems.SystemsMap.MapGetValue("br01")
 	assert.True(t, ok, "system should be present")
 
-	_, ok = system.BasesByBase["br01_01_base"]
+	_, ok = system.BasesByBase.MapGetValue("br01_01_base")
 	assert.True(t, ok, "base should be present")
 
 	system.Render()

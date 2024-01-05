@@ -8,9 +8,11 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	current_folder := utils.GetCurrentFolder()
-	game_location := utils_filepath.Dir(utils_filepath.Dir(current_folder))
+	utils.TimeMeasure(func() {
+		current_folder := utils.GetCurrentFolder()
+		game_location := utils_filepath.Dir(utils_filepath.Dir(current_folder))
 
-	parsed := NewMappedConfigs().Read(game_location)
-	parsed.Write(IsDruRun(true))
+		parsed := NewMappedConfigs().Read(game_location)
+		parsed.Write(IsDruRun(true))
+	}, "dry run time")
 }

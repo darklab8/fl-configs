@@ -7,6 +7,7 @@ import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/lower_map"
 )
 
 // Feel free to map it xD
@@ -76,10 +77,10 @@ type System struct {
 type Config struct {
 	semantic.ConfigModel
 	Bases    []*Base
-	BasesMap map[BaseNickname]*Base
+	BasesMap *lower_map.KeyLoweredMap[BaseNickname, *Base]
 
 	Systems   []*System
-	SystemMap map[SystemNickname]*System
+	SystemMap *lower_map.KeyLoweredMap[SystemNickname, *System]
 
 	TimeSeconds *semantic.Int
 }
@@ -90,9 +91,9 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 
 	frelconfig.TimeSeconds = (&semantic.Int{}).Map(iniconfig.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG, semantic.TypeVisible, inireader.REQUIRED_p)
-	frelconfig.BasesMap = make(map[BaseNickname]*Base)
+	frelconfig.BasesMap = lower_map.NewKeyLoweredMap[BaseNickname, *Base]()
 	frelconfig.Bases = make([]*Base, 0)
-	frelconfig.SystemMap = make(map[SystemNickname]*System)
+	frelconfig.SystemMap = lower_map.NewKeyLoweredMap[SystemNickname, *System]()
 	frelconfig.Systems = make([]*System, 0)
 
 	if bases, ok := iniconfig.SectionMap[KEY_BASE_TAG]; ok {
@@ -109,7 +110,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			base_to_add.RecycleCandidate = (&semantic.String{}).Map(base, KEY_RECYCLE, semantic.TypeComment, inireader.OPTIONAL_p)
 
 			frelconfig.Bases = append(frelconfig.Bases, &base_to_add)
-			frelconfig.BasesMap[BaseNickname(base_to_add.Nickname.Get())] = &base_to_add
+			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), &base_to_add)
 		}
 	}
 
@@ -127,7 +128,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			system_to_add.Msg_id_prefix = (&semantic.String{}).Map(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.TypeVisible, inireader.OPTIONAL_p)
 
 			frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
-			frelconfig.SystemMap[SystemNickname(system_to_add.Nickname.Get())] = &system_to_add
+			frelconfig.SystemMap.MapSet(SystemNickname(system_to_add.Nickname.Get()), &system_to_add)
 		}
 	}
 
