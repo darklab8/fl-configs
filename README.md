@@ -1,10 +1,10 @@
-# fldarkdata
+# flconfigs
 
 ## Description
 
 Reusable library parser of Freelancer Discovery game data.
 
-freelancer (resembling ini) config reader/writer with easily mapping variables to access in ORM - object relational mapping fashion.
+freelancer (resembling ini) config reader/writer with having mapped variables to access in ORM - object relational mapping fashion.
 This alone allows quickly accessing any config data with least amont of code effort for additional features.
 
 # Features
