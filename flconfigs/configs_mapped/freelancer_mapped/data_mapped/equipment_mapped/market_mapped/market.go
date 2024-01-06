@@ -19,8 +19,6 @@ type BaseGood struct {
 	semantic.Model
 	Base *semantic.String
 	// TODO Goods          *SemanticMultiKey[MarketGood] (GetAll)
-	Name             *semantic.String // denormalized always disabled param
-	RecycleCandidate *semantic.String // denormalized always disabled param
 }
 
 type Config struct {
@@ -51,8 +49,6 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		base_to_add := &BaseGood{}
 		base_to_add.Map(section)
 		base_to_add.Base = (&semantic.String{}).Map(section, KEY_BASE, semantic.TypeVisible, inireader.REQUIRED_p)
-		base_to_add.Name = (&semantic.String{}).Map(section, KEY_NAME, semantic.TypeComment, inireader.OPTIONAL_p)
-		base_to_add.RecycleCandidate = (&semantic.String{}).Map(section, KEY_RECYCLE, semantic.TypeComment, inireader.OPTIONAL_p)
 		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 	}
 	frelconfig.Comments = iniconfig.Comments

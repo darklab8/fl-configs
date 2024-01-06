@@ -53,9 +53,6 @@ type Base struct {
 	File             *semantic.Path
 	BGCS_base_run_by *semantic.String
 	// Terrains *semantic.StringStringMap
-
-	Name             *semantic.String // denormalized always disabled param
-	RecycleCandidate *semantic.String // denormalized always disabled param
 }
 
 type BaseNickname string
@@ -105,9 +102,6 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			base_to_add.BGCS_base_run_by = (&semantic.String{}).Map(base, KEY_BASE_BGCS, semantic.TypeVisible, inireader.OPTIONAL_p)
 			base_to_add.System = (&semantic.String{}).Map(base, KEY_SYSTEM, semantic.TypeVisible, inireader.REQUIRED_p)
 			base_to_add.File = (&semantic.Path{}).Map(base, KEY_FILE, semantic.TypeVisible, inireader.REQUIRED_p)
-
-			base_to_add.Name = (&semantic.String{}).Map(base, KEY_NAME, semantic.TypeComment, inireader.OPTIONAL_p)
-			base_to_add.RecycleCandidate = (&semantic.String{}).Map(base, KEY_RECYCLE, semantic.TypeComment, inireader.OPTIONAL_p)
 
 			frelconfig.Bases = append(frelconfig.Bases, &base_to_add)
 			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), &base_to_add)
