@@ -27,7 +27,8 @@ type String struct {
 	Value
 }
 
-func (s *String) Map(section *inireader.Section, key string, isComment bool, optional bool) *String {
+func NewString(section *inireader.Section, key string, isComment bool, optional bool) *String {
+	s := &String{}
 	s.section = section
 	s.key = key
 	s.optional = optional
@@ -69,7 +70,8 @@ type Int struct {
 	Value
 }
 
-func (s *Int) Map(section *inireader.Section, key string, isComment bool, optional bool) *Int {
+func NewInt(section *inireader.Section, key string, isComment bool, optional bool) *Int {
+	s := &Int{}
 	s.section = section
 	s.key = key
 	s.optional = optional
@@ -112,7 +114,8 @@ type Path struct {
 	Value
 }
 
-func (s *Path) Map(section *inireader.Section, key string, isComment bool, optional bool) *Path {
+func NewPath(section *inireader.Section, key string, isComment bool, optional bool) *Path {
+	s := &Path{}
 	s.section = section
 	s.key = key
 	s.optional = optional

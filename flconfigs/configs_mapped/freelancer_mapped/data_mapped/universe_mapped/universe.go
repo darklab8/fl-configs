@@ -87,7 +87,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 
-	frelconfig.TimeSeconds = (&semantic.Int{}).Map(iniconfig.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG, semantic.TypeVisible, inireader.REQUIRED_p)
+	frelconfig.TimeSeconds = semantic.NewInt(iniconfig.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG, semantic.TypeVisible, inireader.REQUIRED_p)
 	frelconfig.BasesMap = lower_map.NewKeyLoweredMap[BaseNickname, *Base]()
 	frelconfig.Bases = make([]*Base, 0)
 	frelconfig.SystemMap = lower_map.NewKeyLoweredMap[SystemNickname, *System]()
@@ -97,11 +97,11 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		for _, base := range bases {
 			base_to_add := Base{}
 			base_to_add.Map(base)
-			base_to_add.Nickname = (&semantic.String{}).Map(base, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
-			base_to_add.StridName = (&semantic.Int{}).Map(base, KEY_STRIDNAME, semantic.TypeVisible, inireader.REQUIRED_p)
-			base_to_add.BGCS_base_run_by = (&semantic.String{}).Map(base, KEY_BASE_BGCS, semantic.TypeVisible, inireader.OPTIONAL_p)
-			base_to_add.System = (&semantic.String{}).Map(base, KEY_SYSTEM, semantic.TypeVisible, inireader.REQUIRED_p)
-			base_to_add.File = (&semantic.Path{}).Map(base, KEY_FILE, semantic.TypeVisible, inireader.REQUIRED_p)
+			base_to_add.Nickname = semantic.NewString(base, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
+			base_to_add.StridName = semantic.NewInt(base, KEY_STRIDNAME, semantic.TypeVisible, inireader.REQUIRED_p)
+			base_to_add.BGCS_base_run_by = semantic.NewString(base, KEY_BASE_BGCS, semantic.TypeVisible, inireader.OPTIONAL_p)
+			base_to_add.System = semantic.NewString(base, KEY_SYSTEM, semantic.TypeVisible, inireader.REQUIRED_p)
+			base_to_add.File = semantic.NewPath(base, KEY_FILE, semantic.TypeVisible, inireader.REQUIRED_p)
 
 			frelconfig.Bases = append(frelconfig.Bases, &base_to_add)
 			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), &base_to_add)
@@ -113,13 +113,13 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			system_to_add := System{}
 			system_to_add.Map(system)
 
-			system_to_add.Visit = (&semantic.Int{}).Map(system, KEY_SYSTEM_VISIT, semantic.TypeVisible, inireader.OPTIONAL_p)
-			system_to_add.Strid_name = (&semantic.Int{}).Map(system, KEY_STRIDNAME, semantic.TypeVisible, inireader.OPTIONAL_p)
-			system_to_add.Ids_info = (&semantic.Int{}).Map(system, KEY_SYSTEM_IDS_INFO, semantic.TypeVisible, inireader.OPTIONAL_p)
+			system_to_add.Visit = semantic.NewInt(system, KEY_SYSTEM_VISIT, semantic.TypeVisible, inireader.OPTIONAL_p)
+			system_to_add.Strid_name = semantic.NewInt(system, KEY_STRIDNAME, semantic.TypeVisible, inireader.OPTIONAL_p)
+			system_to_add.Ids_info = semantic.NewInt(system, KEY_SYSTEM_IDS_INFO, semantic.TypeVisible, inireader.OPTIONAL_p)
 			// system_to_add.NavMapScale = system.GetParamNumber(KEY_SYSTEM_NAVMAPSCALE, inireader.OPTIONAL_p)
-			system_to_add.Nickname = (&semantic.String{}).Map(system, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
-			system_to_add.File = (&semantic.Path{}).Map(system, KEY_FILE, semantic.TypeVisible, inireader.OPTIONAL_p)
-			system_to_add.Msg_id_prefix = (&semantic.String{}).Map(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.TypeVisible, inireader.OPTIONAL_p)
+			system_to_add.Nickname = semantic.NewString(system, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
+			system_to_add.File = semantic.NewPath(system, KEY_FILE, semantic.TypeVisible, inireader.OPTIONAL_p)
+			system_to_add.Msg_id_prefix = semantic.NewString(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.TypeVisible, inireader.OPTIONAL_p)
 
 			frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
 			frelconfig.SystemMap.MapSet(SystemNickname(system_to_add.Nickname.Get()), &system_to_add)
