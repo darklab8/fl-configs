@@ -95,7 +95,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 
 	if bases, ok := iniconfig.SectionMap[KEY_BASE_TAG]; ok {
 		for _, base := range bases {
-			base_to_add := Base{}
+			base_to_add := &Base{}
 			base_to_add.Map(base)
 			base_to_add.Nickname = semantic.NewString(base, KEY_NICKNAME, semantic.TypeVisible, inireader.REQUIRED_p)
 			base_to_add.StridName = semantic.NewInt(base, KEY_STRIDNAME, semantic.TypeVisible, inireader.REQUIRED_p)
@@ -103,8 +103,8 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			base_to_add.System = semantic.NewString(base, KEY_SYSTEM, semantic.TypeVisible, inireader.REQUIRED_p)
 			base_to_add.File = semantic.NewPath(base, KEY_FILE, semantic.TypeVisible, inireader.REQUIRED_p)
 
-			frelconfig.Bases = append(frelconfig.Bases, &base_to_add)
-			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), &base_to_add)
+			frelconfig.Bases = append(frelconfig.Bases, base_to_add)
+			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), base_to_add)
 		}
 	}
 

@@ -56,15 +56,15 @@ func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesyst
 	frelconfig.SystemsMap = lower_map.NewKeyLoweredMap[string, *System]()
 	frelconfig.Systems = make([]*System, 0)
 	for system_key, sysiniconf := range system_iniconfigs {
-		system_to_add := System{}
+		system_to_add := &System{}
 		system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
 		system_to_add.Nickname = system_key
 		system_to_add.BasesByNick = lower_map.NewKeyLoweredMap[string, *Base]()
 		system_to_add.BasesByBase = lower_map.NewKeyLoweredMap[string, *Base]()
 		system_to_add.Bases = make([]*Base, 0)
-		frelconfig.SystemsMap.MapSet(system_key, &system_to_add)
-		frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
+		frelconfig.SystemsMap.MapSet(system_key, system_to_add)
+		frelconfig.Systems = append(frelconfig.Systems, system_to_add)
 
 		if objects, ok := sysiniconf.SectionMap[KEY_OBJECT]; ok {
 			for _, obj := range objects {
