@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	gbp "github.com/canhlinh/go-binary-pack"
 
@@ -15,6 +16,8 @@ import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
+	"github.com/darklab8/darklab_goutils/goutils/worker"
+	"github.com/darklab8/darklab_goutils/goutils/worker/worker_types"
 )
 
 type InfocardID int
@@ -130,7 +133,9 @@ func JoinSize(size int, s ...[]byte) []byte {
 	return b
 }
 
-func parseDLL(fh *bytes.Reader, out map[InfocardID]InfocardText, global_offset int) {
+func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
+	fh := bytes.NewReader(data)
+
 	logus.Log.Debug("parseDLL for file.Name=")
 	var returned_n64 int64
 	var returned_n int
@@ -247,8 +252,19 @@ func parseDLL(fh *bytes.Reader, out map[InfocardID]InfocardText, global_offset i
 
 		fh.Seek(6, io.SeekCurrent)                                        //     fh.seek(6, os.SEEK_CUR)
 		numentries := ReadUnpack2[int](fh, BytesToRead(2), []string{"h"}) //     numentries, = struct.unpack('h', fh.read(2))
-		fh.Seek(0, io.SeekCurrent)                                        //     sectionstart = fh.tell() # remember where we are here
-		for entry := 0; entry < numentries; entry++ {                     // for entry in range(0, numentries):                   //     for entry in range(0, numentries):
+
+		fh.Seek(0, io.SeekCurrent) //     sectionstart = fh.tell() # remember where we are here
+
+		var wg sync.WaitGroup
+		var mut sync.Mutex
+		wg.Add(numentries)
+
+		tasks_channel := make(chan worker.ITask, numentries)
+		for worker_id := 1; worker_id <= 4; worker_id++ {
+			go launchWorker(worker_types.WorkerID(worker_id), tasks_channel)
+		}
+
+		for entry := 0; entry < numentries; entry++ { // for entry in range(0, numentries):                   //     for entry in range(0, numentries):
 			logus.Log.Debug("for entry := 0; entry < numentries; entry++ entry=" + strconv.Itoa(entry))
 			//         # get the id number and location of this entry
 			idnum := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         idnum, = struct.unpack('i', fh.read(4))
@@ -284,36 +300,17 @@ func parseDLL(fh *bytes.Reader, out map[InfocardID]InfocardText, global_offset i
 			absloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"})     //         absloc, = struct.unpack('i', fh.read(4)) # get the real location
 			datalength := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         datalength, = struct.unpack('i', fh.read(4)) # entry length in bytes
 
-			//         # now that we've got absolute location of each resource, get it!
-			fh.Seek(int64(absloc), io.SeekStart) //         fh.seek(absloc)
-
-			if datatype.Type_ == 0x06 { //         if datatypes[i]['type'] == 0x06: # string table
-				for strindex := 0; strindex < 16; strindex++ { //             for strindex in range(0, 16): # each string table has up to 16 entries
-					tableLen, n, err := ReadUnpack[int](fh, BytesToRead(2), []string{"h"}) //                 tableLen, = struct.unpack('h', fh.read(2))
-					//                 if not tableLen:
-					//                     continue # drop completely empty strings
-					if tableLen == 0 || n == 0 || err != nil {
-						continue
-					}
-
-					ids_text := ReadText(fh, tableLen)                   //                 ids_text = ReadText(fh, tableLen)
-					ids_index := (idnum-1)*16 + strindex + global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
-					out[InfocardID(ids_index)] = InfocardText(ids_text)  //                 out[ids_index] = ids_text
-				}
-
-			} else if datatype.Type_ == 0x07 { //         elif datatypes[i]['type'] == 0x17: # html
-				ids_index := idnum + global_offset //             ids_index = idnum + global_offset
-				if datalength%2 == 0 {             //             if datalength % 2:
-					datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
-				}
-
-				ids_text := ReadText(fh, datalength)                //             ids_text = ReadText(fh, datalength // 2).rstrip()
-				out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text
-			}
+			func() {
+				task := NewTaskGetResource(worker_types.TaskID(entry), &wg, &mut, data, out, absloc, datatype, idnum, global_offset, datalength)
+				tasks_channel <- task
+			}()
 
 			//         # go back and get the next one
 			fh.Seek(backto, io.SeekStart) //         fh.seek(backto)
 		}
+
+		close(tasks_channel)
+		wg.Wait()
 
 	}
 
@@ -322,19 +319,100 @@ func parseDLL(fh *bytes.Reader, out map[InfocardID]InfocardText, global_offset i
 	_ = err
 }
 
+type TaskGetResource struct {
+	*worker.Task
+
+	// any desired arbitary data
+	wg            *sync.WaitGroup
+	mut           *sync.Mutex
+	data          []byte
+	out           map[InfocardID]InfocardText
+	absloc        int
+	datatype      *DataType
+	idnum         int
+	global_offset int
+	datalength    int
+}
+
+func NewTaskGetResource(
+	id worker_types.TaskID,
+	wg *sync.WaitGroup,
+	mut *sync.Mutex,
+	data []byte,
+	out map[InfocardID]InfocardText,
+	absloc int,
+	datatype *DataType,
+	idnum int,
+	global_offset int,
+	datalength int,
+) *TaskGetResource {
+	return &TaskGetResource{
+		Task:          worker.NewTask(id),
+		wg:            wg,
+		mut:           mut,
+		data:          data,
+		out:           out,
+		absloc:        absloc,
+		datatype:      datatype,
+		idnum:         idnum,
+		global_offset: global_offset,
+		datalength:    datalength,
+	}
+}
+
+func (d *TaskGetResource) RunTask(
+	worker_id worker_types.WorkerID,
+) error {
+	fh := bytes.NewReader(d.data)
+
+	//         # now that we've got absolute location of each resource, get it!
+	fh.Seek(int64(d.absloc), io.SeekStart) //         fh.seek(absloc)
+
+	if d.datatype.Type_ == 0x06 { //         if datatypes[i]['type'] == 0x06: # string table
+		for strindex := 0; strindex < 16; strindex++ { //             for strindex in range(0, 16): # each string table has up to 16 entries
+			tableLen, n, err := ReadUnpack[int](fh, BytesToRead(2), []string{"h"}) //                 tableLen, = struct.unpack('h', fh.read(2))
+			//                 if not tableLen:
+			//                     continue # drop completely empty strings
+			if tableLen == 0 || n == 0 || err != nil {
+				continue
+			}
+
+			ids_text := ReadText(fh, tableLen)                       //                 ids_text = ReadText(fh, tableLen)
+			ids_index := (d.idnum-1)*16 + strindex + d.global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
+
+			d.mut.Lock()
+			d.out[InfocardID(ids_index)] = InfocardText(ids_text) //                 out[ids_index] = ids_text
+			d.mut.Unlock()
+		}
+
+	} else if d.datatype.Type_ == 0x07 { //         elif datatypes[i]['type'] == 0x17: # html
+		ids_index := d.idnum + d.global_offset //             ids_index = idnum + global_offset
+		if d.datalength%2 == 0 {               //             if datalength % 2:
+			d.datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
+		}
+
+		ids_text := ReadText(fh, d.datalength) //             ids_text = ReadText(fh, datalength // 2).rstrip()
+
+		d.mut.Lock()
+		d.out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text
+		d.mut.Unlock()
+	}
+	d.wg.Done()
+	return nil
+}
+
 func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
 	out := make(map[InfocardID]InfocardText, 0)
 
 	for idx, name := range dll_fnames {
 		data, err := os.ReadFile(name.GetFilepath().ToString())
-		fh := bytes.NewReader(data)
 
 		if logus.Log.CheckError(err, "unable to read dll") {
 			continue
 		}
 
 		global_offset := int(math.Pow(2, 16)) * (idx + 1)
-		parseDLL(fh, out, global_offset)
+		parseDLL(data, out, global_offset)
 	}
 
 	return out
