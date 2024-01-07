@@ -8,6 +8,7 @@ import (
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/configs_fixtures"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/exe_mapped"
+	"github.com/darklab8/darklab_goutils/goutils/utils"
 )
 
 /*
@@ -22,13 +23,15 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	game_location := configs_fixtures.FixtureGameLocation()
-	config := exe_mapped.FixtureFLINIConfig()
-	ids := exe_mapped.GetAllInfocards(game_location, config.Resources.Dll)
+	utils.TimeMeasure(func() {
+		game_location := configs_fixtures.FixtureGameLocation()
+		config := exe_mapped.FixtureFLINIConfig()
+		ids := exe_mapped.GetAllInfocards(game_location, config.Resources.Dll)
 
-	for id, text := range ids {
-		fmt.Println(id)
-		fmt.Println(text)
-		break
-	}
+		for id, text := range ids {
+			fmt.Println(id)
+			fmt.Println(text)
+			break
+		}
+	}, "measures time")
 }

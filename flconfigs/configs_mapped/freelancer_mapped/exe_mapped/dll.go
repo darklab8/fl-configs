@@ -56,7 +56,7 @@ func MakeArray(bytes_amount BytesToRead) []byte {
 }
 
 func ReadUnpack[returnType any](
-	fh *os.File, bytes_amount BytesToRead,
+	fh *bytes.Reader, bytes_amount BytesToRead,
 	format []string) (returnType, int, error) {
 	var byte_data []byte = MakeArray(bytes_amount)
 
@@ -68,7 +68,7 @@ func ReadUnpack[returnType any](
 type BytesToRead int
 
 func ReadUnpack2[returnType any](
-	fh *os.File, bytes_amount BytesToRead,
+	fh *bytes.Reader, bytes_amount BytesToRead,
 	format []string) returnType {
 
 	value, _, err := ReadUnpack[returnType](fh, bytes_amount, format)
@@ -94,30 +94,44 @@ type DataType struct {
 	Offset int
 }
 
-func ReadText(fh *os.File, count int) []byte {
-	strout := []byte{}           //     strout = b''
+var BOMcheck []byte = []byte{'\xff', '\xfe'}
+
+func ReadText(fh *bytes.Reader, count int) []byte {
+	strouts := [][]byte{} //     strout = b''
+	total_len := 0
+
 	for j := 0; j < count; j++ { //     for j in range(0, count):
 		if j == 0 { //         if j == 0:
 			h := MakeArray(2)
 			fh.Read(h) //             h = fh.read(2)
 
-			if bytes.Equal(h, []byte{'\xff', '\xfe'}) { //             if h == "\xff\xfe":
+			if bytes.Equal(h, BOMcheck) { //             if h == "\xff\xfe":
 				continue // strip BOM
 			}
-			strout = bytes.Join([][]byte{strout, h}, []byte{}) //             strout += h
+			strouts = append(strouts, h) //             strout += h
+			total_len += len(h)
 		} else { //         else:
 			portion := MakeArray(2)
 			fh.Read(portion)
-			strout = bytes.Join([][]byte{strout, portion}, []byte{}) //             strout += fh.read(2)
+			strouts = append(strouts, portion) //             strout += fh.read(2)
+			total_len += len(portion)
 		}
 
 	}
 
-	return strout // return strout.decode('windows-1252')[::2].encode('utf-8')
+	return JoinSize(total_len, strouts...) // return strout.decode('windows-1252')[::2].encode('utf-8')
 }
 
-func parseDLL(fh *os.File, out map[InfocardID]InfocardText, global_offset int) {
-	logus.Log.Debug("parseDLL for file.Name=" + fh.Name())
+func JoinSize(size int, s ...[]byte) []byte {
+	b, i := make([]byte, size), 0
+	for _, v := range s {
+		i += copy(b[i:], v)
+	}
+	return b
+}
+
+func parseDLL(fh *bytes.Reader, out map[InfocardID]InfocardText, global_offset int) {
+	logus.Log.Debug("parseDLL for file.Name=")
 	var returned_n64 int64
 	var returned_n int
 	var err error
@@ -246,7 +260,7 @@ func parseDLL(fh *os.File, out map[InfocardID]InfocardText, global_offset int) {
 
 			//         nameloc, = struct.unpack('<i', doi + doj + '\x00'.encode('utf-8'))
 			packer := new(gbp.BinaryPack)
-			unpacked_value, err := packer.UnPack([]string{"i"}, bytes.Join([][]byte{doi, doj, []byte{'\x00'}}, []byte{}))
+			unpacked_value, err := packer.UnPack([]string{"i"}, JoinSize(len(doi)+len(doj)+1, doi, doj, []byte{'\x00'}))
 			logus.Log.CheckError(err, "failed to unpack")
 			nameloc := unpacked_value[0].(int)
 
@@ -303,7 +317,6 @@ func parseDLL(fh *os.File, out map[InfocardID]InfocardText, global_offset int) {
 
 	}
 
-	fh.Close()
 	_ = returned_n
 	_ = returned_n64
 	_ = err
@@ -313,7 +326,8 @@ func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
 	out := make(map[InfocardID]InfocardText, 0)
 
 	for idx, name := range dll_fnames {
-		fh, err := os.Open(name.GetFilepath().ToString())
+		data, err := os.ReadFile(name.GetFilepath().ToString())
+		fh := bytes.NewReader(data)
 
 		if logus.Log.CheckError(err, "unable to read dll") {
 			continue
