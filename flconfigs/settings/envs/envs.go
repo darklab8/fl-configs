@@ -21,7 +21,7 @@ func init() {
 
 	log_level_str, is_log_level_set := os.LookupEnv("FLDARKDATA_LOG_LEVEL")
 	if !is_log_level_set {
-		log_level_str = "INFO"
+		log_level_str = "WARN"
 	}
 	LogLevel = logus_types.LogLevel(log_level_str)
 }

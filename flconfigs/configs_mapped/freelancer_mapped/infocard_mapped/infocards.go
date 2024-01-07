@@ -9,39 +9,22 @@ import (
 	"github.com/darklab8/darklab_goutils/goutils/logus_core"
 )
 
-type Record interface {
-	Id() int
-	Type() string
-	Content() string
-}
-type Infocard struct {
-	id      int
-	content string
-}
-type Name struct {
-	id      int
-	content string
+type Record struct {
+	Id      int
+	Content string
+	Kind    RecordKind
 }
 
-func (v Name) Id() int {
-	return v.id
-}
-func (v Infocard) Id() int {
-	return v.id
-}
-func (v Name) Content() string {
-	return v.content
-}
-func (v Infocard) Content() string {
-	return v.content
+func NewRecord(Id int, Content string, Kind RecordKind) *Record {
+	return &Record{Id: Id, Content: Content, Kind: Kind}
 }
 
-func (v Name) Type() string {
-	return TYPE_NAME
-}
-func (v Infocard) Type() string {
-	return TYPE_INFOCAD
-}
+type RecordKind string
+
+const (
+	TYPE_NAME    RecordKind = "NAME"
+	TYPE_INFOCAD RecordKind = "INFOCARD"
+)
 
 type Config struct {
 	Records []*Record
@@ -52,8 +35,6 @@ type Config struct {
 const (
 	FILENAME          = "infocards.txt"
 	FILENAME_FALLBACK = "infocards.xml"
-	TYPE_NAME         = "NAME"
-	TYPE_INFOCAD      = "INFOCARD"
 )
 
 func (frelconfig *Config) Read(input_file *file.File) *Config {
@@ -74,12 +55,12 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		content := lines[index+2]
 		index += 3
 
-		var record_to_add Record
-		switch name {
+		var record_to_add *Record
+		switch RecordKind(name) {
 		case TYPE_NAME:
-			record_to_add = Name{id: id, content: content}
+			record_to_add = NewRecord(id, content, TYPE_NAME)
 		case TYPE_INFOCAD:
-			record_to_add = Infocard{id: id, content: content}
+			record_to_add = NewRecord(id, content, TYPE_INFOCAD)
 		default:
 			logus.Log.Fatal(
 				"unrecognized object name in infocards.txt",
@@ -89,8 +70,8 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 			)
 		}
 
-		frelconfig.Records = append(frelconfig.Records, &record_to_add)
-		frelconfig.RecordsMap[record_to_add.Id()] = &record_to_add
+		frelconfig.Records = append(frelconfig.Records, record_to_add)
+		frelconfig.RecordsMap[record_to_add.Id] = record_to_add
 	}
 
 	return frelconfig

@@ -19,12 +19,3 @@ func TestReader(t *testing.T) {
 
 	assert.Greater(t, len(config.Records), 0)
 }
-
-func TestInterfaceStruct(t *testing.T) {
-	var record Record
-
-	record = Infocard{}
-
-	record = Name{}
-	assert.True(t, record != nil)
-}
