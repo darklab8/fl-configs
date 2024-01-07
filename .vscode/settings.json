@@ -1,3 +1,10 @@
 {
-    "typescript.validate.enable": false
+    "typescript.validate.enable": false,
+    "go.testEnvVars": {
+        "FLDARKDATA_LOG_LEVEL": "DEBUG",
+    },
+    "terminal.integrated.env.linux": {
+        "FLDARKDATA_LOG_LEVEL": "DEBUG",
+    },
 }
+

@@ -1,3 +1,5 @@
+github.com/canhlinh/go-binary-pack v0.0.0-20181203110405-72348cf47f32 h1:2frz5u51940fkPXzOlKhY/zL4FBtXerEdNEs2AEicMA=
+github.com/canhlinh/go-binary-pack v0.0.0-20181203110405-72348cf47f32/go.mod h1:5oL/IK/HhX2kkOQK0V5dpmpFQET3dRgjS+4hfSjs+Pw=
 github.com/darklab8/darklab_goutils v0.4.0 h1:+UmWEM5GDKTMwVVy5lghPQeh7UQGTIuO/Tck+5LznMs=
 github.com/darklab8/darklab_goutils v0.4.0/go.mod h1:sL2yFr77PquFePdB9tsTFzNYspyz+hkW3a3sVUjFyrU=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
