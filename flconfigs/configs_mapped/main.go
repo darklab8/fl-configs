@@ -6,6 +6,7 @@ package configs_mapped
 import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/exe_mapped"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
@@ -23,6 +24,7 @@ type MappedConfigs struct {
 	Market_ships_config *market_mapped.Config
 	Market_commodities  *market_mapped.Config
 	Market_misc         *market_mapped.Config
+	FreelancerINI       *exe_mapped.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -39,6 +41,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	p.Market_ships_config = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
 	p.Market_commodities = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
 	p.Market_misc = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
+	p.FreelancerINI = (&exe_mapped.Config{}).Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", logus_core.FilePath(file1path))
 

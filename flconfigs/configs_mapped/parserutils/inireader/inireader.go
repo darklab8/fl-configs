@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader/inireader_types"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
 
@@ -23,18 +24,18 @@ type INIFile struct {
 	Sections []*Section
 
 	// denormalization
-	SectionMap map[string][]*Section
+	SectionMap map[inireader_types.IniHeader][]*Section
 
 	// Enforce unique keys
-	ConstraintUniqueSectionType map[string]string
+	ConstraintUniqueSectionType map[string]inireader_types.IniHeader
 }
 
-func (config *INIFile) AddSection(key string, section *Section) {
+func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Section) {
 	config.Sections = append(config.Sections, section)
 
 	// Denormalization adding to hashmap
 	if config.SectionMap == nil {
-		config.SectionMap = make(map[string][]*Section)
+		config.SectionMap = make(map[inireader_types.IniHeader][]*Section)
 	}
 	if _, ok := config.SectionMap[key]; !ok {
 		config.SectionMap[key] = make([]*Section, 0)
@@ -43,10 +44,10 @@ func (config *INIFile) AddSection(key string, section *Section) {
 
 	// Enforcing same case sensetivity for section type key
 	if config.ConstraintUniqueSectionType == nil {
-		config.ConstraintUniqueSectionType = make(map[string]string)
+		config.ConstraintUniqueSectionType = make(map[string]inireader_types.IniHeader)
 	}
 
-	if val, ok := config.ConstraintUniqueSectionType[strings.ToLower(key)]; ok {
+	if val, ok := config.ConstraintUniqueSectionType[strings.ToLower(string(key))]; ok {
 		if val != key {
 			logus.Log.Fatal("not uniform case sensetivity for config",
 				logus_core.FilePath(config.File.GetFilepath()),
@@ -55,7 +56,7 @@ func (config *INIFile) AddSection(key string, section *Section) {
 			)
 		}
 	} else {
-		config.ConstraintUniqueSectionType[strings.ToLower(key)] = key
+		config.ConstraintUniqueSectionType[strings.ToLower(string(key))] = key
 	}
 }
 
@@ -64,7 +65,7 @@ func (config *INIFile) AddSection(key string, section *Section) {
 abc = 123 // this is Param going into list and hashmap
 */
 type Section struct {
-	Type   string
+	Type   inireader_types.IniHeader
 	Params []*Param
 	// denormialization of Param list due to being more comfortable
 	ParamMap map[string][]*Param
@@ -351,8 +352,8 @@ func (config INIFile) Read(fileref *file.File) INIFile {
 			}
 		} else if len(section_match) > 0 {
 			cur_section = &Section{} // create new
-			cur_section.Type = section_match[0]
-			config.AddSection(section_match[0], cur_section)
+			cur_section.Type = inireader_types.IniHeader(section_match[0])
+			config.AddSection(inireader_types.IniHeader(section_match[0]), cur_section)
 		}
 
 	}
@@ -374,7 +375,7 @@ func (config INIFile) Write(fileref *file.File) *file.File {
 
 	section_length := config.Sections
 	for index, section := range config.Sections {
-		fileref.ScheduleToWrite(section.Type)
+		fileref.ScheduleToWrite(string(section.Type))
 
 		for _, param := range section.Params {
 			fileref.ScheduleToWrite(param.ToString())
