@@ -122,7 +122,28 @@ func ReadText(fh *bytes.Reader, count int) []byte {
 
 	}
 
-	return JoinSize(total_len, strouts...) // return strout.decode('windows-1252')[::2].encode('utf-8')
+	result := JoinSize(total_len, strouts...)
+	return result
+	// sr := bytes.NewReader(result)
+	// tr := charmap.Windows1252.NewDecoder().Reader(sr)
+	// decoded, e := io.ReadAll(tr)
+	// if e != nil {
+	// 	fmt.Println("error:", e)
+	// }
+
+	// first_chars := []byte{}
+	// for i, c := range decoded {
+	// 	if i%2 == 0 {
+	// 		continue
+	// 	}
+
+	// 	a, _ := utf8.DecodeRune([]byte{c})
+	// 	first_chars = append(first_chars, byte(a))
+	// }
+	// smth := string(first_chars)
+	// _ = smth
+
+	return result // return strout.decode('windows-1252')[::2].encode('utf-8')
 }
 
 func JoinSize(size int, s ...[]byte) []byte {
