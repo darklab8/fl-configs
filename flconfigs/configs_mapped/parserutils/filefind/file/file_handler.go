@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 
-	"github.com/darklab8/darklab_goutils/goutils/logus_core"
+	"github.com/darklab8/darklab_goutils/goutils/utils/utils_logger"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )
 
@@ -36,7 +36,7 @@ func (f *File) OpenToReadF() *File {
 	file, err := os.Open(string(f.filepath))
 	f.file = file
 
-	logus.Log.CheckFatal(err, "failed to open ", logus_core.FilePath(f.filepath))
+	logger.Log.CheckFatal(err, "failed to open ", utils_logger.FilePath(f.filepath))
 	return f
 }
 
@@ -70,12 +70,12 @@ func (f *File) WriteLines() {
 func (f *File) CreateToWriteF() *File {
 	file, err := os.Create(string(f.filepath))
 	f.file = file
-	logus.Log.CheckFatal(err, "failed to open ", logus_core.FilePath(f.filepath))
+	logger.Log.CheckFatal(err, "failed to open ", utils_logger.FilePath(f.filepath))
 
 	return f
 }
 func (f *File) WritelnF(msg string) {
 	_, err := f.file.WriteString(fmt.Sprintf("%v\n", msg))
 
-	logus.Log.CheckFatal(err, "failed to write string to file")
+	logger.Log.CheckFatal(err, "failed to write string to file")
 }

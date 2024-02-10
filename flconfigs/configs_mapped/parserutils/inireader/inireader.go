@@ -11,10 +11,11 @@ import (
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/inireader/inireader_types"
+	"github.com/darklab8/go-typelog/typelog"
 
-	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 
-	"github.com/darklab8/darklab_goutils/goutils/logus_core"
+	"github.com/darklab8/darklab_goutils/goutils/utils/utils_logger"
 )
 
 type INIFile struct {
@@ -49,10 +50,10 @@ func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Sectio
 
 	if val, ok := config.ConstraintUniqueSectionType[strings.ToLower(string(key))]; ok {
 		if val != key {
-			logus.Log.Fatal("not uniform case sensetivity for config",
-				logus_core.FilePath(config.File.GetFilepath()),
-				logus_core.Any("key", key),
-				logus_core.Any("section", section),
+			logger.Log.Fatal("not uniform case sensetivity for config",
+				utils_logger.FilePath(config.File.GetFilepath()),
+				typelog.Any("key", key),
+				typelog.Any("section", section),
 			)
 		}
 	} else {
@@ -120,9 +121,9 @@ func (section *Section) GetParamInt(key string, optional bool) int {
 
 	integer, err := strconv.Atoi(section.GetParamStr(key, false))
 	if err != nil {
-		logus.Log.Fatal("failed to parse strid in universe.ini",
-			logus_core.Any("key", key),
-			logus_core.Any("section", section))
+		logger.Log.Fatal("failed to parse strid in universe.ini",
+			typelog.Any("key", key),
+			typelog.Any("section", section))
 	}
 	return integer
 }
@@ -232,7 +233,7 @@ func UniParse(input string) (UniValue, error) {
 		parsed_number, err := strconv.ParseFloat(input, 64)
 
 		if err != nil {
-			logus.Log.Warn("failed to read number", logus_core.Any("input", input))
+			logger.Log.Warn("failed to read number", typelog.Any("input", input))
 			return nil, err
 		}
 
@@ -253,7 +254,7 @@ func UniParse(input string) (UniValue, error) {
 func UniParseF(input string) UniValue {
 	value, err := UniParse(input)
 	if err != nil {
-		logus.Log.Fatal("unable to parse UniParseF", logus_core.Any("input", input))
+		logger.Log.Fatal("unable to parse UniParseF", typelog.Any("input", input))
 	}
 	return value
 }
@@ -296,18 +297,18 @@ func isKeyCaseSensetive(key string) bool {
 }
 
 func (config INIFile) Read(fileref *file.File) INIFile {
-	logus.Log.Debug("started reading INIFileRead for", logus_core.FilePath(fileref.GetFilepath()))
+	logger.Log.Debug("started reading INIFileRead for", utils_logger.FilePath(fileref.GetFilepath()))
 	config.File = fileref
 
-	logus.Log.Debug("opening file", logus_core.FilePath(fileref.GetFilepath()))
+	logger.Log.Debug("opening file", utils_logger.FilePath(fileref.GetFilepath()))
 	file := fileref.OpenToReadF()
-	logus.Log.Debug("defer file close", logus_core.FilePath(fileref.GetFilepath()))
+	logger.Log.Debug("defer file close", utils_logger.FilePath(fileref.GetFilepath()))
 	defer file.Close()
 
-	logus.Log.Debug("reading lines")
+	logger.Log.Debug("reading lines")
 	lines := file.ReadLines()
 
-	logus.Log.Debug("setting current section")
+	logger.Log.Debug("setting current section")
 	var cur_section *Section
 	for _, line := range lines {
 
@@ -329,14 +330,14 @@ func (config INIFile) Read(fileref *file.File) INIFile {
 			splitted_values := strings.Split(line_to_read, ",")
 			first_value, err := UniParse(splitted_values[0])
 			if err != nil {
-				logus.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, logus_core.FilePath(fileref.GetFilepath()))
+				logger.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, utils_logger.FilePath(fileref.GetFilepath()))
 			}
 
 			var values []UniValue
 			for _, value := range splitted_values {
 				univalue, err := UniParse(value)
 				if err != nil {
-					logus.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, logus_core.FilePath(fileref.GetFilepath()))
+					logger.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, utils_logger.FilePath(fileref.GetFilepath()))
 				}
 				values = append(values, univalue)
 			}

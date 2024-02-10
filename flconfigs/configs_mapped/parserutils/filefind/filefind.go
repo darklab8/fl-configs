@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 
-	"github.com/darklab8/darklab_goutils/goutils/logus_core"
+	"github.com/darklab8/darklab_goutils/goutils/utils/utils_logger"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 )
 
@@ -35,7 +35,7 @@ func FindConfigs(folderpath utils_types.FilePath) Filesystem {
 			return nil
 		}
 
-		logus.Log.CheckFatal(err, "unable to read file")
+		logger.Log.CheckFatal(err, "unable to read file")
 
 		file := file.NewFile(utils_types.FilePath(path))
 		filesystem.Files = append(filesystem.Files, file)
@@ -46,7 +46,7 @@ func FindConfigs(folderpath utils_types.FilePath) Filesystem {
 		return nil
 	})
 
-	logus.Log.CheckFatal(err, "unable to read files")
+	logger.Log.CheckFatal(err, "unable to read files")
 	return filesystem
 }
 
@@ -54,13 +54,13 @@ func (file1system Filesystem) GetFile(file1names ...utils_types.FilePath) *file.
 	for _, file1name := range file1names {
 		file_, ok := file1system.Hashmap[file1name]
 		if !ok {
-			logus.Log.Warn("Filesystem.GetFile, failed to find find in filesystesm file trying to recover", logus_core.FilePath(file1name))
+			logger.Log.Warn("Filesystem.GetFile, failed to find find in filesystesm file trying to recover", utils_logger.FilePath(file1name))
 			continue
 		}
-		logus.Log.Info("Filesystem.GetFile, found filepath=", logus_core.FilePath(file_.GetFilepath()))
+		logger.Log.Info("Filesystem.GetFile, found filepath=", utils_logger.FilePath(file_.GetFilepath()))
 		result_file := file.NewFile(file_.GetFilepath())
 		return result_file
 	}
-	logus.Log.Fatal("unable to find filenames=", logus_core.Filepaths(file1names))
+	logger.Log.Fatal("unable to find filenames=", utils_logger.Filepaths(file1names))
 	return nil
 }

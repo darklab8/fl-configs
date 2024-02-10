@@ -4,9 +4,8 @@ import (
 	"strconv"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
-
-	"github.com/darklab8/darklab_goutils/goutils/logus_core"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
+	"github.com/darklab8/go-typelog/typelog"
 )
 
 type Record struct {
@@ -62,11 +61,11 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		case TYPE_INFOCAD:
 			record_to_add = NewRecord(id, content, TYPE_INFOCAD)
 		default:
-			logus.Log.Fatal(
+			logger.Log.Fatal(
 				"unrecognized object name in infocards.txt",
-				logus_core.Any("id", id),
-				logus_core.Any("name", name),
-				logus_core.Any("content", content),
+				typelog.Any("id", id),
+				typelog.Any("name", name),
+				typelog.Any("content", content),
 			)
 		}
 

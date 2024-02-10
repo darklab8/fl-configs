@@ -10,7 +10,7 @@ import (
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logus"
+	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 
 	"github.com/darklab8/darklab_goutils/goutils/utils"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_filepath"
@@ -33,7 +33,7 @@ func TestIdentifySystemFiles(t *testing.T) {
 	test_directory := utils.GetCurrentFolder()
 	freelancer_folder := utils_filepath.Dir(utils_filepath.Dir(utils_filepath.Dir(test_directory)))
 	filesystem := filefind.FindConfigs(freelancer_folder)
-	logus.Log.Debug("filefind.FindConfigs" + fmt.Sprintf("%v", filesystem))
+	logger.Log.Debug("filefind.FindConfigs" + fmt.Sprintf("%v", filesystem))
 
 	config := Config{}
 	universe_fileref := file.NewFile(utils_types.FilePath(filepath.Join(test_directory.ToString(), "testdata", FILENAME)))
