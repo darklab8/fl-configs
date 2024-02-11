@@ -11,7 +11,7 @@ def ReadText(fh, count):
     for j in range(0, count):
         if j == 0:
             h = fh.read(2)
-            if h == "\xff\xfe":
+            if h == b"\xff\xfe":
                 continue # strip BOM
             strout += h
         else:

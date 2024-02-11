@@ -18,7 +18,6 @@ import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 	"github.com/darklab8/darklab_goutils/goutils/worker"
-	"github.com/darklab8/darklab_goutils/goutils/worker/worker_types"
 )
 
 type InfocardID int
@@ -279,15 +278,6 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 
 		fh.Seek(0, io.SeekCurrent) //     sectionstart = fh.tell() # remember where we are here
 
-		var wg sync.WaitGroup
-		var mut sync.Mutex
-		wg.Add(numentries)
-
-		tasks_channel := make(chan worker.ITask, numentries)
-		for worker_id := 1; worker_id <= 4; worker_id++ {
-			go launchWorker(worker_types.WorkerID(worker_id), tasks_channel)
-		}
-
 		for entry := 0; entry < numentries; entry++ { // for entry in range(0, numentries):                   //     for entry in range(0, numentries):
 			logger.Log.Debug("for entry := 0; entry < numentries; entry++ entry=" + strconv.Itoa(entry))
 			//         # get the id number and location of this entry
@@ -324,20 +314,11 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 			absloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"})     //         absloc, = struct.unpack('i', fh.read(4)) # get the real location
 			datalength := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         datalength, = struct.unpack('i', fh.read(4)) # entry length in bytes
 
-			func() {
-				task := NewTaskGetResource(worker_types.TaskID(entry), &wg, &mut, data, out, absloc, datatype, idnum, global_offset, datalength)
-
-				task.RunTask(0)
-				// tasks_channel <- task
-			}()
+			GetResource(data, out, absloc, datatype, idnum, global_offset, datalength)
 
 			//         # go back and get the next one
 			fh.Seek(backto, io.SeekStart) //         fh.seek(backto)
 		}
-
-		close(tasks_channel)
-		wg.Wait()
-
 	}
 
 	_ = returned_n
@@ -350,7 +331,6 @@ type TaskGetResource struct {
 
 	// any desired arbitary data
 	wg            *sync.WaitGroup
-	mut           *sync.Mutex
 	data          []byte
 	out           map[InfocardID]InfocardText
 	absloc        int
@@ -360,10 +340,7 @@ type TaskGetResource struct {
 	datalength    int
 }
 
-func NewTaskGetResource(
-	id worker_types.TaskID,
-	wg *sync.WaitGroup,
-	mut *sync.Mutex,
+func GetResource(
 	data []byte,
 	out map[InfocardID]InfocardText,
 	absloc int,
@@ -371,30 +348,13 @@ func NewTaskGetResource(
 	idnum int,
 	global_offset int,
 	datalength int,
-) *TaskGetResource {
-	return &TaskGetResource{
-		Task:          worker.NewTask(id),
-		wg:            wg,
-		mut:           mut,
-		data:          data,
-		out:           out,
-		absloc:        absloc,
-		datatype:      datatype,
-		idnum:         idnum,
-		global_offset: global_offset,
-		datalength:    datalength,
-	}
-}
-
-func (d *TaskGetResource) RunTask(
-	worker_id worker_types.WorkerID,
 ) error {
-	fh := bytes.NewReader(d.data)
+	fh := bytes.NewReader(data)
 
 	//         # now that we've got absolute location of each resource, get it!
-	fh.Seek(int64(d.absloc), io.SeekStart) //         fh.seek(absloc)
+	fh.Seek(int64(absloc), io.SeekStart) //         fh.seek(absloc)
 
-	if d.datatype.Type_ == 0x06 { //         if datatypes[i]['type'] == 0x06: # string table
+	if datatype.Type_ == 0x06 { //         if datatypes[i]['type'] == 0x06: # string table
 		for strindex := 0; strindex < 16; strindex++ { //             for strindex in range(0, 16): # each string table has up to 16 entries
 			tableLen, n, err := ReadUnpack[int](fh, BytesToRead(2), []string{"h"}) //                 tableLen, = struct.unpack('h', fh.read(2))
 			//                 if not tableLen:
@@ -403,28 +363,23 @@ func (d *TaskGetResource) RunTask(
 				continue
 			}
 
-			ids_text := ReadText(fh, tableLen)                       //                 ids_text = ReadText(fh, tableLen)
-			ids_index := (d.idnum-1)*16 + strindex + d.global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
+			ids_text := ReadText(fh, tableLen)                   //                 ids_text = ReadText(fh, tableLen)
+			ids_index := (idnum-1)*16 + strindex + global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
 
-			d.mut.Lock()
-			d.out[InfocardID(ids_index)] = InfocardText(ids_text) //                 out[ids_index] = ids_text
-			d.mut.Unlock()
+			out[InfocardID(ids_index)] = InfocardText(ids_text) //                 out[ids_index] = ids_text
 		}
 
-	} else if d.datatype.Type_ == 0x17 { //         elif datatypes[i]['type'] == 0x17: # html
-		ids_index := d.idnum + d.global_offset //             ids_index = idnum + global_offset
-		if d.datalength%2 != 0 {               //             if datalength % 2:
-			d.datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
+	} else if datatype.Type_ == 0x17 { //         elif datatypes[i]['type'] == 0x17: # html
+		ids_index := idnum + global_offset //             ids_index = idnum + global_offset
+		if datalength%2 != 0 {             //             if datalength % 2:
+			datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
 		}
 
-		floored_datalength := math.Floor(float64(d.datalength) / 2)
+		floored_datalength := math.Floor(float64(datalength) / 2)
 		ids_text := ReadText(fh, int(floored_datalength)) //             ids_text = ReadText(fh, datalength // 2).rstrip()
 
-		d.mut.Lock()
-		d.out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text
-		d.mut.Unlock()
+		out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text
 	}
-	d.wg.Done()
 	return nil
 }
 
