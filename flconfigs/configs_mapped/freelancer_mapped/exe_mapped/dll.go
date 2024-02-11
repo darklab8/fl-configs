@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 
 	gbp "github.com/canhlinh/go-binary-pack"
 	"golang.org/x/text/encoding/charmap"
@@ -17,7 +16,6 @@ import (
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/settings/logger"
 	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
-	"github.com/darklab8/darklab_goutils/goutils/worker"
 )
 
 type InfocardID int
@@ -324,20 +322,6 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 	_ = returned_n
 	_ = returned_n64
 	_ = err
-}
-
-type TaskGetResource struct {
-	*worker.Task
-
-	// any desired arbitary data
-	wg            *sync.WaitGroup
-	data          []byte
-	out           map[InfocardID]InfocardText
-	absloc        int
-	datatype      *DataType
-	idnum         int
-	global_offset int
-	datalength    int
 }
 
 func GetResource(
