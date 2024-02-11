@@ -1,4 +1,4 @@
-# flconfigs
+# fl-configs
 
 ## Description
 

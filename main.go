@@ -6,9 +6,9 @@ import (
 	"os"
 	"runtime/pprof"
 
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/configs_fixtures"
-	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/freelancer_mapped/exe_mapped"
 	"github.com/darklab8/darklab_goutils/goutils/utils"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
 )
 
 /*

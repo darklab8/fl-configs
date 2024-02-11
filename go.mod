@@ -1,4 +1,4 @@
-module github.com/darklab8/darklab_flconfigs
+module github.com/darklab8/fl-configs
 
 go 1.21.1
 
