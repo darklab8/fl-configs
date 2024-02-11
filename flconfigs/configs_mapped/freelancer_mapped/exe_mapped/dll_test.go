@@ -20,4 +20,6 @@ func TestReadInfocards(t *testing.T) {
 		fmt.Println(text)
 		break
 	}
+
+	assert.Contains(t, ids[132903], "We just brought a load of Fertilizers")
 }

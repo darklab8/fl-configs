@@ -187,6 +187,11 @@ if __name__=="__main__":
     with open("parsed.json","r") as file:
         data =file.read()
         dicty: dict[str,str] = json.loads(data)
-        for key, value in dicty.items():
-            print(f"key={key=}, value={base64.b64decode(value.encode('utf-8'))}")
-            break
+
+        for i, (key, value) in enumerate(dicty.items()):
+            print(f"{i=} {key=}, value={base64.b64decode(value.encode('utf-8'))!r}")
+
+            if i > 10:
+                break
+
+            

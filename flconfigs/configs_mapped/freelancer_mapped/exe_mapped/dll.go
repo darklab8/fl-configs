@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	gbp "github.com/canhlinh/go-binary-pack"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind/file"
@@ -21,7 +22,7 @@ import (
 )
 
 type InfocardID int
-type InfocardText []byte
+type InfocardText string
 
 const SEEK_SET = io.SeekStart // python default seek(offset, whence=os.SEEK_SET, /)
 
@@ -38,34 +39,43 @@ func Unpack[returnType any](format []string, byte_data []byte) (returnType, erro
 	return value, nil
 }
 
-var array1b []byte = make([]byte, 1)
-var array2b []byte = make([]byte, 2)
-var array4b []byte = make([]byte, 4)
-var array8b []byte = make([]byte, 8)
+// var array1b []byte = make([]byte, 1)
+// var array2b []byte = make([]byte, 2)
+// var array4b []byte = make([]byte, 4)
+// var array8b []byte = make([]byte, 8)
 
 func MakeArray(bytes_amount BytesToRead) []byte {
 	switch int(bytes_amount) {
 	case 1:
-		return array1b
+		return make([]byte, 1)
 	case 2:
-		return array2b
+		return make([]byte, 2)
 	case 4:
-		return array4b
+		return make([]byte, 4)
 	case 8:
-		return array8b
+		return make([]byte, 8)
 	default:
 		panic("not implemented")
 	}
 }
 
-func ReadUnpack[returnType any](
-	fh *bytes.Reader, bytes_amount BytesToRead,
-	format []string) (returnType, int, error) {
-	var byte_data []byte = MakeArray(bytes_amount)
-
+func ReadUnpackWithArr[returnType any](
+	fh *bytes.Reader,
+	byte_data []byte,
+	format []string,
+) (returnType, int, error) {
 	returned_n, err := fh.Read(byte_data)
 	value, err := Unpack[returnType](format, byte_data)
 	return value, returned_n, err
+}
+
+func ReadUnpack[returnType any](
+	fh *bytes.Reader,
+	bytes_amount BytesToRead,
+	format []string,
+) (returnType, int, error) {
+	var byte_data []byte = MakeArray(bytes_amount)
+	return ReadUnpackWithArr[returnType](fh, byte_data, format)
 }
 
 type BytesToRead int
@@ -99,7 +109,7 @@ type DataType struct {
 
 var BOMcheck []byte = []byte{'\xff', '\xfe'}
 
-func ReadText(fh *bytes.Reader, count int) []byte {
+func ReadText(fh *bytes.Reader, count int) string {
 	strouts := [][]byte{} //     strout = b''
 	total_len := 0
 
@@ -123,27 +133,19 @@ func ReadText(fh *bytes.Reader, count int) []byte {
 	}
 
 	result := JoinSize(total_len, strouts...)
-	return result
-	// sr := bytes.NewReader(result)
-	// tr := charmap.Windows1252.NewDecoder().Reader(sr)
-	// decoded, e := io.ReadAll(tr)
-	// if e != nil {
-	// 	fmt.Println("error:", e)
-	// }
 
-	// first_chars := []byte{}
-	// for i, c := range decoded {
-	// 	if i%2 == 0 {
-	// 		continue
-	// 	}
+	// PY: return strout.decode('windows-1252')[::2].encode('utf-8')
+	tr := charmap.Windows1252.NewDecoder().Reader(strings.NewReader(string(result[:])))
+	windows_decoded, err := io.ReadAll(tr)
 
-	// 	a, _ := utf8.DecodeRune([]byte{c})
-	// 	first_chars = append(first_chars, byte(a))
-	// }
-	// smth := string(first_chars)
-	// _ = smth
+	logger.Log.CheckPanic(err, "failed to decode Windows1252")
 
-	return result // return strout.decode('windows-1252')[::2].encode('utf-8')
+	sliced := make([]byte, len(windows_decoded)/2)
+	for i := 0; i < len(windows_decoded)/2; i += 1 {
+		sliced[i] = windows_decoded[i*2] // or do whatever
+	}
+
+	return string(sliced)
 }
 
 func JoinSize(size int, s ...[]byte) []byte {
@@ -174,7 +176,8 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 	returned_n, err = fh.Read(make([]byte, 4))                                                        // COFF_Head_NumberOfSymbols, = struct.unpack('=l', fh.read(4))
 
 	COFF_Head_SizeOfOptionalHeader, returned_n, err := ReadUnpack[int](fh, BytesToRead(2), []string{"h"}) // COFF_Head_SizeOfOptionalHeader, = struct.unpack('h', fh.read(2))
-	_, _, err = ReadUnpack[int](fh, BytesToRead(2), []string{"h"})                                        // COFF_Head_Characteristics, = struct.unpack('h', fh.read(2)) # 210e
+	COFF_Head_Characteristics, _, err := ReadUnpack[int](fh, BytesToRead(2), []string{"h"})               // COFF_Head_Characteristics, = struct.unpack('h', fh.read(2)) # 210e
+	_ = COFF_Head_Characteristics
 
 	OPT_Head_Start, err := fh.Seek(0, io.SeekCurrent)
 
@@ -309,21 +312,23 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 			fh.Seek(int64(rsrcstart)+int64(nameloc), io.SeekStart) //         fh.seek(rsrcstart + nameloc) # jump to the entry
 
 			name := MakeArray(8)
-			fh.Read(name)            //         name = fh.read(8) # get the name
-			fh.Seek(8, io.SeekStart) //         fh.seek(8, os.SEEK_CUR)
+			fh.Read(name)              //         name = fh.read(8) # get the name
+			fh.Seek(8, io.SeekCurrent) //         fh.seek(8, os.SEEK_CUR)
 
 			lang := MakeArray(4)
 			fh.Read(lang) //         lang = fh.read(4) # language for this resource
 
 			someinfoloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         someinfoloc, = struct.unpack('i', fh.read(4)) # location of the real location of the entry....
 
-			fh.Seek(int64(rsrcstart), someinfoloc)                            //         fh.seek(rsrcstart + someinfoloc) # jump there
+			fh.Seek(int64(rsrcstart)+int64(someinfoloc), io.SeekStart)        //         fh.seek(rsrcstart + someinfoloc) # jump there
 			absloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"})     //         absloc, = struct.unpack('i', fh.read(4)) # get the real location
 			datalength := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         datalength, = struct.unpack('i', fh.read(4)) # entry length in bytes
 
 			func() {
 				task := NewTaskGetResource(worker_types.TaskID(entry), &wg, &mut, data, out, absloc, datatype, idnum, global_offset, datalength)
-				tasks_channel <- task
+
+				task.RunTask(0)
+				// tasks_channel <- task
 			}()
 
 			//         # go back and get the next one
@@ -406,13 +411,14 @@ func (d *TaskGetResource) RunTask(
 			d.mut.Unlock()
 		}
 
-	} else if d.datatype.Type_ == 0x07 { //         elif datatypes[i]['type'] == 0x17: # html
+	} else if d.datatype.Type_ == 0x17 { //         elif datatypes[i]['type'] == 0x17: # html
 		ids_index := d.idnum + d.global_offset //             ids_index = idnum + global_offset
-		if d.datalength%2 == 0 {               //             if datalength % 2:
+		if d.datalength%2 != 0 {               //             if datalength % 2:
 			d.datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
 		}
 
-		ids_text := ReadText(fh, d.datalength) //             ids_text = ReadText(fh, datalength // 2).rstrip()
+		floored_datalength := math.Floor(float64(d.datalength) / 2)
+		ids_text := ReadText(fh, int(floored_datalength)) //             ids_text = ReadText(fh, datalength // 2).rstrip()
 
 		d.mut.Lock()
 		d.out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text

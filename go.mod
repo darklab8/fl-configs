@@ -7,6 +7,7 @@ require (
 	github.com/darklab8/darklab_goutils v0.10.5
 	github.com/darklab8/go-typelog v0.3.1
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/text v0.14.0
 )
 
 require (
