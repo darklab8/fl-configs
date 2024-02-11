@@ -18,8 +18,8 @@ import (
 )
 
 type MappedConfigs struct {
-	Universe_config *universe_mapped.Config
-	// Info_config         *infocard.Config
+	Universe_config     *universe_mapped.Config
+	Infocards           map[exe_mapped.InfocardID]exe_mapped.InfocardText
 	Systems             *systems_mapped.Config
 	Market_ships_config *market_mapped.Config
 	Market_commodities  *market_mapped.Config
@@ -36,12 +36,12 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	filesystem := filefind.FindConfigs(file1path)
 
 	p.Universe_config = (&universe_mapped.Config{}).Read(filesystem.GetFile(universe_mapped.FILENAME))
-	// p.Info_config = (&infocard.Config{}).Read(filesystem.GetFile(infocard.FILENAME, infocard.FILENAME_FALLBACK))
 	p.Systems = (&systems_mapped.Config{}).Read(p.Universe_config, filesystem)
 	p.Market_ships_config = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
 	p.Market_commodities = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
 	p.Market_misc = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
 	p.FreelancerINI = (&exe_mapped.Config{}).Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
+	p.Infocards = exe_mapped.GetAllInfocards(file1path, p.FreelancerINI.Resources.Dll)
 
 	logger.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 
