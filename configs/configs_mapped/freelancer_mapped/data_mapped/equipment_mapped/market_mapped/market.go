@@ -33,8 +33,6 @@ const (
 	FILENAME_COMMODITIES      utils_types.FilePath = "market_commodities.ini"
 	FILENAME_MISC             utils_types.FilePath = "market_misc.ini"
 	BaseGoodType                                   = "[BaseGood]"
-	KEY_NAME                                       = "name"
-	KEY_RECYCLE                                    = "is_recycle_candidate"
 	KEY_MISSMATCH_SYSTEM_FILE                      = "missmatched_universe_system_and_file"
 	KEY_MARKET_GOOD                                = "marketgood"
 	KEY_BASE                                       = "base"

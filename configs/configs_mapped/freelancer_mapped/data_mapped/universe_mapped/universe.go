@@ -39,9 +39,6 @@ const (
 
 	KEY_TIME_TAG     = "[Time]"
 	KEY_TIME_SECONDS = "seconds_per_day"
-
-	KEY_NAME    = "name"
-	KEY_RECYCLE = "is_recycle_candidate"
 )
 
 type Base struct {

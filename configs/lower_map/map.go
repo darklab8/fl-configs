@@ -28,3 +28,7 @@ func (d *KeyLoweredMap[K, V]) MapGetValue(key K) (V, bool) {
 	value, ok := d.data[K(strings.ToLower(string(key)))]
 	return value, ok
 }
+
+func (d *KeyLoweredMap[K, V]) GetMap() map[K]V {
+	return d.data
+}
