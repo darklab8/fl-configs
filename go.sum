@@ -1,5 +1,3 @@
-github.com/canhlinh/go-binary-pack v0.0.0-20181203110405-72348cf47f32 h1:2frz5u51940fkPXzOlKhY/zL4FBtXerEdNEs2AEicMA=
-github.com/canhlinh/go-binary-pack v0.0.0-20181203110405-72348cf47f32/go.mod h1:5oL/IK/HhX2kkOQK0V5dpmpFQET3dRgjS+4hfSjs+Pw=
 github.com/darklab8/darklab_goutils v0.10.5 h1:BxPjTaFaphZPs/IFTrmWCKqQRl6iPLhyv5CcPFGES6c=
 github.com/darklab8/darklab_goutils v0.10.5/go.mod h1:tReJGDJ0JTtZ6nIVLyzt57cp6gd3cM+DaY+ddLVg1lU=
 github.com/darklab8/go-typelog v0.3.1 h1:qYgiDtgJN63YP19Jsml8g3L21ZcZnwXNhgTKk+8ryJA=

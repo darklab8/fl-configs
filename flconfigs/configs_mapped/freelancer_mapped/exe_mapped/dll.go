@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	gbp "github.com/canhlinh/go-binary-pack"
+	gbp "github.com/darklab8/darklab_flconfigs/go-binary-pack"
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/darklab8/darklab_flconfigs/flconfigs/configs_mapped/parserutils/filefind"
