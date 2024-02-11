@@ -1,5 +1,9 @@
 package exe_mapped
 
+/*
+This file is direct code translation from file dll_reader.py u can find in testdata folder
+*/
+
 import (
 	"bytes"
 	"fmt"
@@ -35,11 +39,6 @@ func Unpack[returnType any](format []string, byte_data []byte) (returnType, erro
 	value := unpacked_value[0].(returnType)
 	return value, nil
 }
-
-// var array1b []byte = make([]byte, 1)
-// var array2b []byte = make([]byte, 2)
-// var array4b []byte = make([]byte, 4)
-// var array8b []byte = make([]byte, 8)
 
 func MakeArray(bytes_amount BytesToRead) []byte {
 	switch int(bytes_amount) {
