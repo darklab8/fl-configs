@@ -12,8 +12,8 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/settings/logger"
 
-	"github.com/darklab8/darklab_goutils/goutils/utils/utils_logus"
-	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
+	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
+	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 type File struct {

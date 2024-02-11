@@ -16,10 +16,10 @@ import (
 	gbp "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped/go-binary-pack"
 	"golang.org/x/text/encoding/charmap"
 
-	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/settings/logger"
+	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 type InfocardID int

@@ -1,7 +1,7 @@
 package configs_export
 
 import (
-	"github.com/darklab8/darklab_goutils/goutils/utils/utils_types"
+	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 func (e *Exporter) Bases() []Base {
