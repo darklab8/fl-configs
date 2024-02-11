@@ -18,7 +18,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/settings/logger"
+	logus1 "github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -81,7 +81,7 @@ func ReadUnpack2[returnType any](
 	format []string) returnType {
 
 	value, _, err := ReadUnpack[returnType](fh, bytes_amount, format)
-	logger.Log.CheckError(err, "failed to read unpack")
+	logus1.Log.CheckError(err, "failed to read unpack")
 	return value
 }
 
@@ -134,7 +134,7 @@ func ReadText(fh *bytes.Reader, count int) string {
 	tr := charmap.Windows1252.NewDecoder().Reader(strings.NewReader(string(result[:])))
 	windows_decoded, err := io.ReadAll(tr)
 
-	logger.Log.CheckPanic(err, "failed to decode Windows1252")
+	logus1.Log.CheckPanic(err, "failed to decode Windows1252")
 
 	sliced := make([]byte, len(windows_decoded)/2)
 	for i := 0; i < len(windows_decoded)/2; i += 1 {
@@ -155,7 +155,7 @@ func JoinSize(size int, s ...[]byte) []byte {
 func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 	fh := bytes.NewReader(data)
 
-	logger.Log.Debug("parseDLL for file.Name=")
+	logus1.Log.Debug("parseDLL for file.Name=")
 	var returned_n64 int64
 	var returned_n int
 	var err error
@@ -212,7 +212,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 	fh.Seek(int64(OPT_Head_Start)+int64(COFF_Head_SizeOfOptionalHeader), SEEK_SET) // fh.seek(OPT_Head_Start + COFF_Head_SizeOfOptionalHeader)
 	var DLL_Sections map[string]*DLLSection = make(map[string]*DLLSection)         // DLL_Sections = {}
 	for i := 0; i < int(COFF_Head_NumberOfSections); i++ {                         // for i in range(0, COFF_Head_NumberOfSections):
-		logger.Log.Debug("i := 0; i < int(COFF_Head_NumberOfSections); i++, i=" + strconv.Itoa(i))
+		logus1.Log.Debug("i := 0; i < int(COFF_Head_NumberOfSections); i++, i=" + strconv.Itoa(i))
 		//     nt = fh.read(8)
 		nt := make([]byte, 8)
 		fh.Read(nt)
@@ -233,14 +233,14 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 
 	}
 
-	logger.Log.Debug("rsrcstart")
+	logus1.Log.Debug("rsrcstart")
 	rsrcstart := DLL_Sections[".rsrc"].PointerToRawData               // rsrcstart = DLL_Sections['.rsrc']['PointerToRawData']
 	fh.Seek(int64(rsrcstart)+int64(14), io.SeekStart)                 // fh.seek(rsrcstart + 14) # go to start of .rsrc
 	numentries := ReadUnpack2[int](fh, BytesToRead(2), []string{"h"}) // numentries, = struct.unpack('h', fh.read(2))
 	datatypes := []*DataType{}
 	// # get the data types stored in the resource section
 	for i := 0; i < numentries; i++ { // for i in range(0, numentries):
-		logger.Log.Debug("for i := 0; i < numentries; i++, i=" + strconv.Itoa(i))
+		logus1.Log.Debug("for i := 0; i < numentries; i++, i=" + strconv.Itoa(i))
 
 		dataType := ReadUnpack2[int](fh, BytesToRead(4), []string{"l"}) //     dataType, = struct.unpack('=l', fh.read(4))
 
@@ -252,7 +252,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 		//     dataOffset, = struct.unpack('<i', doi + doj + '\x00'.encode('utf-8'))
 		packer := new(gbp.BinaryPack)
 		unpacked_value, err := packer.UnPack([]string{"i"}, bytes.Join([][]byte{doi, doj, []byte{'\x00'}}, []byte{}))
-		logger.Log.CheckError(err, "failed to unpack")
+		logus1.Log.CheckError(err, "failed to unpack")
 		dataOffset := unpacked_value[0].(int)
 
 		datatypes = append(datatypes, &DataType{
@@ -264,7 +264,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 
 	// # each different data type is stored in a block, loop through each
 	for _, datatype := range datatypes { // for i in range(0, len(datatypes)):
-		logger.Log.Debug("for _, datatype := range datatypes {" + fmt.Sprintf("%v", datatype))
+		logus1.Log.Debug("for _, datatype := range datatypes {" + fmt.Sprintf("%v", datatype))
 		fh.Seek(int64(datatype.Offset)+int64(rsrcstart), io.SeekStart) //     fh.seek(datatypes[i]['offset'] + rsrcstart)
 
 		name := MakeArray(8)
@@ -276,7 +276,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 		fh.Seek(0, io.SeekCurrent) //     sectionstart = fh.tell() # remember where we are here
 
 		for entry := 0; entry < numentries; entry++ { // for entry in range(0, numentries):                   //     for entry in range(0, numentries):
-			logger.Log.Debug("for entry := 0; entry < numentries; entry++ entry=" + strconv.Itoa(entry))
+			logus1.Log.Debug("for entry := 0; entry < numentries; entry++ entry=" + strconv.Itoa(entry))
 			//         # get the id number and location of this entry
 			idnum := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         idnum, = struct.unpack('i', fh.read(4))
 
@@ -288,7 +288,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 			//         nameloc, = struct.unpack('<i', doi + doj + '\x00'.encode('utf-8'))
 			packer := new(gbp.BinaryPack)
 			unpacked_value, err := packer.UnPack([]string{"i"}, JoinSize(len(doi)+len(doj)+1, doi, doj, []byte{'\x00'}))
-			logger.Log.CheckError(err, "failed to unpack")
+			logus1.Log.CheckError(err, "failed to unpack")
 			nameloc := unpacked_value[0].(int)
 
 			brk := MakeArray(1)
@@ -372,7 +372,7 @@ func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
 	for idx, name := range dll_fnames {
 		data, err := os.ReadFile(name.GetFilepath().ToString())
 
-		if logger.Log.CheckError(err, "unable to read dll") {
+		if logus1.Log.CheckError(err, "unable to read dll") {
 			continue
 		}
 
@@ -383,10 +383,9 @@ func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
 	return out
 }
 
-func GetAllInfocards(game_location utils_types.FilePath, dll_names []string) map[InfocardID]InfocardText {
+func GetAllInfocards(filesystem *filefind.Filesystem, dll_names []string) map[InfocardID]InfocardText {
 
 	var files []*file.File
-	filesystem := filefind.FindConfigs(game_location)
 	for _, filename := range dll_names {
 		dll_file := filesystem.GetFile(utils_types.FilePath(strings.ToLower(filename)))
 		files = append(files, dll_file)

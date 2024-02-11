@@ -3,8 +3,10 @@ package infocard_mapped
 import (
 	"strconv"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/settings/logger"
+	logus1 "github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
 
@@ -21,13 +23,13 @@ func NewRecord(Id int, Content string, Kind RecordKind) *Record {
 type RecordKind string
 
 const (
-	TYPE_NAME    RecordKind = "NAME"
-	TYPE_INFOCAD RecordKind = "INFOCARD"
+	TYPE_NAME      RecordKind = "NAME"
+	TYPE_INFOCAD   RecordKind = "INFOCARD"
+	TYPE_UNDEFINED RecordKind = "not parsed yet"
 )
 
 type Config struct {
-	Records []*Record
-
+	Records    []*Record
 	RecordsMap map[int]*Record
 }
 
@@ -36,11 +38,10 @@ const (
 	FILENAME_FALLBACK = "infocards.xml"
 )
 
-func (frelconfig *Config) Read(input_file *file.File) *Config {
-	frelconfig.RecordsMap = make(map[int]*Record)
-	frelconfig.Records = make([]*Record, 0)
+func (frelconfig *Config) ReadFromTextFile(input_file *file.File) {
 
 	input_file = input_file.OpenToReadF()
+
 	defer input_file.Close()
 	lines := input_file.ReadLines()
 
@@ -61,7 +62,7 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 		case TYPE_INFOCAD:
 			record_to_add = NewRecord(id, content, TYPE_INFOCAD)
 		default:
-			logger.Log.Fatal(
+			logus1.Log.Fatal(
 				"unrecognized object name in infocards.txt",
 				typelog.Any("id", id),
 				typelog.Any("name", name),
@@ -71,6 +72,23 @@ func (frelconfig *Config) Read(input_file *file.File) *Config {
 
 		frelconfig.Records = append(frelconfig.Records, record_to_add)
 		frelconfig.RecordsMap[record_to_add.Id] = record_to_add
+	}
+}
+
+func (frelconfig *Config) Read(filesystem *filefind.Filesystem, freelancer_ini *exe_mapped.Config, input_file *file.File) *Config {
+	frelconfig.RecordsMap = make(map[int]*Record)
+	frelconfig.Records = make([]*Record, 0)
+
+	// p.Infocards =
+	if input_file != nil {
+		frelconfig.ReadFromTextFile(input_file)
+	} else {
+		infocards := exe_mapped.GetAllInfocards(filesystem, freelancer_ini.Resources.Dll)
+		for id, text := range infocards {
+			var record_to_add *Record = NewRecord(int(id), string(text), TYPE_INFOCAD)
+			frelconfig.Records = append(frelconfig.Records, record_to_add)
+			frelconfig.RecordsMap[record_to_add.Id] = record_to_add
+		}
 	}
 
 	return frelconfig

@@ -38,7 +38,7 @@ type Config struct {
 	Systems    []*System
 }
 
-func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesystem filefind.Filesystem) *Config {
+func (frelconfig *Config) Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesystem) *Config {
 
 	var system_files map[string]*file.File = make(map[string]*file.File)
 	for _, base := range universe_config.Bases {

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/darklab8/fl-configs/configs/settings/logger"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
@@ -36,7 +36,7 @@ func (f *File) OpenToReadF() *File {
 	file, err := os.Open(string(f.filepath))
 	f.file = file
 
-	logger.Log.CheckFatal(err, "failed to open ", utils_logus.FilePath(f.filepath))
+	logus.Log.CheckFatal(err, "failed to open ", utils_logus.FilePath(f.filepath))
 	return f
 }
 
@@ -70,12 +70,12 @@ func (f *File) WriteLines() {
 func (f *File) CreateToWriteF() *File {
 	file, err := os.Create(string(f.filepath))
 	f.file = file
-	logger.Log.CheckFatal(err, "failed to open ", utils_logus.FilePath(f.filepath))
+	logus.Log.CheckFatal(err, "failed to open ", utils_logus.FilePath(f.filepath))
 
 	return f
 }
 func (f *File) WritelnF(msg string) {
 	_, err := f.file.WriteString(fmt.Sprintf("%v\n", msg))
 
-	logger.Log.CheckFatal(err, "failed to write string to file")
+	logus.Log.CheckFatal(err, "failed to write string to file")
 }
