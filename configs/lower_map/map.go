@@ -29,6 +29,8 @@ func (d *KeyLoweredMap[K, V]) MapGetValue(key K) (V, bool) {
 	return value, ok
 }
 
-func (d *KeyLoweredMap[K, V]) GetMap() map[K]V {
-	return d.data
+func (d *KeyLoweredMap[K, V]) Foreach(callback func(key K, value V)) {
+	for key, value := range d.data {
+		callback(key, value)
+	}
 }
