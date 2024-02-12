@@ -1,1 +1,0 @@
-package multi_infocard_mapped
