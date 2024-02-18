@@ -63,6 +63,6 @@ func (file1system Filesystem) GetFile(file1names ...utils_types.FilePath) *file.
 		return result_file
 	}
 
-	logus.Log.Warn("failed to get file", typelog.Items[utils_types.FilePath](file1names, "filenames"))
+	logus.Log.Warn("failed to get file", typelog.Items[utils_types.FilePath]("filenames", file1names))
 	return nil
 }
