@@ -23,4 +23,7 @@ func TestReadInfocards(t *testing.T) {
 	}
 
 	assert.Contains(t, ids[132903], "We just brought a load of Fertilizers")
+
+	fmt.Println(ids[196624])
+	fmt.Println("second:", ids[66089])
 }

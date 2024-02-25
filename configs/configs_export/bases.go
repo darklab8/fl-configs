@@ -18,17 +18,29 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			name = base_infocard.Content
 		}
 
+		if !is_no_name_included && name == "" {
+			continue
+		}
+
 		var system_name string
 		if system, ok := e.configs.Universe_config.SystemMap.MapGetValue(universe_mapped.SystemNickname(base.System.Get())); ok {
 
 			if infocard, ok := e.configs.Infocards.RecordsMap[system.Strid_name.Get()]; ok {
 				system_name = infocard.Content
 			}
-
 		}
 
-		if !is_no_name_included && name == "" {
-			continue
+		var infocard_id int
+		if system, ok := e.configs.Systems.SystemsMap.MapGetValue(base.System.Get()); ok {
+
+			if system_base, ok := system.BasesByBase.MapGetValue(base.Nickname.Get()); ok {
+				infocard_id = system_base.IDsInfo.Get()
+			}
+		}
+
+		var infocardText string
+		if base_infocard, ok := e.configs.Infocards.RecordsMap[infocard_id]; ok {
+			infocardText = base_infocard.Content
 		}
 
 		results[iterator] = Base{
@@ -37,6 +49,8 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			System:           system_name,
 			SystemNickname:   base.System.Get(),
 			StridName:        base.StridName.Get(),
+			InfocardID:       infocard_id,
+			Infocard:         infocardText,
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
 		}
@@ -53,6 +67,8 @@ type Base struct {
 	System           string
 	SystemNickname   string
 	StridName        int
+	InfocardID       int
+	Infocard         string
 	File             utils_types.FilePath
 	BGCS_base_run_by string
 }
