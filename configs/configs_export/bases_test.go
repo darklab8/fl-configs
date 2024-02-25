@@ -11,7 +11,7 @@ func TestExportBases(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
-	bases := exporter.Bases()
+	bases := exporter.Bases(NoNameIncluded(false))
 	assert.Greater(t, len(bases), 0)
 	assert.NotEqual(t, bases[0].Nickname, bases[1].Nickname)
 }
