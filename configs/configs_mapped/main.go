@@ -19,13 +19,14 @@ import (
 )
 
 type MappedConfigs struct {
-	Universe_config     *universe_mapped.Config
-	Systems             *systems_mapped.Config
-	Market_ships_config *market_mapped.Config
-	Market_commodities  *market_mapped.Config
-	Market_misc         *market_mapped.Config
-	FreelancerINI       *exe_mapped.Config
-	Infocards           *infocard_mapped.Config
+	Universe_config   *universe_mapped.Config
+	Systems           *systems_mapped.Config
+	MarketCapital     *market_mapped.Config
+	MarketShips       *market_mapped.Config
+	MarketCommidities *market_mapped.Config
+	MarketMisc        *market_mapped.Config
+	FreelancerINI     *exe_mapped.Config
+	Infocards         *infocard_mapped.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -38,9 +39,11 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 
 	p.Universe_config = (&universe_mapped.Config{}).Read(filesystem.GetFile(universe_mapped.FILENAME))
 	p.Systems = (&systems_mapped.Config{}).Read(p.Universe_config, filesystem)
-	p.Market_ships_config = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
-	p.Market_commodities = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
-	p.Market_misc = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
+
+	p.MarketCapital = (&market_mapped.Config{}).Read(filesystem.GetFile("market_capital.ini"))
+	p.MarketCommidities = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
+	p.MarketMisc = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
+	p.MarketShips = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
 	p.FreelancerINI = (&exe_mapped.Config{}).Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
 
 	p.Infocards = (&infocard_mapped.Config{}).Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))
@@ -58,9 +61,9 @@ func (p *MappedConfigs) Write(is_dry_run IsDruRun) {
 
 	files = append(files,
 		p.Universe_config.Write(),
-		p.Market_ships_config.Write(),
-		p.Market_commodities.Write(),
-		p.Market_misc.Write(),
+		p.MarketShips.Write(),
+		p.MarketCommidities.Write(),
+		p.MarketMisc.Write(),
 	)
 	files = append(files, p.Systems.Write()...)
 
