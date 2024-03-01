@@ -16,6 +16,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - uses: actions/checkout@v4
+      with:
+        repository: 'darklab8/fl-data'
+        path: '${{ github.workspace }}/fl-data'
+        token: ${{ secrets.FL_DATA_KEY }}
+    - run: ls ./fl-data
+
     - name: Install Task
       run: |
         sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
@@ -28,4 +35,5 @@ jobs:
     - name: Test
       run: task test -- -v
       env:
-        FLDARKDATA_LOG_LEVEL: "DEBUG"
+        CONFIGS_LOG_LEVEL: "DEBUG"
+        CONFIGS_FREELANCER_FOLDER: ${{ github.workspace }}/fl-data
