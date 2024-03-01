@@ -1,3 +1,6 @@
+/*
+See package `configs` for description and code examples
+*/
 package main
 
 import (
@@ -12,12 +15,9 @@ import (
 	"github.com/darklab8/go-utils/goutils/utils"
 )
 
-/*
-for profiling
-*/
-
 func main() {
 
+	// for profiling only stuff.
 	f, err := os.Create("prof.prof")
 	if err != nil {
 		log.Fatal(err)

@@ -18,6 +18,10 @@ This library is used at least in projects:
 - fldarklint (config formatter)
 - fldarkstat (online flstat)
 
+# Code examples.
+
+- [See here](https://pkg.go.dev/github.com/darklab8/fl-configs/configs)
+
 ## Architecture
 
 ```mermaid
