@@ -20,7 +20,11 @@ This library is used at least in projects:
 
 # Code examples.
 
-- [See here](https://pkg.go.dev/github.com/darklab8/fl-configs/configs)
+
+- see [configs folders](configs/) for example_ prefixed files like
+  - [how to export data](configs/example_export_test.go)
+  - [how to modify configs](configs/example_modifying_data_test.go)
+- [Or see here if godocs already rescaned repo](https://pkg.go.dev/github.com/darklab8/fl-configs/configs)
 
 ## Architecture
 
