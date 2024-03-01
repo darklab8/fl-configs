@@ -17,7 +17,7 @@ import (
 
 var FreelancerFolder utils_types.FilePath = utils_types.FilePath(os.Getenv("CONFIGS_FREELANCER_FOLDER"))
 
-// ExampleExportingData demononstrating exporting freelancer folder data for comfortable usage
+// ExampleExportingData demonstrating exporting freelancer folder data for comfortable usage
 func Example_exportingData() {
 	configs := configs_mapped.NewMappedConfigs()
 	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(FreelancerFolder))
