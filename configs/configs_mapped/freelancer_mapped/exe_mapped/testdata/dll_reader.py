@@ -12,7 +12,7 @@ def ReadText(fh, count):
     for j in range(0, count):
         if j == 0:
             h = fh.read(2)
-            if h == b"\xff\xfe":
+            if h == "\xff\xfe":
                 continue # strip BOM
             strout += h
         else:
@@ -118,6 +118,9 @@ def parseDLL(fh: io.BufferedReader, out, global_offset):
 
             someinfoloc, = struct.unpack('i', fh.read(4)) # location of the real location of the entry....
 
+            if numentries == 9264 and entry == 1306:
+                print("debug")
+
             fh.seek(rsrcstart + someinfoloc) # jump there
             absloc, = struct.unpack('i', fh.read(4)) # get the real location
             datalength, = struct.unpack('i', fh.read(4)) # entry length in bytes
@@ -134,6 +137,37 @@ def parseDLL(fh: io.BufferedReader, out, global_offset):
                     out[ids_index] = ids_text
             elif datatypes[i]['type'] == 0x17: # html
                 ids_index = idnum + global_offset
+
+                if ids_index == 465639:
+                    print("debug")
+                    """
+                    expected next ids_text to contain:
+                        infocard 
+                        CLASS: Unknown
+                        GRAVITY: Unknown
+                        DOCKING: Yes
+                        AMENITIES: No
+                        CREW: None
+
+                        A depot likely assembled by the Wild upon re-establishing their presence in the system post-supernova. The outpost served its initial purpose but was voluntarily abandoned due to the hostile nature of the system, as well as the recent intrusion of the Order vessels nearby. While the docking bays remain active, the base has nothing of value on it, and the strong radiation from the nearby pulsar is slowly tearing it apart.
+
+                        Nothing is known about this object.
+
+                        ALLIES:  
+                        None
+                        
+                        ENEMIES: 
+                        None
+                        
+                        Neutral Faction is neutral to all players and all other factions. All neutral dockable objects in Sirius are assigned to this faction.
+                        
+                    but received:
+                        b'\xc3\xbf<?xml version="1.0" encoding="UTF-16"?><RDL><PUSH/><TEXT>CLASS: Unknown</TEXT><PARA/><TEXT>GRAVITY: Unknown</TEXT><PARA/><TEXT>DOCKING: Yes</TEXT><PARA/><TEXT>AMENITIES: No</TEXT><PARA/><TEXT>CREW: None</TEXT><PARA/><POP/></RDL>'
+
+                    requested same with datalength*2, i see the it is the right infocard place
+                        b'\xc3\xbf<?xml version="1.0" encoding="UTF-16"?><RDL><PUSH/><TEXT>CLASS: Unknown</TEXT><PARA/><TEXT>GRAVITY: Unknown</TEXT><PARA/><TEXT>DOCKING: Yes</TEXT><PARA/><TEXT>AMENITIES: No</TEXT><PARA/><TEXT>CREW: None</TEXT><PARA/><POP/></RDL>\n\nP\xc3\xbf<?xml version="1.0" encoding="UTF-16"?><RDL><PUSH/><TEXT>A depot likely assembled by the Wild upon re-establishing their presence in the system post-supernova. The outpost served its initial purpose but was voluntarily abandoned due to the hostile nature of the system, as well as the recent intrusion of the Order vessels nearby. While the docking bays remain active, the base has nothing of value on it, and the strong radiation from the nearby pulsar is slowly tearing it apart.</TEXT><PARA/><POP/></RDL>\n\n\xc3\xbf<?xml version="1.0" encoding="UTF-16"?><RDL><PUSH/><TRA data="1" mask="1" def="-2"/><TEXT>BRETONIA</TEXT><PARA/><TEXT>\xc2\xa0</TEXT><PARA/><TRA data="5" mask="5" def="-6"/><TEXT>Settled P'
+                    """   
+                
                 if datalength % 2:
                     datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
                 ids_text = ReadText(fh, datalength // 2).rstrip()
