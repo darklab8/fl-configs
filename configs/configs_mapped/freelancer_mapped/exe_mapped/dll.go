@@ -307,7 +307,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 
 			someinfoloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         someinfoloc, = struct.unpack('i', fh.read(4)) # location of the real location of the entry....
 
-			fh.Seek(int64(rsrcstart)+int64(someinfoloc), io.SeekStart)        //         fh.seek(rsrcstart + someinfoloc) # jump there
+			fh.Seek(int64(rsrcstart)+int64(someinfoloc), SEEK_SET)            //         fh.seek(rsrcstart + someinfoloc) # jump there
 			absloc := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"})     //         absloc, = struct.unpack('i', fh.read(4)) # get the real location
 			datalength := ReadUnpack2[int](fh, BytesToRead(4), []string{"i"}) //         datalength, = struct.unpack('i', fh.read(4)) # entry length in bytes
 
@@ -346,8 +346,8 @@ func GetResource(
 				continue
 			}
 
-			ids_text := ReadText(fh, tableLen)                   //                 ids_text = ReadText(fh, tableLen)
 			ids_index := (idnum-1)*16 + strindex + global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
+			ids_text := ReadText(fh, tableLen)                   //                 ids_text = ReadText(fh, tableLen)
 
 			out[InfocardID(ids_index)] = InfocardText(ids_text) //                 out[ids_index] = ids_text
 		}
@@ -359,6 +359,9 @@ func GetResource(
 		}
 
 		floored_datalength := math.Floor(float64(datalength) / 2)
+		if ids_index == 465639 {
+			print("debug point")
+		}
 		ids_text := ReadText(fh, int(floored_datalength)) //             ids_text = ReadText(fh, datalength // 2).rstrip()
 
 		out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text

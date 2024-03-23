@@ -26,4 +26,10 @@ func TestReadInfocards(t *testing.T) {
 
 	fmt.Println(ids[196624])
 	fmt.Println("second:", ids[66089])
+
+	fmt.Println("Abandoned Depot infocard\n",
+		ids[465639],
+		ids[465639+1], // value from infocardmap.txt mapped
+		ids[500904],   // faction infocard id
+	)
 }
