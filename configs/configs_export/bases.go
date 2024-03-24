@@ -3,6 +3,7 @@ package configs_export
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -39,19 +40,24 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			}
 		}
 
-		var infocardText string
+		var infocardText []string
+
 		if base_infocard, ok := e.configs.Infocards.Infocards[infocard_id]; ok {
-			infocardText = base_infocard.Content
+			var err error
+			infocardText, err = base_infocard.XmlToText()
+			logus.Log.CheckError(err, "failed to xml infocard")
 		}
 
 		results[iterator] = Base{
-			Name:             name,
-			Nickname:         base.Nickname.Get(),
-			System:           string(system_name),
-			SystemNickname:   base.System.Get(),
-			StridName:        base.StridName.Get(),
-			InfocardID:       infocard_id,
-			Infocard:         infocardText,
+			Name:           name,
+			Nickname:       base.Nickname.Get(),
+			System:         string(system_name),
+			SystemNickname: base.System.Get(),
+			StridName:      base.StridName.Get(),
+			InfocardID:     infocard_id,
+			Infocard: Infocard{
+				Beginning: infocardText,
+			},
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
 		}
@@ -62,6 +68,10 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 	return results
 }
 
+type Infocard struct {
+	Beginning []string
+}
+
 type Base struct {
 	Name             string
 	Nickname         string
@@ -69,7 +79,7 @@ type Base struct {
 	SystemNickname   string
 	StridName        int
 	InfocardID       int
-	Infocard         string
+	Infocard         Infocard
 	File             utils_types.FilePath
 	BGCS_base_run_by string
 }
