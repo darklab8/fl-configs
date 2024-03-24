@@ -40,12 +40,24 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			}
 		}
 
-		var infocardText []string
+		var infocardStart []string
 
-		if base_infocard, ok := e.configs.Infocards.Infocards[infocard_id]; ok {
+		base_infocard_part1, infocard_beginning_exists := e.configs.Infocards.Infocards[infocard_id]
+		if infocard_beginning_exists {
 			var err error
-			infocardText, err = base_infocard.XmlToText()
+			infocardStart, err = base_infocard_part1.XmlToText()
 			logus.Log.CheckError(err, "failed to xml infocard")
+		}
+
+		var infocardMiddle []string
+		if infocard_middle_id, exists := e.configs.InfocardmapINI.InfocardMapTable.Map[infocard_id]; exists {
+			if base_infocard_part2, infocard_middle_exists := e.configs.Infocards.Infocards[infocard_middle_id]; infocard_middle_exists {
+				if infocard_beginning_exists {
+					var err error
+					infocardMiddle, err = base_infocard_part2.XmlToText()
+					logus.Log.CheckError(err, "failed to xml infocard")
+				}
+			}
 		}
 
 		results[iterator] = Base{
@@ -56,7 +68,8 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			StridName:      base.StridName.Get(),
 			InfocardID:     infocard_id,
 			Infocard: Infocard{
-				Beginning: infocardText,
+				Start:  infocardStart,
+				Middle: infocardMiddle,
 			},
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
@@ -69,7 +82,8 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 }
 
 type Infocard struct {
-	Beginning []string
+	Start  []string
+	Middle []string
 }
 
 type Base struct {

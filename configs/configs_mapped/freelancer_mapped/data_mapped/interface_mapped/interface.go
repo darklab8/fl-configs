@@ -1,10 +1,13 @@
 package interface_mapped
 
 import (
+	"strconv"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader/inireader_types"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 )
 
 const (
@@ -15,7 +18,7 @@ const (
 
 type InfocardMapTable struct {
 	semantic.Model
-	Map map[string]string
+	Map map[int]int
 }
 
 type Config struct {
@@ -26,7 +29,7 @@ type Config struct {
 
 func Read(input_file *file.File) *Config {
 	frelconfig := &Config{
-		InfocardMapTable: InfocardMapTable{Map: make(map[string]string)},
+		InfocardMapTable: InfocardMapTable{Map: make(map[int]int)},
 	}
 
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
@@ -36,7 +39,13 @@ func Read(input_file *file.File) *Config {
 
 		for _, mappy := range resources[0].Params {
 
-			frelconfig.InfocardMapTable.Map[mappy.First.AsString()] = mappy.Values[1].AsString()
+			id_key, err := strconv.Atoi(mappy.First.AsString())
+			logus.Log.CheckFatal(err, "failed to read number from infocardmaptable")
+
+			id_value, err := strconv.Atoi(mappy.Values[1].AsString())
+			logus.Log.CheckFatal(err, "failed to read number from infocardmaptable")
+
+			frelconfig.InfocardMapTable.Map[id_key] = id_value
 		}
 	}
 
