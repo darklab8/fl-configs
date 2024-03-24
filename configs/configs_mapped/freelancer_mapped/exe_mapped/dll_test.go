@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"log"
+	"os"
+	"runtime/pprof"
 	"strings"
 	"testing"
 
@@ -54,12 +56,19 @@ type RDL2 struct {
 }
 
 func TestReadInfocardsToHtml(t *testing.T) {
+	f, err := os.Create("prof.prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		game_location := configs_fixtures.FixtureGameLocation()
 		config := FixtureFLINIConfig()
 		ids := GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.Dll)
 
-		assert.Greater(t, len(ids), 0)
+		// assert.Greater(t, len(ids), 0)
 
 		// 503718 faction BMM
 		// 465639 base Bandoned Depot
@@ -77,6 +86,9 @@ func TestReadInfocardsToHtml(t *testing.T) {
 			log.Fatal(err)
 		}
 		fmt.Println(structy)
+
+		assert.Greater(t, len(structy.TEXT), 0)
+		assert.NotEmpty(t, structy.TEXT)
 
 	}, time_measure.WithMsg("measure time"))
 	logus.Log.CheckFatal(result.ResultErr, "non nil exit")
