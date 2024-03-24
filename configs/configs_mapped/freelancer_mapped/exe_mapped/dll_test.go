@@ -64,7 +64,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 		xml_stuff := infocards.Infocards[501545]
 		fmt.Println("xml_stuff=", xml_stuff)
 
-		text, err := XmlToText(xml_stuff.Content)
+		text, err := xml_stuff.XmlToText()
 		logus.Log.CheckFatal(err, "unable convert to text")
 
 		assert.Greater(t, len(text), 0)
@@ -85,7 +85,7 @@ func TestValidateInfocards(t *testing.T) {
 	var failed []*infocard.Infocard = make([]*infocard.Infocard, 0, 100)
 
 	for id, infocard := range infocards.Infocards {
-		text, err := XmlToText(infocard.Content)
+		text, err := infocard.XmlToText()
 		parsed_text[id] = text
 
 		if logus.Log.CheckWarn(err, "unable convert to text") {
@@ -112,12 +112,4 @@ func TestCoversion(t *testing.T) {
 
 	decoded, _ := DecodeUTF16([]byte(windows_decoded))
 	fmt.Println(decoded)
-	// for _, r := range windows_decoded {
-	// 	ch := string(r)
-	// 	//
-	// 	if ch == "\x00" || ch == "\u00a0" {
-	// 		continue
-	// 	}
-	// 	fmt.Print(ch)
-	// }
 }

@@ -1,4 +1,4 @@
-package exe_mapped
+package infocard
 
 import (
 	"encoding/xml"
@@ -8,6 +8,10 @@ import (
 type RDL struct {
 	XMLName xml.Name `xml:"RDL"`
 	TEXT    []string `xml:"TEXT"`
+}
+
+func (i *Infocard) XmlToText() ([]string, error) {
+	return XmlToText(i.Content)
 }
 
 func XmlToText(xml_stuff string) ([]string, error) {
