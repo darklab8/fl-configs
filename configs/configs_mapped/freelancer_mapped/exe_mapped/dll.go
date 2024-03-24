@@ -106,12 +106,12 @@ type DataType struct {
 var BOMcheck []byte = []byte{'\xff', '\xfe'}
 
 func ReadText(fh *bytes.Reader, count int) string {
-	strouts := [][]byte{} //     strout = b''
+	var strouts [][]byte = make([][]byte, 0, count) //     strout = b''
 	total_len := 0
 
 	for j := 0; j < count; j++ { //     for j in range(0, count):
 		if j == 0 { //         if j == 0:
-			h := MakeArray(2)
+			h := make([]byte, 2)
 			fh.Read(h) //             h = fh.read(2)
 
 			if bytes.Equal(h, BOMcheck) { //             if h == "\xff\xfe":
@@ -120,7 +120,7 @@ func ReadText(fh *bytes.Reader, count int) string {
 			strouts = append(strouts, h) //             strout += h
 			total_len += len(h)
 		} else { //         else:
-			portion := MakeArray(2)
+			portion := make([]byte, 2)
 			fh.Read(portion)
 			strouts = append(strouts, portion) //             strout += fh.read(2)
 			total_len += len(portion)
