@@ -358,10 +358,11 @@ func GetResource(
 			datalength -= 1 //                 datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
 		}
 
-		floored_datalength := math.Floor(float64(datalength) / 2)
-		if ids_index == 465639 {
-			print("debug point")
+		if 500904 == ids_index {
+			_ = datalength
 		}
+
+		floored_datalength := math.Floor(float64(datalength) / 2)
 		ids_text := ReadText(fh, int(floored_datalength)) //             ids_text = ReadText(fh, datalength // 2).rstrip()
 
 		out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text

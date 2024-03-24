@@ -136,6 +136,11 @@ def parseDLL(fh: io.BufferedReader, out, global_offset):
             elif datatypes[i]['type'] == 0x17: # html
                 ids_index = idnum + global_offset
 
+                # py this script works great for this index
+                # but not got script
+                if 500904 == ids_index:
+                    print(123)
+
                 if datalength % 2:
                     datalength -= 1 # if odd length, ignore the last byte (UTF-16 is 2 bytes per character...)
                 ids_text = ReadText(fh, datalength // 2).rstrip()

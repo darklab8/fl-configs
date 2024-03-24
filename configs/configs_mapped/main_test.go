@@ -7,8 +7,8 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	utils.TimeMeasure(func() {
+	utils.TimeMeasure(func(m *utils.TimeMeasurer) {
 		configs := TestFixtureConfigs()
 		configs.Write(IsDruRun(true))
-	}, "dry run time")
+	})
 }
