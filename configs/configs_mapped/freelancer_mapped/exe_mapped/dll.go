@@ -108,7 +108,7 @@ var BOMcheck []byte = []byte{'\xff', '\xfe'}
 func ReadText(fh *bytes.Reader, count int) string {
 	heap_of_bytes := make([]byte, 2*count+10)
 
-	var strouts [][]byte = make([][]byte, 0, count) //     strout = b''
+	var strouts []byte = make([]byte, 0, count) //     strout = b''
 	total_len := 0
 
 	for j := 0; j < count; j++ { //     for j in range(0, count):
@@ -119,21 +119,19 @@ func ReadText(fh *bytes.Reader, count int) string {
 			if bytes.Equal(h, BOMcheck) { //             if h == "\xff\xfe":
 				continue // strip BOM
 			}
-			strouts = append(strouts, h) //             strout += h
+			strouts = append(strouts, h...) //             strout += h
 			total_len += len(h)
 		} else { //         else:
 			portion := heap_of_bytes[j*2 : j*2+2]
 			fh.Read(portion)
-			strouts = append(strouts, portion) //             strout += fh.read(2)
+			strouts = append(strouts, portion...) //             strout += fh.read(2)
 			total_len += len(portion)
 		}
 
 	}
 
-	result := JoinSize(total_len, strouts...)
-
 	// PY: return strout.decode('windows-1252')[::2].encode('utf-8')
-	tr := charmap.Windows1252.NewDecoder().Reader(strings.NewReader(string(result[:])))
+	tr := charmap.Windows1252.NewDecoder().Reader(strings.NewReader(string(strouts[:])))
 	windows_decoded, err := io.ReadAll(tr)
 
 	logus1.Log.CheckPanic(err, "failed to decode Windows1252")
