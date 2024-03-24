@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
@@ -71,4 +72,28 @@ func TestReadInfocardsToHtml(t *testing.T) {
 
 	}, time_measure.WithMsg("measure time"))
 	logus.Log.CheckFatal(result.ResultErr, "non nil exit")
+}
+
+func TestValidateInfocards(t *testing.T) {
+	game_location := configs_fixtures.FixtureGameLocation()
+	config := FixtureFLINIConfig()
+	infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.Dll)
+
+	var parsed []*infocard.Infocard = make([]*infocard.Infocard, 0, 100)
+	var parsed_text map[int][]string = make(map[int][]string)
+	var failed []*infocard.Infocard = make([]*infocard.Infocard, 0, 100)
+
+	for id, infocard := range infocards.Infocards {
+		text, err := XmlToText(infocard.Content)
+		parsed_text[id] = text
+
+		if logus.Log.CheckWarn(err, "unable convert to text") {
+			failed = append(failed, infocard)
+		} else {
+			parsed = append(parsed, infocard)
+		}
+	}
+
+	fmt.Println("parsed_count=", len(parsed))
+	assert.Equal(t, len(failed), 0, "expected no failed")
 }
