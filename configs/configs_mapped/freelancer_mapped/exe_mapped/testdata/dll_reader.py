@@ -12,12 +12,14 @@ def ReadText(fh, count):
     for j in range(0, count):
         if j == 0:
             h = fh.read(2)
-            if h == "\xff\xfe":
+            if h == b"\xff\xfe":
                 continue # strip BOM
             strout += h
         else:
             strout += fh.read(2)
 
+    windows_decoded = strout.decode('windows-1252')
+    windows_decoded[::2]
     return strout.decode('windows-1252')[::2].encode('utf-8')
 
 def parseDLL(fh: io.BufferedReader, out, global_offset):

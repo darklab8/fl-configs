@@ -61,7 +61,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 		// 465640 continuation
 		// infocard tail 500904
 
-		xml_stuff := infocards.Infocards[465639]
+		xml_stuff := infocards.Infocards[501545]
 		fmt.Println("xml_stuff=", xml_stuff)
 
 		text, err := XmlToText(xml_stuff.Content)
@@ -69,6 +69,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 
 		assert.Greater(t, len(text), 0)
 		assert.NotEmpty(t, text)
+		fmt.Println(text)
 
 	}, time_measure.WithMsg("measure time"))
 	logus.Log.CheckFatal(result.ResultErr, "non nil exit")
@@ -96,4 +97,27 @@ func TestValidateInfocards(t *testing.T) {
 
 	fmt.Println("parsed_count=", len(parsed))
 	assert.Equal(t, len(failed), 0, "expected no failed")
+}
+
+func TestCoversion(t *testing.T) {
+	windows_decoded := "A\x00L\x00L\x00I\x00E\x00S\x00:\x00\u00a0\x00 \x00<\x00/\x00T\x00E\x00X\x00T\x00>\x00<\x00P\x00A\x00R"
+
+	sliced := make([]byte, 0, len(windows_decoded)/2)
+	// sliced := make([]rune, len(str_windows_decoded)/2)
+	for i := 0; i < len(windows_decoded); i += 2 {
+		sliced = append(sliced, windows_decoded[i]) // or do whatever
+	}
+
+	fmt.Println(string(sliced))
+
+	decoded, _ := DecodeUTF16([]byte(windows_decoded))
+	fmt.Println(decoded)
+	// for _, r := range windows_decoded {
+	// 	ch := string(r)
+	// 	//
+	// 	if ch == "\x00" || ch == "\u00a0" {
+	// 		continue
+	// 	}
+	// 	fmt.Print(ch)
+	// }
 }
