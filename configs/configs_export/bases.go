@@ -2,6 +2,7 @@ package configs_export
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -14,19 +15,19 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 	for _, base := range e.configs.Universe_config.Bases {
 
 		var name string
-		if base_infocard, ok := e.configs.Infocards.RecordsMap[base.StridName.Get()]; ok {
-			name = base_infocard.Content
+		if base_infocard, ok := e.configs.Infocards.Infonames[base.StridName.Get()]; ok {
+			name = string(base_infocard)
 		}
 
 		if !is_no_name_included && name == "" {
 			continue
 		}
 
-		var system_name string
+		var system_name infocard.Infoname
 		if system, ok := e.configs.Universe_config.SystemMap.MapGetValue(universe_mapped.SystemNickname(base.System.Get())); ok {
 
-			if infocard, ok := e.configs.Infocards.RecordsMap[system.Strid_name.Get()]; ok {
-				system_name = infocard.Content
+			if infoname, ok := e.configs.Infocards.Infonames[system.Strid_name.Get()]; ok {
+				system_name = infoname
 			}
 		}
 
@@ -39,14 +40,14 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 		}
 
 		var infocardText string
-		if base_infocard, ok := e.configs.Infocards.RecordsMap[infocard_id]; ok {
+		if base_infocard, ok := e.configs.Infocards.Infocards[infocard_id]; ok {
 			infocardText = base_infocard.Content
 		}
 
 		results[iterator] = Base{
 			Name:             name,
 			Nickname:         base.Nickname.Get(),
-			System:           system_name,
+			System:           string(system_name),
 			SystemNickname:   base.System.Get(),
 			StridName:        base.StridName.Get(),
 			InfocardID:       infocard_id,

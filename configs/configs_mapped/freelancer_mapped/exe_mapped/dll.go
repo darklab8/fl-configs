@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	gbp "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped/go-binary-pack"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
@@ -21,9 +22,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
-
-type InfocardID int
-type InfocardText string
 
 const SEEK_SET = io.SeekStart // python default seek(offset, whence=os.SEEK_SET, /)
 
@@ -147,7 +145,7 @@ func JoinSize(size int, s ...[]byte) []byte {
 	return b
 }
 
-func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
+func parseDLL(data []byte, out *infocard.Config, global_offset int) {
 	fh := bytes.NewReader(data)
 
 	logus.Log.Debug("parseDLL for file.Name=")
@@ -320,7 +318,7 @@ func parseDLL(data []byte, out map[InfocardID]InfocardText, global_offset int) {
 
 func GetResource(
 	data []byte,
-	out map[InfocardID]InfocardText,
+	out *infocard.Config,
 	absloc int,
 	datatype *DataType,
 	idnum int,
@@ -344,7 +342,8 @@ func GetResource(
 			ids_index := (idnum-1)*16 + strindex + global_offset //                 ids_index = (idnum - 1)*16 + strindex + global_offset
 			ids_text := ReadText(fh, tableLen)                   //                 ids_text = ReadText(fh, tableLen)
 
-			out[InfocardID(ids_index)] = InfocardText(ids_text) //                 out[ids_index] = ids_text
+			out.Infonames[ids_index] = infocard.Infoname(ids_text) //                 out[ids_index] = ids_text
+
 		}
 
 	} else if datatype.Type_ == 0x17 { //         elif datatypes[i]['type'] == 0x17: # html
@@ -361,13 +360,13 @@ func GetResource(
 		floored_datalength := math.Floor(float64(datalength) / 2)
 		ids_text := ReadText(fh, int(floored_datalength)) //             ids_text = ReadText(fh, datalength // 2).rstrip()
 
-		out[InfocardID(ids_index)] = InfocardText(ids_text) //             out[ids_index] = ids_text
+		out.Infocards[ids_index] = infocard.NewInfocard(ids_text) //             out[ids_index] = ids_text
 	}
 	return nil
 }
 
-func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
-	out := make(map[InfocardID]InfocardText, 0)
+func ParseDLLs(dll_fnames []*file.File) *infocard.Config {
+	out := infocard.NewConfig()
 
 	for idx, name := range dll_fnames {
 		data, err := os.ReadFile(name.GetFilepath().ToString())
@@ -383,7 +382,7 @@ func ParseDLLs(dll_fnames []*file.File) map[InfocardID]InfocardText {
 	return out
 }
 
-func GetAllInfocards(filesystem *filefind.Filesystem, dll_names []string) map[InfocardID]InfocardText {
+func GetAllInfocards(filesystem *filefind.Filesystem, dll_names []string) *infocard.Config {
 
 	var files []*file.File
 	for _, filename := range dll_names {

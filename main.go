@@ -30,7 +30,7 @@ func main() {
 		config := exe_mapped.FixtureFLINIConfig()
 		ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.Dll)
 
-		for id, text := range ids {
+		for id, text := range ids.Infocards {
 			fmt.Println(id)
 			fmt.Println(text)
 			break
