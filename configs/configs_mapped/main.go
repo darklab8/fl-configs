@@ -38,14 +38,14 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	logus.Log.Info("Parse START for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 	filesystem := filefind.FindConfigs(file1path)
 
-	p.Universe_config = (&universe_mapped.Config{}).Read(filesystem.GetFile(universe_mapped.FILENAME))
-	p.Systems = (&systems_mapped.Config{}).Read(p.Universe_config, filesystem)
+	p.Universe_config = universe_mapped.Read(filesystem.GetFile(universe_mapped.FILENAME))
+	p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
 
-	p.MarketCapital = (&market_mapped.Config{}).Read(filesystem.GetFile("market_capital.ini"))
-	p.MarketCommidities = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
-	p.MarketMisc = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
-	p.MarketShips = (&market_mapped.Config{}).Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
-	p.FreelancerINI = (&exe_mapped.Config{}).Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
+	p.MarketCapital = market_mapped.Read(filesystem.GetFile("market_capital.ini"))
+	p.MarketCommidities = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
+	p.MarketMisc = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
+	p.MarketShips = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
+	p.FreelancerINI = exe_mapped.Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
 
 	p.Infocards = infocard_mapped.Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))
 

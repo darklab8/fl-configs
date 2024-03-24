@@ -10,6 +10,6 @@ import (
 func FixtureFLINIConfig() *Config {
 	test_directory := utils.GetCurrrentTestFolder()
 	fileref := file.NewFile(utils_types.FilePath(utils_filepath.Join(test_directory, FILENAME_FL_INI)))
-	config := (&Config{}).Read(fileref)
+	config := Read(fileref)
 	return config
 }

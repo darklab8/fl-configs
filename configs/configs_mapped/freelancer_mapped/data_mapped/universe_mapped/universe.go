@@ -79,7 +79,8 @@ type Config struct {
 	TimeSeconds *semantic.Int
 }
 
-func (frelconfig *Config) Read(input_file *file.File) *Config {
+func Read(input_file *file.File) *Config {
+	frelconfig := &Config{}
 
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())

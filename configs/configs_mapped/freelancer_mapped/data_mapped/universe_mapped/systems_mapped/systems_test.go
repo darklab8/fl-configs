@@ -21,10 +21,9 @@ func TestSaveRecycleParams(t *testing.T) {
 	logus.Log.Debug("", utils_logus.FilePath(freelancer_folder))
 	filesystem := filefind.FindConfigs(freelancer_folder)
 
-	universe_config := universe_mapped.Config{}
-	universe_config.Read(file.NewFile(filesystem.Hashmap[universe_mapped.FILENAME].GetFilepath()))
+	universe_config := universe_mapped.Read(file.NewFile(filesystem.Hashmap[universe_mapped.FILENAME].GetFilepath()))
 
-	systems := (&Config{}).Read(&universe_config, filesystem)
+	systems := Read(universe_config, filesystem)
 
 	system, ok := systems.SystemsMap.MapGetValue("br01")
 	assert.True(t, ok, "system should be present")
