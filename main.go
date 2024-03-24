@@ -12,7 +12,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
-	"github.com/darklab8/go-utils/goutils/utils"
+	"github.com/darklab8/go-utils/goutils/utils/time_measure"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	utils.TimeMeasure(func() {
+	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		game_location := configs_fixtures.FixtureGameLocation()
 		config := exe_mapped.FixtureFLINIConfig()
 		ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.Dll)
@@ -35,5 +35,5 @@ func main() {
 			fmt.Println(text)
 			break
 		}
-	}, "measures time")
+	})
 }
