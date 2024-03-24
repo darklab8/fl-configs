@@ -1,12 +1,10 @@
 package exe_mapped
 
 import (
-	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
 	"runtime/pprof"
-	"strings"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
@@ -41,20 +39,6 @@ func TestReadInfocards(t *testing.T) {
 	)
 }
 
-type RDL struct {
-	XMLName xml.Name `xml:"RDL"`
-	Text    string   `xml:",chardata"`
-	PUSH    string   `xml:"PUSH"`
-	TEXT    []string `xml:"TEXT"`
-	PARA    []string `xml:"PARA"`
-	POP     string   `xml:"POP"`
-}
-
-type RDL2 struct {
-	XMLName xml.Name `xml:"RDL"`
-	TEXT    []string `xml:"TEXT"`
-}
-
 func TestReadInfocardsToHtml(t *testing.T) {
 	f, err := os.Create("prof.prof")
 	if err != nil {
@@ -77,18 +61,12 @@ func TestReadInfocardsToHtml(t *testing.T) {
 
 		xml_stuff := ids[465639]
 		fmt.Println("xml_stuff=", xml_stuff)
-		var mappy map[string]interface{} = make(map[string]interface{})
-		_ = mappy
-		var structy RDL2
-		_ = structy
-		err := xml.Unmarshal([]byte(strings.ReplaceAll(string(xml_stuff), `<?xml version="1.0" encoding="UTF-16"?>`, "")), &structy)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(structy)
 
-		assert.Greater(t, len(structy.TEXT), 0)
-		assert.NotEmpty(t, structy.TEXT)
+		text, err := XmlToText(xml_stuff)
+		logus.Log.CheckFatal(err, "unable convert to text")
+
+		assert.Greater(t, len(text), 0)
+		assert.NotEmpty(t, text)
 
 	}, time_measure.WithMsg("measure time"))
 	logus.Log.CheckFatal(result.ResultErr, "non nil exit")

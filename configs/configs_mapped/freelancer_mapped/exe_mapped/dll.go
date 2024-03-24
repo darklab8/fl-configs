@@ -354,6 +354,7 @@ func GetResource(
 		}
 
 		if 500904 == ids_index {
+			// 131132 looks like bad at the end too
 			_ = datalength
 		}
 
