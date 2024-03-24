@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/darklab8/go-typelog v0.5.0
-	github.com/darklab8/go-utils v0.11.0
+	github.com/darklab8/go-utils v0.12.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.14.0
 )
