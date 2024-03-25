@@ -47,7 +47,7 @@ func Read(input_file *file.File) *Config {
 	for _, section := range iniconfig.Sections {
 		base_to_add := &BaseGood{}
 		base_to_add.Map(section)
-		base_to_add.Base = semantic.NewString(section, KEY_BASE, semantic.TypeVisible, inireader.REQUIRED_p)
+		base_to_add.Base = semantic.NewString(section, KEY_BASE)
 		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 	}
 	frelconfig.Comments = iniconfig.Comments

@@ -3,15 +3,24 @@ package semantic
 import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 
 type String struct {
-	Value
+	*Value
 }
 
-func NewString(section *inireader.Section, key string, value_type ValueType, optional bool) *String {
-	s := &String{}
-	s.section = section
-	s.key = key
-	s.optional = optional
-	s.value_type = value_type
+type StringOption func(i *String)
+
+func StrOpts(opts ...ValueOption) StringOption {
+	return func(i *String) {
+		for _, opt := range opts {
+			opt(i.Value)
+		}
+	}
+}
+
+func NewString(section *inireader.Section, key string, opts ...StringOption) *String {
+	s := &String{Value: NewValue(section, key)}
+	for _, opt := range opts {
+		opt(s)
+	}
 	return s
 }
 

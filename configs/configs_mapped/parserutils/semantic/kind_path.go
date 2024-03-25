@@ -8,15 +8,24 @@ import (
 
 // Linux friendly filepath, that can be returned to Windows way from linux
 type Path struct {
-	Value
+	*Value
 }
 
-func NewPath(section *inireader.Section, key string, value_type ValueType, optional bool) *Path {
-	s := &Path{}
-	s.section = section
-	s.key = key
-	s.optional = optional
-	s.value_type = value_type
+type PathOption func(i *Path)
+
+func PathOpts(opts ...ValueOption) PathOption {
+	return func(i *Path) {
+		for _, opt := range opts {
+			opt(i.Value)
+		}
+	}
+}
+
+func NewPath(section *inireader.Section, key string, opts ...PathOption) *Path {
+	s := &Path{Value: NewValue(section, key)}
+	for _, opt := range opts {
+		opt(s)
+	}
 	return s
 }
 
