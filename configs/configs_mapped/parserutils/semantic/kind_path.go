@@ -11,21 +11,12 @@ type Path struct {
 	*Value
 }
 
-type PathOption func(i *Path)
-
-func PathOpts(opts ...ValueOption) PathOption {
-	return func(i *Path) {
-		for _, opt := range opts {
-			opt(i.Value)
-		}
-	}
-}
-
-func NewPath(section *inireader.Section, key string, opts ...PathOption) *Path {
-	s := &Path{Value: NewValue(section, key)}
+func NewPath(section *inireader.Section, key string, opts ...ValueOption) *Path {
+	v := NewValue(section, key)
 	for _, opt := range opts {
-		opt(s)
+		opt(v)
 	}
+	s := &Path{Value: v}
 	return s
 }
 

@@ -6,21 +6,12 @@ type Int struct {
 	*Value
 }
 
-type IntOption func(i *Int)
-
-func IntOpts(opts ...ValueOption) IntOption {
-	return func(i *Int) {
-		for _, opt := range opts {
-			opt(i.Value)
-		}
-	}
-}
-
-func NewInt(section *inireader.Section, key string, opts ...IntOption) *Int {
-	s := &Int{Value: NewValue(section, key)}
+func NewInt(section *inireader.Section, key string, opts ...ValueOption) *Int {
+	v := NewValue(section, key)
 	for _, opt := range opts {
-		opt(s)
+		opt(v)
 	}
+	s := &Int{Value: v}
 
 	return s
 }

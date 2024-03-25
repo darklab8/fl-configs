@@ -17,7 +17,8 @@ type MarketGood struct {
 
 type BaseGood struct {
 	semantic.Model
-	Base *semantic.String
+	Base          *semantic.String
+	PriceModifier *semantic.Int
 	// TODO Goods          *SemanticMultiKey[MarketGood] (GetAll)
 }
 
@@ -48,6 +49,7 @@ func Read(input_file *file.File) *Config {
 		base_to_add := &BaseGood{}
 		base_to_add.Map(section)
 		base_to_add.Base = semantic.NewString(section, KEY_BASE)
+		base_to_add.PriceModifier = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Order(6))
 		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 	}
 	frelconfig.Comments = iniconfig.Comments

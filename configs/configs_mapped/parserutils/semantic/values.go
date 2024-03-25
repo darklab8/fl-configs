@@ -41,13 +41,13 @@ func (v Value) isComment() bool {
 
 type ValueOption func(i *Value)
 
-func WithOrder(order int) ValueOption {
+func Order(order int) ValueOption {
 	return func(i *Value) {
 		i.order = order
 	}
 }
 
-func WithOptional() ValueOption {
+func Optional() ValueOption {
 	return func(i *Value) {
 		i.optional = true
 	}

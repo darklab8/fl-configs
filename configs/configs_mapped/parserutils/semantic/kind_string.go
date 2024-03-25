@@ -6,21 +6,12 @@ type String struct {
 	*Value
 }
 
-type StringOption func(i *String)
-
-func StrOpts(opts ...ValueOption) StringOption {
-	return func(i *String) {
-		for _, opt := range opts {
-			opt(i.Value)
-		}
-	}
-}
-
-func NewString(section *inireader.Section, key string, opts ...StringOption) *String {
-	s := &String{Value: NewValue(section, key)}
+func NewString(section *inireader.Section, key string, opts ...ValueOption) *String {
+	v := NewValue(section, key)
 	for _, opt := range opts {
-		opt(s)
+		opt(v)
 	}
+	s := &String{Value: v}
 	return s
 }
 
