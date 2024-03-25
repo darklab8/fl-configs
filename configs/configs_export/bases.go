@@ -96,4 +96,5 @@ type Base struct {
 	Infocard         Infocard
 	File             utils_types.FilePath
 	BGCS_base_run_by string
+	Goods            []MarketGood
 }

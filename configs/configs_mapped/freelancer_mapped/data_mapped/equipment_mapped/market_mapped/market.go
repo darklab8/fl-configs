@@ -11,15 +11,16 @@ import (
 // Not implemented. Create SemanticMultiKeyValue
 type MarketGood struct {
 	semantic.Model
-	Name *semantic.String
+	Nickname      *semantic.String
+	PriceModifier *semantic.Float
 	// Values SemanticIntArray
 }
 
 type BaseGood struct {
 	semantic.Model
-	Base          *semantic.String
-	PriceModifier *semantic.Int
-	// TODO Goods          *SemanticMultiKey[MarketGood] (GetAll)
+	Base *semantic.String
+
+	MarketGoods []*MarketGood
 }
 
 type Config struct {
@@ -49,7 +50,21 @@ func Read(input_file *file.File) *Config {
 		base_to_add := &BaseGood{}
 		base_to_add.Map(section)
 		base_to_add.Base = semantic.NewString(section, KEY_BASE)
-		base_to_add.PriceModifier = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Order(6))
+
+		for good_index, market_good := range section.ParamMap[KEY_MARKET_GOOD] {
+			_ = market_good
+			good_to_add := &MarketGood{}
+			good_to_add.Map(section)
+			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.Index(good_index))
+			good_to_add.PriceModifier = semantic.NewFloat(section,
+				KEY_MARKET_GOOD,
+				semantic.Precision(2),
+				semantic.Index(good_index),
+				semantic.Order(6),
+			)
+			base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
+		}
+
 		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 	}
 	frelconfig.Comments = iniconfig.Comments

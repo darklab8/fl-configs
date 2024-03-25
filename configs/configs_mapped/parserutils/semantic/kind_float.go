@@ -2,33 +2,39 @@ package semantic
 
 import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 
-type Int struct {
+type Precision int
+
+type Float struct {
 	*Value
+	precision Precision
 }
 
-func NewInt(section *inireader.Section, key string, opts ...ValueOption) *Int {
+func NewFloat(section *inireader.Section, key string, precision Precision, opts ...ValueOption) *Float {
 	v := NewValue(section, key)
 	for _, opt := range opts {
 		opt(v)
 	}
-	s := &Int{Value: v}
+	s := &Float{
+		Value:     v,
+		precision: precision,
+	}
 
 	return s
 }
 
-func (s *Int) Get() int {
+func (s *Float) Get() float64 {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return 0
 	}
-	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value)
+	return s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value
 }
 
-func (s *Int) Set(value int) {
+func (s *Float) Set(value float64) {
 	if s.isComment() {
 		s.Delete()
 	}
 
-	processed_value := inireader.UniParseInt(value)
+	processed_value := inireader.UniParseFloat(value, int(s.precision))
 	if len(s.section.ParamMap[s.key]) == 0 {
 		s.section.AddParamToStart(s.key, (&inireader.Param{IsComment: s.isComment()}).AddValue(processed_value))
 	}
@@ -37,7 +43,7 @@ func (s *Int) Set(value int) {
 	s.section.ParamMap[s.key][0].Values[0] = processed_value
 }
 
-func (s *Int) Delete() {
+func (s *Float) Delete() {
 	delete(s.section.ParamMap, s.key)
 	for index, param := range s.section.Params {
 		if param.Key == s.key {

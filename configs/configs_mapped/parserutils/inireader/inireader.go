@@ -269,6 +269,13 @@ func UniParseInt(input int) UniValue {
 	return u
 }
 
+func UniParseFloat(input float64, precision int) UniValue {
+	u := ValueNumber{}
+	u.Value = float64(input)
+	u.Precision = precision
+	return u
+}
+
 var regexNumber *regexp.Regexp
 var regexComment *regexp.Regexp
 var regexSection *regexp.Regexp

@@ -15,3 +15,12 @@ func TestExportBases(t *testing.T) {
 	assert.Greater(t, len(bases), 0)
 	assert.NotEqual(t, bases[0].Nickname, bases[1].Nickname)
 }
+
+func TestExportMarketGoods(t *testing.T) {
+	configs := configs_mapped.TestFixtureConfigs()
+	exporter := NewExporter(configs)
+
+	goods := exporter.GetMarketGoods()
+	assert.Greater(t, len(goods), 0)
+	assert.NotEqual(t, goods[0].GoodNickname, goods[1].GoodNickname)
+}

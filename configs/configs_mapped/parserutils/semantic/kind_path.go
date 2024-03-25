@@ -32,7 +32,7 @@ func (s *Path) Get() string {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
-	return s.section.ParamMap[s.key][0].First.AsString()
+	return s.section.ParamMap[s.key][s.index].First.AsString()
 }
 
 func (s *Path) Set(value string) {

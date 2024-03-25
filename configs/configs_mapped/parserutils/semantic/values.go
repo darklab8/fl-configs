@@ -22,6 +22,7 @@ type Value struct {
 	optional   bool
 	value_type ValueType
 	order      int
+	index      int
 }
 
 func NewValue(
@@ -44,6 +45,12 @@ type ValueOption func(i *Value)
 func Order(order int) ValueOption {
 	return func(i *Value) {
 		i.order = order
+	}
+}
+
+func Index(index int) ValueOption {
+	return func(i *Value) {
+		i.index = index
 	}
 }
 
