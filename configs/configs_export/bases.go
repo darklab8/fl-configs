@@ -95,9 +95,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			StridName:      base.StridName.Get(),
 			InfocardID:     infocard_id,
 			Infocard: Infocard{
-				Start:  infocardStart,
-				Middle: infocardMiddle,
-				End:    infocardEnd,
+				Lines: append(infocardStart, append(infocardMiddle, infocardEnd...)...),
 			},
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
@@ -111,9 +109,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 }
 
 type Infocard struct {
-	Start  []string
-	Middle []string
-	End    []string
+	Lines []string
 }
 
 type Base struct {

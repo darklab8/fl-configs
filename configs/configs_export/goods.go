@@ -85,7 +85,7 @@ func (e *Exporter) GetGoodSelEquip() []GoodSelEquip {
 
 		goods = append(goods, GoodSelEquip{
 			Nickname: good.Nickname.Get(),
-			Infocard: Infocard{Start: infocardStart},
+			Infocard: Infocard{Lines: infocardStart},
 		})
 
 	}
