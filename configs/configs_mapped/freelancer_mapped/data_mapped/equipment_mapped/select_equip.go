@@ -4,6 +4,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -24,7 +25,8 @@ type CommodityEquip struct {
 type ConfigSelectEquip struct {
 	semantic.ConfigModel
 
-	Commodities []*CommodityEquip
+	Commodities    []*CommodityEquip
+	CommoditiesMap *lower_map.KeyLoweredMap[string, *CommodityEquip]
 }
 
 const (
@@ -36,6 +38,7 @@ func ReadSelectEquip(input_file *file.File) *ConfigSelectEquip {
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 	frelconfig.Commodities = make([]*CommodityEquip, 0, 100)
+	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *CommodityEquip]()
 
 	for _, section := range iniconfig.SectionMap["[Commodity]"] {
 		commodity := &CommodityEquip{}
@@ -51,7 +54,7 @@ func ReadSelectEquip(input_file *file.File) *ConfigSelectEquip {
 		commodity.HitPts = semantic.NewInt(section, "hit_pts")
 
 		frelconfig.Commodities = append(frelconfig.Commodities, commodity)
-
+		frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
 	}
 	return frelconfig
 }

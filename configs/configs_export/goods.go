@@ -1,5 +1,12 @@
 package configs_export
 
+import (
+	"math"
+	"strings"
+
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+)
+
 type GoodType string
 
 const (
@@ -16,8 +23,8 @@ type MarketGood struct {
 
 	IsBuyOnly     bool
 	PriceModifier float64
-	PriceBase     float64
-	Price         float64
+	PriceBase     int
+	Price         int
 }
 
 func (e *Exporter) GetMarketGoods() map[string][]MarketGood {
@@ -29,22 +36,25 @@ func (e *Exporter) GetMarketGoods() map[string][]MarketGood {
 		var MarketGoods []MarketGood = make([]MarketGood, 0, 20)
 		for _, market_good := range base_good.MarketGoods {
 
-			// var name string
-			// if base_infocard, ok := e.configs.Infocards.Infonames[base.StridName.Get()]; ok {
-			// 	name = string(base_infocard)
-			// }
+			commodity_selequip := e.configs.SelectEquip.CommoditiesMap.MapGet(strings.ToLower(market_good.Nickname.Get()))
+
+			var Name infocard.Infoname
+			if infoname, ok := e.configs.Infocards.Infonames[commodity_selequip.IdsName.Get()]; ok {
+				Name = infoname
+			}
+
+			commodity_good := e.configs.Goods.CommoditiesMap.MapGet(strings.ToLower(market_good.Nickname.Get()))
 
 			MarketGoods = append(MarketGoods, MarketGood{
+				Name:          string(Name),
 				Nickname:      market_good.Nickname.Get(),
 				Type:          TypeCommodity,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
 				IsBuyOnly:     market_good.IsBuyOnly.Get(),
 				PriceModifier: market_good.PriceModifier.Get(),
-
-				// TODO
-				// PriceBase:
-				// Price:
+				PriceBase:     commodity_good.Price.Get(),
+				Price:         int(math.Floor(float64(commodity_good.Price.Get()) * market_good.PriceModifier.Get())),
 			})
 		}
 

@@ -4,6 +4,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/fl-configs/configs/lower_map"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
@@ -25,10 +26,11 @@ type Commodity struct {
 	JumpDist      *semantic.Int
 }
 
-type Config struct {
+type ConfigGoods struct {
 	semantic.ConfigModel
 
-	Commodities []*Commodity
+	Commodities    []*Commodity
+	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
 }
 
 const (
@@ -36,11 +38,12 @@ const (
 	// GOOD_KEY                      = "[Good]"
 )
 
-func Read(input_file *file.File) *Config {
-	frelconfig := &Config{}
+func Read(input_file *file.File) *ConfigGoods {
+	frelconfig := &ConfigGoods{}
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
+	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
 
 	for _, section := range iniconfig.Sections {
 		commodity := &Commodity{}
@@ -62,12 +65,13 @@ func Read(input_file *file.File) *Config {
 			commodity.JumpDist = semantic.NewInt(section, "jump_dist")
 
 			frelconfig.Commodities = append(frelconfig.Commodities, commodity)
+			frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
 		}
 	}
 	return frelconfig
 }
 
-func (frelconfig *Config) Write() *file.File {
+func (frelconfig *ConfigGoods) Write() *file.File {
 
 	inifile := frelconfig.Render()
 	inifile.Write(inifile.File)

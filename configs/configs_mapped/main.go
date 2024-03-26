@@ -4,6 +4,7 @@ Tool to parse freelancer configs
 package configs_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
@@ -30,6 +31,9 @@ type MappedConfigs struct {
 	FreelancerINI     *exe_mapped.Config
 	InfocardmapINI    *interface_mapped.Config
 	Infocards         *infocard.Config
+
+	Goods       *equipment_mapped.ConfigGoods
+	SelectEquip *equipment_mapped.ConfigSelectEquip
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -52,6 +56,9 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	p.InfocardmapINI = interface_mapped.Read(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
 
 	p.Infocards = infocard_mapped.Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))
+
+	p.Goods = equipment_mapped.Read(filesystem.GetFile(equipment_mapped.FILENAME))
+	p.SelectEquip = equipment_mapped.ReadSelectEquip(filesystem.GetFile(equipment_mapped.FILENAME_SELECT_EQUIP))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 

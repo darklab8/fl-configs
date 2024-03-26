@@ -28,7 +28,7 @@ func NewKeyLoweredMap[K ~string, V any](opts ...LoweredMapOpt[K, V]) *KeyLowered
 }
 
 func (d *KeyLoweredMap[K, V]) MapSet(key K, value V) {
-	d.data[K(strings.ToLower(string(key)))] = value
+	d.data[K(strings.ToLower(strings.ReplaceAll(string(key), " ", "")))] = value
 }
 
 func (d *KeyLoweredMap[K, V]) MapGet(key K) V {
