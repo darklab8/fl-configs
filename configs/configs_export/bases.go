@@ -1,9 +1,6 @@
 package configs_export
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/lower_map"
@@ -40,10 +37,6 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 		var infocard_id int
 		var reputation_nickname string
 
-		if strings.ToLower(base.Nickname.Get()) == "st08_03_base" {
-			fmt.Println()
-		}
-
 		if system, ok := e.configs.Systems.SystemsMap.MapGetValue(base.System.Get()); ok {
 			for _, system_base := range system.Bases {
 				if system_base.IdsName.Get() == base.StridName.Get() {
@@ -52,7 +45,6 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 				}
 			}
 		}
-		_ = reputation_nickname
 
 		var infocardStart []string
 
@@ -74,6 +66,22 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			}
 		}
 
+		var infocardEnd []string
+		var factionName string
+		if group, exists := e.configs.InitialWorld.GroupsMap.MapGetValue(reputation_nickname); exists {
+			if infocard_part, infocard_middle_exists := e.configs.Infocards.Infocards[group.IdsInfo.Get()]; infocard_middle_exists {
+				if infocard_beginning_exists {
+					var err error
+					infocardEnd, err = infocard_part.XmlToText()
+					logus.Log.CheckError(err, "failed to xml infocard")
+				}
+			}
+
+			if faction_name, exists := e.configs.Infocards.Infonames[group.IdsName.Get()]; exists {
+				factionName = string(faction_name)
+			}
+		}
+
 		var market_goods []MarketGood
 		if found_commodities, ok := commodities_per_base.MapGetValue(base.Nickname.Get()); ok {
 			market_goods = found_commodities
@@ -81,6 +89,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 		results[iterator] = Base{
 			Name:           name,
 			Nickname:       base.Nickname.Get(),
+			FactionName:    factionName,
 			System:         string(system_name),
 			SystemNickname: base.System.Get(),
 			StridName:      base.StridName.Get(),
@@ -88,6 +97,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			Infocard: Infocard{
 				Start:  infocardStart,
 				Middle: infocardMiddle,
+				End:    infocardEnd,
 			},
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
@@ -103,11 +113,13 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 type Infocard struct {
 	Start  []string
 	Middle []string
+	End    []string
 }
 
 type Base struct {
 	Name             string
 	Nickname         string
+	FactionName      string
 	System           string
 	SystemNickname   string
 	StridName        int
