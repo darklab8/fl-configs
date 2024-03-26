@@ -40,7 +40,7 @@ func Read(input_file *file.File) *Config {
 	frelconfig := &Config{}
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-	frelconfig.Commodities = make([]*Commodity, 0)
+	frelconfig.Commodities = make([]*Commodity, 0, 100)
 
 	for _, section := range iniconfig.Sections {
 		commodity := &Commodity{}
