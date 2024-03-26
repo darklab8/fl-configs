@@ -6,10 +6,25 @@ type KeyLoweredMap[K ~string, V any] struct {
 	data map[K]V
 }
 
-func NewKeyLoweredMap[K ~string, V any]() *KeyLoweredMap[K, V] {
-	return &KeyLoweredMap[K, V]{
+type LoweredMapOpt[K ~string, V any] func(m *KeyLoweredMap[K, V])
+
+func WithData[K ~string, V any](data map[K]V) LoweredMapOpt[K, V] {
+	return func(m *KeyLoweredMap[K, V]) {
+		for key, value := range data {
+			m.data[K(strings.ToLower(string(key)))] = value
+		}
+	}
+}
+
+func NewKeyLoweredMap[K ~string, V any](opts ...LoweredMapOpt[K, V]) *KeyLoweredMap[K, V] {
+	m := &KeyLoweredMap[K, V]{
 		data: make(map[K]V),
 	}
+	for _, opt := range opts {
+		opt(m)
+	}
+
+	return m
 }
 
 func (d *KeyLoweredMap[K, V]) MapSet(key K, value V) {

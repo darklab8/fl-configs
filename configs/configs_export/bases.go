@@ -3,6 +3,7 @@ package configs_export
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
@@ -11,6 +12,8 @@ type NoNameIncluded bool
 
 func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 	var results []Base = make([]Base, len(e.configs.Universe_config.Bases))
+
+	commodities_per_base := lower_map.NewKeyLoweredMap(lower_map.WithData(e.GetMarketGoods()))
 
 	iterator := 0
 	for _, base := range e.configs.Universe_config.Bases {
@@ -60,6 +63,10 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			}
 		}
 
+		var market_goods []MarketGood
+		if found_commodities, ok := commodities_per_base.MapGetValue(base.Nickname.Get()); ok {
+			market_goods = found_commodities
+		}
 		results[iterator] = Base{
 			Name:           name,
 			Nickname:       base.Nickname.Get(),
@@ -73,6 +80,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 			},
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
+			MarketGoods:      market_goods,
 		}
 		iterator += 1
 	}
