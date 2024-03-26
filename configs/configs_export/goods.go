@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 )
 
 type GoodType string
@@ -62,4 +63,31 @@ func (e *Exporter) GetMarketGoods() map[string][]MarketGood {
 
 	}
 	return GoodsPerBase
+}
+
+type GoodSelEquip struct {
+	Nickname string
+	Infocard Infocard
+}
+
+func (e *Exporter) GetGoodSelEquip() []GoodSelEquip {
+
+	var goods []GoodSelEquip = make([]GoodSelEquip, 0, 100)
+	for _, good := range e.configs.SelectEquip.Commodities {
+
+		var infocardStart []string
+		infocard, infocard_exists := e.configs.Infocards.Infocards[good.IdsInfo.Get()]
+		if infocard_exists {
+			var err error
+			infocardStart, err = infocard.XmlToText()
+			logus.Log.CheckError(err, "failed to xml infocard")
+		}
+
+		goods = append(goods, GoodSelEquip{
+			Nickname: good.Nickname.Get(),
+			Infocard: Infocard{Start: infocardStart},
+		})
+
+	}
+	return goods
 }
