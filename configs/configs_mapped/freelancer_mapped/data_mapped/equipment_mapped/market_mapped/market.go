@@ -11,9 +11,13 @@ import (
 // Not implemented. Create SemanticMultiKeyValue
 type MarketGood struct {
 	semantic.Model
-	Nickname      *semantic.String
-	PriceModifier *semantic.Float
-	// Values SemanticIntArray
+	Nickname *semantic.String // 0
+
+	LevelRequired *semantic.Int   // 1
+	RepRequired   *semantic.Float // 2
+
+	IsBuyOnly     *semantic.Bool  // 5
+	PriceModifier *semantic.Float // 6
 }
 
 type BaseGood struct {
@@ -56,12 +60,10 @@ func Read(input_file *file.File) *Config {
 			good_to_add := &MarketGood{}
 			good_to_add.Map(section)
 			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.Index(good_index))
-			good_to_add.PriceModifier = semantic.NewFloat(section,
-				KEY_MARKET_GOOD,
-				semantic.Precision(2),
-				semantic.Index(good_index),
-				semantic.Order(6),
-			)
+			good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
+			good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
+			good_to_add.IsBuyOnly = semantic.NewBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))
+			good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
 			base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
 		}
 
