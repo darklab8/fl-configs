@@ -1,6 +1,9 @@
 package configs_export
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/lower_map"
@@ -17,7 +20,6 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 
 	iterator := 0
 	for _, base := range e.configs.Universe_config.Bases {
-
 		var name string
 		if base_infocard, ok := e.configs.Infocards.Infonames[base.StridName.Get()]; ok {
 			name = string(base_infocard)
@@ -36,12 +38,21 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 		}
 
 		var infocard_id int
-		if system, ok := e.configs.Systems.SystemsMap.MapGetValue(base.System.Get()); ok {
+		var reputation_nickname string
 
-			if system_base, ok := system.BasesByBase.MapGetValue(base.Nickname.Get()); ok {
-				infocard_id = system_base.IDsInfo.Get()
+		if strings.ToLower(base.Nickname.Get()) == "st08_03_base" {
+			fmt.Println()
+		}
+
+		if system, ok := e.configs.Systems.SystemsMap.MapGetValue(base.System.Get()); ok {
+			for _, system_base := range system.Bases {
+				if system_base.IdsName.Get() == base.StridName.Get() {
+					infocard_id = system_base.IDsInfo.Get()
+					reputation_nickname = system_base.RepNickname.Get()
+				}
 			}
 		}
+		_ = reputation_nickname
 
 		var infocardStart []string
 
