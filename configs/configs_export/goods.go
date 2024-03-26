@@ -7,8 +7,9 @@ const (
 )
 
 type MarketGood struct {
-	GoodNickname string
-	Type         GoodType
+	Name     string
+	Nickname string
+	Type     GoodType
 
 	LevelRequired int
 	RepRequired   float64
@@ -27,8 +28,14 @@ func (e *Exporter) GetMarketGoods() map[string][]MarketGood {
 
 		var MarketGoods []MarketGood = make([]MarketGood, 0, 20)
 		for _, market_good := range base_good.MarketGoods {
+
+			// var name string
+			// if base_infocard, ok := e.configs.Infocards.Infonames[base.StridName.Get()]; ok {
+			// 	name = string(base_infocard)
+			// }
+
 			MarketGoods = append(MarketGoods, MarketGood{
-				GoodNickname:  market_good.Nickname.Get(),
+				Nickname:      market_good.Nickname.Get(),
 				Type:          TypeCommodity,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),

@@ -2,28 +2,28 @@ package semantic
 
 import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 
-type Bool struct {
+type IntBool struct {
 	*Value
 }
 
-func NewBool(section *inireader.Section, key string, opts ...ValueOption) *Bool {
+func NewIntBool(section *inireader.Section, key string, opts ...ValueOption) *IntBool {
 	v := NewValue(section, key)
 	for _, opt := range opts {
 		opt(v)
 	}
-	s := &Bool{Value: v}
+	s := &IntBool{Value: v}
 
 	return s
 }
 
-func (s *Bool) Get() bool {
+func (s *IntBool) Get() bool {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return false
 	}
 	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value) == 1
 }
 
-func (s *Bool) Set(value bool) {
+func (s *IntBool) Set(value bool) {
 	var int_bool int
 
 	if value {
@@ -43,7 +43,7 @@ func (s *Bool) Set(value bool) {
 	s.section.ParamMap[s.key][0].Values[0] = processed_value
 }
 
-func (s *Bool) Delete() {
+func (s *IntBool) Delete() {
 	delete(s.section.ParamMap, s.key)
 	for index, param := range s.section.Params {
 		if param.Key == s.key {

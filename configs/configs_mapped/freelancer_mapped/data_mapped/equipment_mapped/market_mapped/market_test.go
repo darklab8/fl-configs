@@ -18,8 +18,6 @@ func TestReader(t *testing.T) {
 	loaded_market_ships := Read(fileref)
 
 	assert.Greater(t, len(loaded_market_ships.BaseGoods), 0, "market ships sections were not scanned")
-	// TODO implement
-	// assert.Greater(t, len(loaded_market_ships.BaseGoods[0].Goods), 0, "market ships sections were not scanned")
 }
 
 func TestWriter(t *testing.T) {
