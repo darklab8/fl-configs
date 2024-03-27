@@ -58,7 +58,7 @@ func Read(input_file *file.File) *Config {
 		for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
 			good_to_add := &MarketGood{}
 			good_to_add.Map(section)
-			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.Index(good_index))
+			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.SOpts(semantic.Index(good_index)))
 			good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
 			good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
 			good_to_add.IsBuyOnly = semantic.NewIntBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))

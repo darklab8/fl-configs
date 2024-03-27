@@ -1,25 +1,25 @@
 package exe_mapped
 
 import (
-	"strings"
-
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader/inireader_types"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/go-utils/goutils/utils"
 )
 
 var KEY_BASE_TERRAINS = [...]string{"terrain_tiny", "terrain_sml", "terrain_mdm", "terrain_lrg", "terrain_dyna_01", "terrain_dyna_02"}
 
 const (
-	FILENAME_FL_INI                            = "freelancer.ini"
-	RESOURCE_HEADER  inireader_types.IniHeader = "[Resources]"
-	RESOURCE_KEY_DLL                           = "dll"
+	FILENAME_FL_INI = "freelancer.ini"
 )
 
 type Resources struct {
 	semantic.Model
-	Dll []string
+	Dll []*semantic.String
+}
+
+func (r *Resources) GetDlls() []string {
+	return utils.CompL(r.Dll, func(x *semantic.String) string { return x.Get() })
 }
 
 type Config struct {
@@ -34,11 +34,11 @@ func Read(input_file *file.File) *Config {
 	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 
-	if resources, ok := iniconfig.SectionMap[RESOURCE_HEADER]; ok {
+	if resources, ok := iniconfig.SectionMap["[Resources]"]; ok {
 
-		for _, dll := range resources[0].Params {
+		for dll_index, _ := range resources[0].Params {
 			frelconfig.Resources.Dll = append(frelconfig.Resources.Dll,
-				strings.ReplaceAll(dll.First.AsString(), " ", ""),
+				semantic.NewString(resources[0], "dll", semantic.WithoutSpaces(), semantic.SOpts(semantic.Index(dll_index))),
 			)
 		}
 	}

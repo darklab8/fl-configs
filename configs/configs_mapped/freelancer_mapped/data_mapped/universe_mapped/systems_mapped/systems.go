@@ -80,8 +80,8 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 					base_to_add.Nickname = semantic.NewString(obj, KEY_NICKNAME)
 					base_to_add.Base = semantic.NewString(obj, KEY_BASE)
-					base_to_add.DockWith = semantic.NewString(obj, "dock_with", semantic.Optional())
-					base_to_add.RepNickname = semantic.NewString(obj, "reputation", semantic.Optional())
+					base_to_add.DockWith = semantic.NewString(obj, "dock_with", semantic.SOpts(semantic.Optional()))
+					base_to_add.RepNickname = semantic.NewString(obj, "reputation", semantic.SOpts(semantic.Optional()))
 
 					base_to_add.IDsInfo = semantic.NewInt(obj, "ids_info", semantic.Optional())
 					base_to_add.IdsName = semantic.NewInt(obj, "ids_name", semantic.Optional())

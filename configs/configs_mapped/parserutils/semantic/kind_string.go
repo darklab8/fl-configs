@@ -1,17 +1,37 @@
 package semantic
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+import (
+	"strings"
+
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+)
 
 type String struct {
 	*Value
+	remove_spaces bool
 }
 
-func NewString(section *inireader.Section, key string, opts ...ValueOption) *String {
-	v := NewValue(section, key)
-	for _, opt := range opts {
-		opt(v)
+type StringOption func(s *String)
+
+func WithoutSpaces() StringOption {
+	return func(s *String) { s.remove_spaces = true }
+}
+
+func SOpts(opts ...ValueOption) StringOption {
+	return func(s *String) {
+		for _, opt := range opts {
+			opt(s.Value)
+		}
 	}
+}
+
+func NewString(section *inireader.Section, key string, opts ...StringOption) *String {
+	v := NewValue(section, key)
 	s := &String{Value: v}
+
+	for _, opt := range opts {
+		opt(s)
+	}
 	return s
 }
 
@@ -19,7 +39,11 @@ func (s *String) Get() string {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
-	return s.section.ParamMap[s.key][s.index].Values[s.order].AsString()
+	value := s.section.ParamMap[s.key][s.index].Values[s.order].AsString()
+	if s.remove_spaces {
+		return strings.ReplaceAll(value, " ", "")
+	}
+	return value
 }
 
 func (s *String) Set(value string) {

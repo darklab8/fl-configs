@@ -63,7 +63,7 @@ func Read(input_file *file.File) *Config {
 				rep := &Relationship{}
 				rep.Map(group_res)
 				rep.Rep = semantic.NewFloat(group_res, param_rep_key, semantic.Precision(2), semantic.Index(rep_index))
-				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.Index(rep_index), semantic.Order(1))
+				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.SOpts(semantic.Index(rep_index), semantic.Order(1)))
 				group.Relationships = append(group.Relationships, rep)
 			}
 

@@ -28,7 +28,7 @@ func main() {
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		game_location := configs_fixtures.FixtureGameLocation()
 		config := exe_mapped.FixtureFLINIConfig()
-		ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.Dll)
+		ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.GetDlls())
 
 		for id, text := range ids.Infocards {
 			fmt.Println(id)

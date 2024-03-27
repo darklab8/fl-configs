@@ -56,6 +56,6 @@ func Read(filesystem *filefind.Filesystem, freelancer_ini *exe_mapped.Config, in
 	if input_file != nil {
 		return ReadFromTextFile(input_file)
 	} else {
-		return exe_mapped.GetAllInfocards(filesystem, freelancer_ini.Resources.Dll)
+		return exe_mapped.GetAllInfocards(filesystem, freelancer_ini.Resources.GetDlls())
 	}
 }

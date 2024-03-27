@@ -71,7 +71,7 @@ func Read(input_file *file.File) *Config {
 		for good_index, _ := range section.ParamMap[empathy_rate_key] {
 			empathy := &EmpathyRate{}
 			empathy.Map(section)
-			empathy.TargetFactionNickname = semantic.NewString(section, empathy_rate_key, semantic.Index(good_index), semantic.Order(0))
+			empathy.TargetFactionNickname = semantic.NewString(section, empathy_rate_key, semantic.SOpts(semantic.Index(good_index), semantic.Order(0)))
 			empathy.RepoChange = semantic.NewFloat(section, empathy_rate_key, semantic.Precision(2), semantic.Index(good_index), semantic.Order(1))
 			repo_changes.EmpathyRates = append(repo_changes.EmpathyRates, empathy)
 			repo_changes.EmpathyRatesMap.MapSet(empathy.TargetFactionNickname.Get(), empathy)
