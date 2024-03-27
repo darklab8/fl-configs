@@ -28,8 +28,5 @@ func TestSaveRecycleParams(t *testing.T) {
 	system, ok := systems.SystemsMap.MapGetValue("br01")
 	assert.True(t, ok, "system should be present")
 
-	_, ok = system.BasesByBase.MapGetValue("br01_01_base")
-	assert.True(t, ok, "base should be present")
-
 	system.Render()
 }

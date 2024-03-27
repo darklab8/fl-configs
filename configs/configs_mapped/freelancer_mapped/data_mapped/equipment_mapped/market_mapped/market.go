@@ -55,8 +55,7 @@ func Read(input_file *file.File) *Config {
 		base_to_add.Map(section)
 		base_to_add.Base = semantic.NewString(section, KEY_BASE)
 
-		for good_index, market_good := range section.ParamMap[KEY_MARKET_GOOD] {
-			_ = market_good
+		for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
 			good_to_add := &MarketGood{}
 			good_to_add.Map(section)
 			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.Index(good_index))

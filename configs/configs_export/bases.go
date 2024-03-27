@@ -47,9 +47,7 @@ func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 		}
 
 		var infocardStart []string
-
-		base_infocard_part1, infocard_beginning_exists := e.configs.Infocards.Infocards[infocard_id]
-		if infocard_beginning_exists {
+		if base_infocard_part1, exists := e.configs.Infocards.Infocards[infocard_id]; exists {
 			var err error
 			infocardStart, err = base_infocard_part1.XmlToText()
 			logus.Log.CheckError(err, "failed to xml infocard")
@@ -57,24 +55,20 @@ func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 
 		var infocardMiddle []string
 		if infocard_middle_id, exists := e.configs.InfocardmapINI.InfocardMapTable.Map[infocard_id]; exists {
-			if base_infocard_part2, infocard_middle_exists := e.configs.Infocards.Infocards[infocard_middle_id]; infocard_middle_exists {
-				if infocard_beginning_exists {
-					var err error
-					infocardMiddle, err = base_infocard_part2.XmlToText()
-					logus.Log.CheckError(err, "failed to xml infocard")
-				}
+			if base_infocard_part2, info_exists := e.configs.Infocards.Infocards[infocard_middle_id]; info_exists {
+				var err error
+				infocardMiddle, err = base_infocard_part2.XmlToText()
+				logus.Log.CheckError(err, "failed to xml infocard")
 			}
 		}
 
 		var infocardEnd []string
 		var factionName string
 		if group, exists := e.configs.InitialWorld.GroupsMap.MapGetValue(reputation_nickname); exists {
-			if infocard_part, infocard_middle_exists := e.configs.Infocards.Infocards[group.IdsInfo.Get()]; infocard_middle_exists {
-				if infocard_beginning_exists {
-					var err error
-					infocardEnd, err = infocard_part.XmlToText()
-					logus.Log.CheckError(err, "failed to xml infocard")
-				}
+			if infocard_part, info_exists := e.configs.Infocards.Infocards[group.IdsInfo.Get()]; info_exists {
+				var err error
+				infocardEnd, err = infocard_part.XmlToText()
+				logus.Log.CheckError(err, "failed to xml infocard")
 			}
 
 			if faction_name, exists := e.configs.Infocards.Infonames[group.IdsName.Get()]; exists {

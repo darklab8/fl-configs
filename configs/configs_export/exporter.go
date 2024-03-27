@@ -8,6 +8,7 @@ type Exporter struct {
 
 	Bases         []Base
 	GoodsSelEquip []GoodSelEquip
+	Factions      []Faction
 }
 
 type OptExport func(e *Exporter)
@@ -31,6 +32,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 func (e *Exporter) Export() *Exporter {
 	e.Bases = e.getBases(e.is_no_name_included)
 	e.GoodsSelEquip = e.getGoodSelEquip()
+	e.Factions = e.GetFactions()
 	return e
 }
 

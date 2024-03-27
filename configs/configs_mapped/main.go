@@ -7,6 +7,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
@@ -36,6 +37,7 @@ type MappedConfigs struct {
 	Goods        *equipment_mapped.ConfigGoods
 	SelectEquip  *equipment_mapped.ConfigSelectEquip
 	InitialWorld *initialworld.Config
+	Empathy      *missions_mapped.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -63,6 +65,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	p.SelectEquip = equipment_mapped.ReadSelectEquip(filesystem.GetFile(equipment_mapped.FILENAME_SELECT_EQUIP))
 
 	p.InitialWorld = initialworld.Read(filesystem.GetFile(initialworld.FILENAME))
+	p.Empathy = missions_mapped.Read(filesystem.GetFile(missions_mapped.FILENAME))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 

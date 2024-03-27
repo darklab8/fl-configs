@@ -11,12 +11,22 @@ const (
 	FILENAME = "initialworld.ini"
 )
 
+type Relationship struct {
+	semantic.Model
+
+	Rep            *semantic.Float
+	TargetNickname *semantic.String
+}
+
 type Group struct {
 	semantic.Model
 
 	Nickname *semantic.String
 	IdsName  *semantic.Int
 	IdsInfo  *semantic.Int
+
+	IdsShortName  *semantic.Int
+	Relationships []*Relationship
 }
 
 type Config struct {
@@ -43,6 +53,19 @@ func Read(input_file *file.File) *Config {
 			group.Nickname = semantic.NewString(group_res, "nickname")
 			group.IdsName = semantic.NewInt(group_res, "ids_name")
 			group.IdsInfo = semantic.NewInt(group_res, "ids_info")
+			group.IdsShortName = semantic.NewInt(group_res, "ids_short_name")
+
+			group.Relationships = make([]*Relationship, 0, 20)
+
+			param_rep_key := "rep"
+			for rep_index, _ := range group_res.ParamMap[param_rep_key] {
+
+				rep := &Relationship{}
+				rep.Map(group_res)
+				rep.Rep = semantic.NewFloat(group_res, param_rep_key, semantic.Precision(2), semantic.Index(rep_index))
+				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.Index(rep_index), semantic.Order(1))
+				group.Relationships = append(group.Relationships, rep)
+			}
 
 			frelconfig.Groups = append(frelconfig.Groups, group)
 			frelconfig.GroupsMap.MapSet(group.Nickname.Get(), group)

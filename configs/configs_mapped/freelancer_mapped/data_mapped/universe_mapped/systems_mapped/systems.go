@@ -34,7 +34,6 @@ type System struct {
 	Nickname    string
 	Bases       []*Base
 	BasesByNick *lower_map.KeyLoweredMap[string, *Base]
-	BasesByBase *lower_map.KeyLoweredMap[string, *Base]
 }
 
 type Config struct {
@@ -66,7 +65,6 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 		system_to_add.Nickname = system_key
 		system_to_add.BasesByNick = lower_map.NewKeyLoweredMap[string, *Base]()
-		system_to_add.BasesByBase = lower_map.NewKeyLoweredMap[string, *Base]()
 		system_to_add.Bases = make([]*Base, 0)
 		frelconfig.SystemsMap.MapSet(system_key, system_to_add)
 		frelconfig.Systems = append(frelconfig.Systems, system_to_add)
@@ -88,7 +86,6 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 					base_to_add.IDsInfo = semantic.NewInt(obj, "ids_info", semantic.Optional())
 					base_to_add.IdsName = semantic.NewInt(obj, "ids_name", semantic.Optional())
 
-					system_to_add.BasesByBase.MapSet(base_to_add.Base.Get(), base_to_add)
 					system_to_add.BasesByNick.MapSet(base_to_add.Nickname.Get(), base_to_add)
 					system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 				}
