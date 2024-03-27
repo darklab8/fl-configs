@@ -13,9 +13,11 @@ type Reputation struct {
 
 type Faction struct {
 	Name        string
-	Infocard    Infocard
 	ShortName   string
 	Nickname    string
+	InfonameID  int
+	InfocardID  int
+	Infocard    Infocard
 	Reputations []Reputation
 }
 
@@ -24,7 +26,9 @@ func (e *Exporter) GetFactions() []Faction {
 
 	for _, group := range e.configs.InitialWorld.Groups {
 		faction := Faction{
-			Nickname: group.Nickname.Get(),
+			Nickname:   group.Nickname.Get(),
+			InfonameID: group.IdsName.Get(),
+			InfocardID: group.IdsInfo.Get(),
 		}
 
 		if faction_name, ok := e.configs.Infocards.Infonames[group.IdsName.Get()]; ok {
