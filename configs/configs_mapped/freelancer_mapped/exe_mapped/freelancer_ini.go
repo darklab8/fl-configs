@@ -23,7 +23,7 @@ type Config struct {
 	Dlls     []*semantic.String
 	Markets  []*semantic.Path
 	Equips   []*semantic.Path
-	Universe *semantic.Path
+	Universe []*semantic.Path
 }
 
 func Read(input_file *file.File) *Config {
@@ -45,6 +45,16 @@ func Read(input_file *file.File) *Config {
 		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
 			frelconfig.Equips = append(frelconfig.Equips,
 				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
+			)
+		}
+		for equipment_index, _ := range resources[0].ParamMap["market"] {
+			frelconfig.Markets = append(frelconfig.Markets,
+				semantic.NewPath(resources[0], "market", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
+			)
+		}
+		for equipment_index, _ := range resources[0].ParamMap["universe"] {
+			frelconfig.Universe = append(frelconfig.Universe,
+				semantic.NewPath(resources[0], "universe", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
 	}
