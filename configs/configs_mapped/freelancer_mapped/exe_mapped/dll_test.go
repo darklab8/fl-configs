@@ -18,7 +18,7 @@ import (
 func TestReadInfocards(t *testing.T) {
 	game_location := configs_fixtures.FixtureGameLocation()
 	config := FixtureFLINIConfig()
-	dlls := config.Resources.GetDlls()
+	dlls := config.GetDlls()
 	infocards := GetAllInfocards(filefind.FindConfigs(game_location), dlls)
 
 	assert.Greater(t, len(infocards.Infocards), 0)
@@ -53,7 +53,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		game_location := configs_fixtures.FixtureGameLocation()
 		config := FixtureFLINIConfig()
-		infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.GetDlls())
+		infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
 
 		// assert.Greater(t, len(ids), 0)
 
@@ -79,7 +79,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 func TestValidateInfocards(t *testing.T) {
 	game_location := configs_fixtures.FixtureGameLocation()
 	config := FixtureFLINIConfig()
-	infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.Resources.GetDlls())
+	infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
 
 	var parsed []*infocard.Infocard = make([]*infocard.Infocard, 0, 100)
 	var parsed_text map[int][]string = make(map[int][]string)

@@ -9,15 +9,20 @@ import (
 type String struct {
 	*Value
 	remove_spaces bool
+	lowercase     bool
 }
 
 type StringOption func(s *String)
 
-func WithoutSpaces() StringOption {
+func WithoutSpacesS() StringOption {
 	return func(s *String) { s.remove_spaces = true }
 }
 
-func SOpts(opts ...ValueOption) StringOption {
+func WithLowercaseS() StringOption {
+	return func(s *String) { s.lowercase = true }
+}
+
+func OptsS(opts ...ValueOption) StringOption {
 	return func(s *String) {
 		for _, opt := range opts {
 			opt(s.Value)
@@ -41,7 +46,10 @@ func (s *String) Get() string {
 	}
 	value := s.section.ParamMap[s.key][s.index].Values[s.order].AsString()
 	if s.remove_spaces {
-		return strings.ReplaceAll(value, " ", "")
+		value = strings.ReplaceAll(value, " ", "")
+	}
+	if s.lowercase {
+		value = strings.ToLower(value)
 	}
 	return value
 }

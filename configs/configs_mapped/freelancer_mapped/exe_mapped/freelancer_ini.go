@@ -13,19 +13,17 @@ const (
 	FILENAME_FL_INI = "freelancer.ini"
 )
 
-type Resources struct {
-	semantic.Model
-	Dll []*semantic.String
-}
-
-func (r *Resources) GetDlls() []string {
-	return utils.CompL(r.Dll, func(x *semantic.String) string { return x.Get() })
+func (r *Config) GetDlls() []string {
+	return utils.CompL(r.Dlls, func(x *semantic.String) string { return x.Get() })
 }
 
 type Config struct {
 	semantic.ConfigModel
 
-	Resources Resources
+	Dlls     []*semantic.String
+	Markets  []*semantic.Path
+	Equips   []*semantic.Path
+	Universe *semantic.Path
 }
 
 func Read(input_file *file.File) *Config {
@@ -37,8 +35,16 @@ func Read(input_file *file.File) *Config {
 	if resources, ok := iniconfig.SectionMap["[Resources]"]; ok {
 
 		for dll_index, _ := range resources[0].Params {
-			frelconfig.Resources.Dll = append(frelconfig.Resources.Dll,
-				semantic.NewString(resources[0], "dll", semantic.WithoutSpaces(), semantic.SOpts(semantic.Index(dll_index))),
+			frelconfig.Dlls = append(frelconfig.Dlls,
+				semantic.NewString(resources[0], "dll", semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(dll_index))),
+			)
+		}
+	}
+
+	if resources, ok := iniconfig.SectionMap["[Data]"]; ok {
+		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
+			frelconfig.Equips = append(frelconfig.Equips,
+				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
 	}

@@ -97,7 +97,7 @@ func Read(input_file *file.File) *Config {
 			base_to_add.Map(base)
 			base_to_add.Nickname = semantic.NewString(base, KEY_NICKNAME)
 			base_to_add.StridName = semantic.NewInt(base, KEY_STRIDNAME)
-			base_to_add.BGCS_base_run_by = semantic.NewString(base, KEY_BASE_BGCS, semantic.SOpts(semantic.Optional()))
+			base_to_add.BGCS_base_run_by = semantic.NewString(base, KEY_BASE_BGCS, semantic.OptsS(semantic.Optional()))
 			base_to_add.System = semantic.NewString(base, KEY_SYSTEM)
 			base_to_add.File = semantic.NewPath(base, KEY_FILE)
 
@@ -117,7 +117,7 @@ func Read(input_file *file.File) *Config {
 			// system_to_add.NavMapScale = system.GetParamNumber(KEY_SYSTEM_NAVMAPSCALE, inireader.OPTIONAL_p)
 			system_to_add.Nickname = semantic.NewString(system, KEY_NICKNAME)
 			system_to_add.File = semantic.NewPath(system, KEY_FILE)
-			system_to_add.Msg_id_prefix = semantic.NewString(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.SOpts(semantic.Optional()))
+			system_to_add.Msg_id_prefix = semantic.NewString(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.OptsS(semantic.Optional()))
 
 			frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
 			frelconfig.SystemMap.MapSet(SystemNickname(system_to_add.Nickname.Get()), &system_to_add)
