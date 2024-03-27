@@ -12,9 +12,15 @@ type Reputation struct {
 }
 
 type Faction struct {
-	Name        string
-	ShortName   string
-	Nickname    string
+	Name      string
+	ShortName string
+	Nickname  string
+
+	ObjectDestruction float64
+	MissionSuccess    float64
+	MissionFailure    float64
+	MissionAbort      float64
+
 	InfonameID  int
 	InfocardID  int
 	Infocard    Infocard
@@ -46,6 +52,13 @@ func (e *Exporter) GetFactions() []Faction {
 		}
 
 		empathy_rates, empathy_exists := e.configs.Empathy.RepoChangeMap.MapGetValue(faction.Nickname)
+
+		if empathy_exists {
+			faction.ObjectDestruction = empathy_rates.ObjectDestruction.Get()
+			faction.MissionSuccess = empathy_rates.MissionSuccess.Get()
+			faction.MissionFailure = empathy_rates.MissionFailure.Get()
+			faction.MissionAbort = empathy_rates.MissionAbort.Get()
+		}
 
 		for _, reputation := range group.Relationships {
 			rep_to_add := &Reputation{}
