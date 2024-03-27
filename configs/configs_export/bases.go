@@ -10,10 +10,10 @@ import (
 
 type NoNameIncluded bool
 
-func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
+func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 	var results []Base = make([]Base, len(e.configs.Universe_config.Bases))
 
-	commodities_per_base := lower_map.NewKeyLoweredMap(lower_map.WithData(e.GetMarketGoods()))
+	commodities_per_base := lower_map.NewKeyLoweredMap(lower_map.WithData(e.getMarketGoods()))
 
 	iterator := 0
 	for _, base := range e.configs.Universe_config.Bases {
@@ -105,6 +105,7 @@ func (e *Exporter) Bases(is_no_name_included NoNameIncluded) []Base {
 	}
 
 	results = results[:iterator]
+
 	return results
 }
 

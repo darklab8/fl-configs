@@ -28,7 +28,7 @@ type MarketGood struct {
 	Price         int
 }
 
-func (e *Exporter) GetMarketGoods() map[string][]MarketGood {
+func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 	var GoodsPerBase map[string][]MarketGood = make(map[string][]MarketGood)
 
 	for _, base_good := range e.configs.MarketCommidities.BaseGoods {
@@ -70,7 +70,7 @@ type GoodSelEquip struct {
 	Infocard Infocard
 }
 
-func (e *Exporter) GetGoodSelEquip() []GoodSelEquip {
+func (e *Exporter) getGoodSelEquip() []GoodSelEquip {
 
 	var goods []GoodSelEquip = make([]GoodSelEquip, 0, 100)
 	for _, good := range e.configs.SelectEquip.Commodities {

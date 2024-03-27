@@ -27,10 +27,9 @@ func Example_exportingData() {
 	configs.Read(FreelancerFolder)
 
 	// For elegantly exporting enriched data objects with better type safety for just reading access
-	exports := configs_export.NewExporter(configs)
-
-	bases := exports.Bases(configs_export.NoNameIncluded(false))
-	for _, base := range bases {
+	// it is already combined with multiple configs sources for flstat view
+	exported := configs_export.Export(configs)
+	for _, base := range exported.Bases {
 		// do smth with exported bases
 		fmt.Println(base.Name)
 		fmt.Println(base.Infocard)
