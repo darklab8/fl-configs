@@ -1,8 +1,8 @@
 package equipment_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 
@@ -48,12 +48,8 @@ type Good struct {
 	Price    *semantic.Int
 }
 
-type ConfigFile struct {
-	semantic.ConfigModel
-}
-
 type Config struct {
-	Files []*ConfigFile
+	Files []*configfile.ConfigFile
 
 	Goods    []*Good
 	GoodsMap *lower_map.KeyLoweredMap[string, *Good]
@@ -70,8 +66,8 @@ const (
 	FILENAME utils_types.FilePath = "goods.ini"
 )
 
-func Read(input_files []*file.File) *Config {
-	frelconfig := &Config{}
+func Read(configs []*configfile.ConfigFile) *Config {
+	frelconfig := &Config{Files: configs}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
 	frelconfig.Ships = make([]*Ship, 0, 100)
@@ -82,13 +78,8 @@ func Read(input_files []*file.File) *Config {
 	frelconfig.Goods = make([]*Good, 0, 100)
 	frelconfig.GoodsMap = lower_map.NewKeyLoweredMap[string, *Good]()
 
-	for _, input_file := range input_files {
-		fileconfig := &ConfigFile{}
-		iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
-		fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-		frelconfig.Files = append(frelconfig.Files, fileconfig)
-
-		for _, section := range iniconfig.SectionMap["[Good]"] {
+	for _, config := range configs {
+		for _, section := range config.Iniconfig.SectionMap["[Good]"] {
 			good := &Good{}
 			good.Map(section)
 			good.Nickname = semantic.NewString(section, "nickname")

@@ -4,6 +4,8 @@ Tool to parse freelancer configs
 package configs_mapped
 
 import (
+	"sync"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
@@ -14,6 +16,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
@@ -48,22 +51,42 @@ func NewMappedConfigs() *MappedConfigs {
 	return &MappedConfigs{}
 }
 
+func getConfigs(filesystem *filefind.Filesystem, paths []*semantic.Path) []*configfile.ConfigFile {
+	return utils.CompL(paths, func(x *semantic.Path) *configfile.ConfigFile {
+		return configfile.NewConfigFile(filesystem.GetFile(utils_types.FilePath(x.FileName())))
+	})
+}
+
 func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	logus.Log.Info("Parse START for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 	filesystem := filefind.FindConfigs(file1path)
-
 	p.FreelancerINI = exe_mapped.Read(filesystem.GetFile(exe_mapped.FILENAME_FL_INI))
+
+	files_goods := getConfigs(filesystem, p.FreelancerINI.Goods)
+	files_market := getConfigs(filesystem, p.FreelancerINI.Markets)
+	files_equip := getConfigs(filesystem, p.FreelancerINI.Equips)
+	files_shiparch := getConfigs(filesystem, p.FreelancerINI.Ships)
+
+	all_files := append(files_goods, files_market...)
+	all_files = append(all_files, files_equip...)
+	all_files = append(all_files, files_shiparch...)
+	var wg sync.WaitGroup
+	for _, file := range all_files {
+		wg.Add(1)
+		go func(file *configfile.ConfigFile) {
+			file.Scan()
+			wg.Done()
+		}(file)
+	}
+	wg.Wait()
+
 	p.Universe_config = universe_mapped.Read(filesystem.GetFile(universe_mapped.FILENAME))
 	p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
 
-	get_files := func(paths []*semantic.Path) []*file.File {
-		return utils.CompL(paths, func(x *semantic.Path) *file.File { return filesystem.GetFile(utils_types.FilePath(x.FileName())) })
-	}
-
-	p.Market = market_mapped.Read(get_files(p.FreelancerINI.Markets))
-	p.Equip = equip_mapped.Read(get_files(p.FreelancerINI.Equips))
-	p.Goods = equipment_mapped.Read(get_files(p.FreelancerINI.Goods))
-	p.Shiparch = ship_mapped.Read(get_files(p.FreelancerINI.Ships))
+	p.Market = market_mapped.Read(files_market)
+	p.Equip = equip_mapped.Read(files_equip)
+	p.Goods = equipment_mapped.Read(files_goods)
+	p.Shiparch = ship_mapped.Read(files_shiparch)
 
 	p.InfocardmapINI = interface_mapped.Read(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
 	p.Infocards = infocard_mapped.Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))

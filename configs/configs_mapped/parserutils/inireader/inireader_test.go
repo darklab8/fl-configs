@@ -14,7 +14,7 @@ import (
 func TestReader(t *testing.T) {
 	test_directory := utils.GetCurrrentTestFolder()
 	fileref := file.NewFile(utils_filepath.Join(test_directory, "market_ships.ini"))
-	config := INIFile.Read(INIFile{}, fileref)
+	config := Read(fileref)
 
 	assert.Greater(t, len(config.Sections), 0, "market ships sections were not scanned")
 }

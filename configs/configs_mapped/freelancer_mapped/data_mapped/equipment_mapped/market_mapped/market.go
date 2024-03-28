@@ -1,8 +1,8 @@
 package market_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
@@ -32,7 +32,7 @@ type ConfigFile struct {
 }
 
 type Config struct {
-	Files []*ConfigFile
+	Files []*configfile.ConfigFile
 
 	BaseGoods []*BaseGood
 }
@@ -47,18 +47,13 @@ const (
 	KEY_BASE                                       = "base"
 )
 
-func Read(input_files []*file.File) *Config {
-
-	frelconfig := &Config{}
+func Read(files []*configfile.ConfigFile) *Config {
+	frelconfig := &Config{Files: files}
 	frelconfig.BaseGoods = make([]*BaseGood, 0)
 
-	for _, input_file := range input_files {
-		fileconfig := &ConfigFile{}
-		iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
-		fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-		frelconfig.Files = append(frelconfig.Files, fileconfig)
+	for _, file := range files {
 
-		for _, section := range iniconfig.Sections {
+		for _, section := range file.Iniconfig.Sections {
 			base_to_add := &BaseGood{}
 			base_to_add.Map(section)
 			base_to_add.Base = semantic.NewString(section, KEY_BASE)

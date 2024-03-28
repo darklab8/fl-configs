@@ -51,10 +51,9 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 		system_files[base.System.Get()] = file.NewFile(path.GetFilepath())
 	}
 
-	var system_iniconfigs map[string]inireader.INIFile = make(map[string]inireader.INIFile)
+	var system_iniconfigs map[string]*inireader.INIFile = make(map[string]*inireader.INIFile)
 	for system_key, file := range system_files {
-		system := inireader.INIFile{}
-		system_iniconfigs[system_key] = inireader.INIFile.Read(system, file)
+		system_iniconfigs[system_key] = inireader.Read(file)
 	}
 
 	frelconfig.SystemsMap = lower_map.NewKeyLoweredMap[string, *System]()

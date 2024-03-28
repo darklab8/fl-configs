@@ -42,7 +42,7 @@ const (
 
 func Read(input_file *file.File) *Config {
 	frelconfig := &Config{}
-	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
+	iniconfig := inireader.Read(input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 	frelconfig.RepChangeEffects = make([]*RepChangeEffects, 0, 20)
 	frelconfig.RepoChangeMap = lower_map.NewKeyLoweredMap[string, *RepChangeEffects]()
