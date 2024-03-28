@@ -3,20 +3,13 @@ package configs_export
 import (
 	"math"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
-)
-
-type GoodType string
-
-const (
-	TypeCommodity GoodType = "commodity"
 )
 
 type MarketGood struct {
 	Name     string
 	Nickname string
-	Type     GoodType
+	Type     string
 
 	LevelRequired int
 	RepRequired   float64
@@ -25,6 +18,15 @@ type MarketGood struct {
 	PriceModifier float64
 	PriceBase     int
 	Price         int
+}
+
+func NameWithSpacesOnly(word string) bool {
+	for _, ch := range word {
+		if ch != ' ' {
+			return false
+		}
+	}
+	return true
 }
 
 func (e *Exporter) getMarketGoods() map[string][]MarketGood {
@@ -38,23 +40,29 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 
 			var nickname string = market_good.Nickname.Get()
 			var price_base int
-			var Name infocard.Infoname
+			var Name string
+			var category string
 			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(nickname); found_good {
 				price_base = good.Price.Get()
 
-				switch good.Category.Get() {
-				case "commodity":
-					equip := e.configs.Equip.CommoditiesMap.MapGet(nickname)
+				category = good.Category.Get()
+
+				if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(nickname); ok {
 					if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
-						Name = infoname
+						Name = string(infoname)
+						category = equip.Category
 					}
 				}
 			}
 
+			if NameWithSpacesOnly(Name) {
+				Name = ""
+			}
+
 			MarketGoods = append(MarketGoods, MarketGood{
-				Name:          string(Name),
+				Name:          Name,
 				Nickname:      nickname,
-				Type:          TypeCommodity,
+				Type:          category,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
 				IsBuyOnly:     market_good.IsBuyOnly.Get(),
@@ -64,21 +72,21 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			})
 		}
 
-		GoodsPerBase[base_nickname] = MarketGoods
+		GoodsPerBase[base_nickname] = append(GoodsPerBase[base_nickname], MarketGoods...)
 
 	}
 	return GoodsPerBase
 }
 
-type GoodSelEquip struct {
+type Good struct {
 	Nickname string
 	Infocard Infocard
 }
 
-func (e *Exporter) getGoodSelEquip() []GoodSelEquip {
+func (e *Exporter) getGoodSelEquip() []Good {
 
-	var goods []GoodSelEquip = make([]GoodSelEquip, 0, 100)
-	for _, good := range e.configs.Equip.Commodities {
+	var goods []Good = make([]Good, 0, 100)
+	for _, good := range e.configs.Equip.Items {
 
 		var infocardStart []string
 		infocard, infocard_exists := e.configs.Infocards.Infocards[good.IdsInfo.Get()]
@@ -88,7 +96,7 @@ func (e *Exporter) getGoodSelEquip() []GoodSelEquip {
 			logus.Log.CheckError(err, "failed to xml infocard")
 		}
 
-		goods = append(goods, GoodSelEquip{
+		goods = append(goods, Good{
 			Nickname: good.Nickname.Get(),
 			Infocard: Infocard{Lines: infocardStart},
 		})

@@ -1,12 +1,23 @@
 package equip_mapped
 
 import (
+	"strings"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
+
+type Item struct {
+	semantic.Model
+
+	Category string
+	Nickname *semantic.String
+	IdsName  *semantic.Int
+	IdsInfo  *semantic.Int
+}
 
 type Commodity struct {
 	semantic.Model
@@ -31,6 +42,9 @@ type Config struct {
 
 	Commodities    []*Commodity
 	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
+
+	Items    []*Item
+	ItemsMap *lower_map.KeyLoweredMap[string, *Item]
 }
 
 const (
@@ -41,6 +55,8 @@ func Read(input_files []*file.File) *Config {
 	frelconfig := &Config{}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
+	frelconfig.Items = make([]*Item, 0, 100)
+	frelconfig.ItemsMap = lower_map.NewKeyLoweredMap[string, *Item]()
 
 	for _, input_file := range input_files {
 		fileconfig := &ConfigFile{}
@@ -63,6 +79,17 @@ func Read(input_files []*file.File) *Config {
 
 			frelconfig.Commodities = append(frelconfig.Commodities, commodity)
 			frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
+		}
+
+		for _, section := range iniconfig.Sections {
+			item := &Item{}
+			item.Map(section)
+			item.Category = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(string(section.Type), "[", ""), "]", ""))
+			item.Nickname = semantic.NewString(section, "nickname", semantic.OptsS(semantic.Optional()))
+			item.IdsName = semantic.NewInt(section, "ids_name", semantic.Optional())
+			item.IdsInfo = semantic.NewInt(section, "ids_info", semantic.Optional())
+			frelconfig.Items = append(frelconfig.Items, item)
+			frelconfig.ItemsMap.MapSet(item.Nickname.Get(), item)
 		}
 	}
 

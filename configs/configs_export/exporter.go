@@ -7,7 +7,7 @@ type Exporter struct {
 	are_no_name_bases_included NoNameIncluded
 
 	Bases         []Base
-	GoodsSelEquip []GoodSelEquip
+	GoodsSelEquip []Good
 	Factions      []Faction
 }
 
