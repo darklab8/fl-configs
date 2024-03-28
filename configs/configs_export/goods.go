@@ -13,6 +13,7 @@ type MarketGood struct {
 
 	LevelRequired int
 	RepRequired   float64
+	Infocard      Infocard
 
 	IsBuyOnly     bool
 	PriceModifier float64
@@ -30,7 +31,7 @@ func NameWithSpacesOnly(word string) bool {
 }
 
 func (e *Exporter) getMarketGoods() map[string][]MarketGood {
-	var GoodsPerBase map[string][]MarketGood = make(map[string][]MarketGood)
+	var goods_per_base map[string][]MarketGood = make(map[string][]MarketGood)
 
 	for _, base_good := range e.configs.Market.BaseGoods {
 		base_nickname := base_good.Base.Get()
@@ -42,24 +43,61 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			var price_base int
 			var Name string
 			var category string
+			var infocard_res Infocard
 			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(nickname); found_good {
 				price_base = good.Price.Get()
 
 				category = good.Category.Get()
-
-				if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(nickname); ok {
-
-					switch category {
-					default:
+				switch category {
+				default:
+					if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(nickname); ok {
 						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
 							Name = string(infoname)
 							category = equip.Category
 						}
-					case "ship":
+
+						if infocard, infocard_exists := e.configs.Infocards.Infocards[equip.IdsInfo.Get()]; infocard_exists {
+							infocardStart, err := infocard.XmlToText()
+							logus.Log.CheckError(err, "failed to xml infocard")
+							infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
+						}
 
 					}
+				case "ship":
+					ship := e.configs.Goods.ShipsMap.MapGet(good.Nickname.Get())
 
+					ship_hull := e.configs.Goods.ShipHullsMap.MapGet(ship.Hull.Get())
+					price_base = ship_hull.Price.Get()
+
+					// Infocard data
+					ship_nickname := ship_hull.Ship.Get()
+					shiparch := e.configs.Shiparch.ShipsMap.MapGet(ship_nickname)
+
+					if infoname, ok := e.configs.Infocards.Infonames[shiparch.IdsName.Get()]; ok {
+						Name = string(infoname)
+					}
+					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo.Get()]; infocard_exists {
+						infocardStart, err := infocard.XmlToText()
+						logus.Log.CheckError(err, "failed to xml infocard")
+						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
+					}
+					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo1.Get()]; infocard_exists {
+						infocardStart, err := infocard.XmlToText()
+						logus.Log.CheckError(err, "failed to xml infocard")
+						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
+					}
+					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo2.Get()]; infocard_exists {
+						infocardStart, err := infocard.XmlToText()
+						logus.Log.CheckError(err, "failed to xml infocard")
+						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
+					}
+					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo3.Get()]; infocard_exists {
+						infocardStart, err := infocard.XmlToText()
+						logus.Log.CheckError(err, "failed to xml infocard")
+						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
+					}
 				}
+
 			}
 
 			if NameWithSpacesOnly(Name) {
@@ -76,38 +114,12 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 				PriceModifier: market_good.PriceModifier.Get(),
 				PriceBase:     price_base,
 				Price:         int(math.Floor(float64(price_base) * market_good.PriceModifier.Get())),
+				Infocard:      infocard_res,
 			})
 		}
 
-		GoodsPerBase[base_nickname] = append(GoodsPerBase[base_nickname], MarketGoods...)
+		goods_per_base[base_nickname] = append(goods_per_base[base_nickname], MarketGoods...)
 
 	}
-	return GoodsPerBase
-}
-
-type Good struct {
-	Nickname string
-	Infocard Infocard
-}
-
-func (e *Exporter) getGoodSelEquip() []Good {
-
-	var goods []Good = make([]Good, 0, 100)
-	for _, good := range e.configs.Equip.Items {
-
-		var infocardStart []string
-		infocard, infocard_exists := e.configs.Infocards.Infocards[good.IdsInfo.Get()]
-		if infocard_exists {
-			var err error
-			infocardStart, err = infocard.XmlToText()
-			logus.Log.CheckError(err, "failed to xml infocard")
-		}
-
-		goods = append(goods, Good{
-			Nickname: good.Nickname.Get(),
-			Infocard: Infocard{Lines: infocardStart},
-		})
-
-	}
-	return goods
+	return goods_per_base
 }

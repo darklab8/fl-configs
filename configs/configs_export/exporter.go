@@ -6,9 +6,8 @@ type Exporter struct {
 	configs                    *configs_mapped.MappedConfigs
 	are_no_name_bases_included NoNameIncluded
 
-	Bases         []Base
-	GoodsSelEquip []Good
-	Factions      []Faction
+	Bases    []Base
+	Factions []Faction
 }
 
 type OptExport func(e *Exporter)
@@ -31,7 +30,6 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 
 func (e *Exporter) Export() *Exporter {
 	e.Bases = e.getBases(e.are_no_name_bases_included)
-	e.GoodsSelEquip = e.getGoodSelEquip()
 	e.Factions = e.GetFactions()
 	return e
 }

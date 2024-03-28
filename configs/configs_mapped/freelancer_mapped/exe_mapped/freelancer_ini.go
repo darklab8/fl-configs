@@ -25,6 +25,7 @@ type Config struct {
 	Goods    []*semantic.Path
 	Equips   []*semantic.Path
 	Universe []*semantic.Path
+	Ships    []*semantic.Path
 }
 
 func Read(input_file *file.File) *Config {
@@ -61,6 +62,11 @@ func Read(input_file *file.File) *Config {
 		for equipment_index, _ := range resources[0].ParamMap["goods"] {
 			frelconfig.Goods = append(frelconfig.Goods,
 				semantic.NewPath(resources[0], "goods", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
+			)
+		}
+		for equipment_index, _ := range resources[0].ParamMap["ships"] {
+			frelconfig.Ships = append(frelconfig.Ships,
+				semantic.NewPath(resources[0], "ships", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
 	}

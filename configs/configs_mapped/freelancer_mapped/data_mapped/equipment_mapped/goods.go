@@ -63,7 +63,7 @@ type Config struct {
 	Ships          []*Ship
 	ShipsMap       *lower_map.KeyLoweredMap[string, *Ship]
 	ShipHulls      []*ShipHull
-	ShupHullsMap   *lower_map.KeyLoweredMap[string, *ShipHull]
+	ShipHullsMap   *lower_map.KeyLoweredMap[string, *ShipHull]
 }
 
 const (
@@ -77,7 +77,7 @@ func Read(input_files []*file.File) *Config {
 	frelconfig.Ships = make([]*Ship, 0, 100)
 	frelconfig.ShipsMap = lower_map.NewKeyLoweredMap[string, *Ship]()
 	frelconfig.ShipHulls = make([]*ShipHull, 0, 100)
-	frelconfig.ShupHullsMap = lower_map.NewKeyLoweredMap[string, *ShipHull]()
+	frelconfig.ShipHullsMap = lower_map.NewKeyLoweredMap[string, *ShipHull]()
 
 	frelconfig.Goods = make([]*Good, 0, 100)
 	frelconfig.GoodsMap = lower_map.NewKeyLoweredMap[string, *Good]()
@@ -136,7 +136,7 @@ func Read(input_files []*file.File) *Config {
 				shiphull.IdsName = semantic.NewInt(section, "ids_name")
 
 				frelconfig.ShipHulls = append(frelconfig.ShipHulls, shiphull)
-				frelconfig.ShupHullsMap.MapSet(shiphull.Nickname.Get(), shiphull)
+				frelconfig.ShipHullsMap.MapSet(shiphull.Nickname.Get(), shiphull)
 			}
 
 		}

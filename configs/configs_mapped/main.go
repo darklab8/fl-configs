@@ -8,6 +8,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/empathy_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/ship_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
@@ -27,13 +28,15 @@ import (
 )
 
 type MappedConfigs struct {
+	FreelancerINI *exe_mapped.Config
+
 	Universe_config *universe_mapped.Config
 	Systems         *systems_mapped.Config
 
-	Market        *market_mapped.Config
-	Equip         *equip_mapped.Config
-	Goods         *equipment_mapped.Config
-	FreelancerINI *exe_mapped.Config
+	Market   *market_mapped.Config
+	Equip    *equip_mapped.Config
+	Goods    *equipment_mapped.Config
+	Shiparch *ship_mapped.Config
 
 	InfocardmapINI *interface_mapped.Config
 	Infocards      *infocard.Config
@@ -60,6 +63,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	p.Market = market_mapped.Read(get_files(p.FreelancerINI.Markets))
 	p.Equip = equip_mapped.Read(get_files(p.FreelancerINI.Equips))
 	p.Goods = equipment_mapped.Read(get_files(p.FreelancerINI.Goods))
+	p.Shiparch = ship_mapped.Read(get_files(p.FreelancerINI.Ships))
 
 	p.InfocardmapINI = interface_mapped.Read(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
 	p.Infocards = infocard_mapped.Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))
