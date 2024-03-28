@@ -26,6 +26,21 @@ type Commodity struct {
 	JumpDist      *semantic.Int
 }
 
+type Ship struct {
+	semantic.Model
+	Category *semantic.String
+	Nickname *semantic.String
+	Hull     *semantic.String
+}
+type ShipHull struct {
+	semantic.Model
+	Nickname *semantic.String
+	Category *semantic.String
+	Ship     *semantic.String
+	Price    *semantic.Int
+	IdsName  *semantic.Int
+}
+
 type Good struct {
 	semantic.Model
 	Category *semantic.String
@@ -40,10 +55,15 @@ type ConfigFile struct {
 type Config struct {
 	Files []*ConfigFile
 
-	Goods          []*Good
-	GoodsMap       *lower_map.KeyLoweredMap[string, *Good]
+	Goods    []*Good
+	GoodsMap *lower_map.KeyLoweredMap[string, *Good]
+
 	Commodities    []*Commodity
 	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
+	Ships          []*Ship
+	ShipsMap       *lower_map.KeyLoweredMap[string, *Ship]
+	ShipHulls      []*ShipHull
+	ShupHullsMap   *lower_map.KeyLoweredMap[string, *ShipHull]
 }
 
 const (
@@ -54,6 +74,10 @@ func Read(input_files []*file.File) *Config {
 	frelconfig := &Config{}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
+	frelconfig.Ships = make([]*Ship, 0, 100)
+	frelconfig.ShipsMap = lower_map.NewKeyLoweredMap[string, *Ship]()
+	frelconfig.ShipHulls = make([]*ShipHull, 0, 100)
+	frelconfig.ShupHullsMap = lower_map.NewKeyLoweredMap[string, *ShipHull]()
 
 	frelconfig.Goods = make([]*Good, 0, 100)
 	frelconfig.GoodsMap = lower_map.NewKeyLoweredMap[string, *Good]()
@@ -93,6 +117,26 @@ func Read(input_files []*file.File) *Config {
 
 				frelconfig.Commodities = append(frelconfig.Commodities, commodity)
 				frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
+			case "ship":
+				ship := &Ship{}
+				ship.Map(section)
+				ship.Category = semantic.NewString(section, "category")
+				ship.Nickname = semantic.NewString(section, "nickname")
+				ship.Hull = semantic.NewString(section, "hull")
+
+				frelconfig.Ships = append(frelconfig.Ships, ship)
+				frelconfig.ShipsMap.MapSet(ship.Nickname.Get(), ship)
+			case "shiphull":
+				shiphull := &ShipHull{}
+				shiphull.Map(section)
+				shiphull.Category = semantic.NewString(section, "category")
+				shiphull.Nickname = semantic.NewString(section, "nickname")
+				shiphull.Ship = semantic.NewString(section, "ship")
+				shiphull.Price = semantic.NewInt(section, "price")
+				shiphull.IdsName = semantic.NewInt(section, "ids_name")
+
+				frelconfig.ShipHulls = append(frelconfig.ShipHulls, shiphull)
+				frelconfig.ShupHullsMap.MapSet(shiphull.Nickname.Get(), shiphull)
 			}
 
 		}

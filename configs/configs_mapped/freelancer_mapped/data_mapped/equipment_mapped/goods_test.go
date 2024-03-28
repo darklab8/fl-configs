@@ -16,6 +16,8 @@ func TestReader(t *testing.T) {
 	config := Read([]*file.File{fileref})
 
 	assert.Greater(t, len(config.Commodities), 0, "expected finding commodities")
+	assert.Greater(t, len(config.ShipHulls), 0)
+	assert.Greater(t, len(config.Ships), 0)
 
 	for _, commodity := range config.Commodities {
 		commodity.Price.Get()

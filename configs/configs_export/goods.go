@@ -48,10 +48,17 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 				category = good.Category.Get()
 
 				if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(nickname); ok {
-					if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
-						Name = string(infoname)
-						category = equip.Category
+
+					switch category {
+					default:
+						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
+							Name = string(infoname)
+							category = equip.Category
+						}
+					case "ship":
+
 					}
+
 				}
 			}
 
