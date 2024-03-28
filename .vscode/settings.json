@@ -1,10 +1,12 @@
 {
     "typescript.validate.enable": false,
     "go.testEnvVars": {
+        "FREELANCER_FOLDER": "/home/naa/windows10shared/Discovery/DiscoveryFreelancer",
         "FLDARKDATA_LOG_LEVEL": "DEBUG",
         "UTILS_LOG_LEVEL": "DEBUG",
     },
     "terminal.integrated.env.linux": {
+        "FREELANCER_FOLDER": "/home/naa/windows10shared/Discovery/DiscoveryFreelancer",
         "FLDARKDATA_LOG_LEVEL": "DEBUG",
         "UTILS_LOG_LEVEL": "DEBUG",
     },

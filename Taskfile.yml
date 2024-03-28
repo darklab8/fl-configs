@@ -7,3 +7,11 @@ tasks:
     vars:
       PWD:
         sh: echo '$(pwd)'
+
+  profiler:build:
+    cmds:
+      - go run .
+
+  profiler:show:
+    cmds:
+      - go tool pprof main.go prof.prof
