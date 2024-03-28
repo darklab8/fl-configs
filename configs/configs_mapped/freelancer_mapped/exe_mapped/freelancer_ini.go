@@ -22,6 +22,7 @@ type Config struct {
 
 	Dlls     []*semantic.String
 	Markets  []*semantic.Path
+	Goods    []*semantic.Path
 	Equips   []*semantic.Path
 	Universe []*semantic.Path
 }
@@ -44,17 +45,22 @@ func Read(input_file *file.File) *Config {
 	if resources, ok := iniconfig.SectionMap["[Data]"]; ok {
 		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
 			frelconfig.Equips = append(frelconfig.Equips,
-				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
+				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
-		for equipment_index, _ := range resources[0].ParamMap["market"] {
+		for equipment_index, _ := range resources[0].ParamMap["markets"] {
 			frelconfig.Markets = append(frelconfig.Markets,
-				semantic.NewPath(resources[0], "market", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
+				semantic.NewPath(resources[0], "markets", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
 		for equipment_index, _ := range resources[0].ParamMap["universe"] {
 			frelconfig.Universe = append(frelconfig.Universe,
-				semantic.NewPath(resources[0], "universe", semantic.WithoutSpacesP(), semantic.OptsP(semantic.Index(equipment_index))),
+				semantic.NewPath(resources[0], "universe", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
+			)
+		}
+		for equipment_index, _ := range resources[0].ParamMap["goods"] {
+			frelconfig.Goods = append(frelconfig.Goods,
+				semantic.NewPath(resources[0], "goods", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
 			)
 		}
 	}

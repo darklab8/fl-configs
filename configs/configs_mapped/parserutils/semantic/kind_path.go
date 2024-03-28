@@ -1,6 +1,7 @@
 package semantic
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
@@ -44,8 +45,16 @@ func (s *Path) FileName() string {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
-	result := s.section.ParamMap[s.key][0].First.AsString()
-	return strings.Split(string(result), `\`)[2]
+	value := s.section.ParamMap[s.key][s.index].Values[s.order].AsString()
+	value = strings.ReplaceAll(value, "\\", PATH_SEPARATOR)
+	value = filepath.Base(value)
+	if s.remove_spaces {
+		value = strings.ReplaceAll(value, " ", "")
+	}
+	if s.lowercase {
+		value = strings.ToLower(value)
+	}
+	return value
 }
 
 func (s *Path) Get() string {

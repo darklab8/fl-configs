@@ -23,11 +23,3 @@ func TestExportBases(t *testing.T) {
 	}
 	assert.True(t, found_goods, "expected finding some goods")
 }
-
-func TestExportMarketGoods(t *testing.T) {
-	configs := configs_mapped.TestFixtureConfigs()
-	exporter := NewExporter(configs)
-
-	goods := exporter.getMarketGoods()
-	assert.Greater(t, len(goods), 0)
-}

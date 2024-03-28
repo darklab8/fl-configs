@@ -26,54 +26,87 @@ type Commodity struct {
 	JumpDist      *semantic.Int
 }
 
-type ConfigGoods struct {
-	semantic.ConfigModel
+type Good struct {
+	semantic.Model
+	Category *semantic.String
+	Nickname *semantic.String
+	Price    *semantic.Int
+}
 
+type ConfigFile struct {
+	semantic.ConfigModel
+}
+
+type Config struct {
+	Files []*ConfigFile
+
+	Goods          []*Good
+	GoodsMap       *lower_map.KeyLoweredMap[string, *Good]
 	Commodities    []*Commodity
 	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
 }
 
 const (
 	FILENAME utils_types.FilePath = "goods.ini"
-	// GOOD_KEY                      = "[Good]"
 )
 
-func Read(input_file *file.File) *ConfigGoods {
-	frelconfig := &ConfigGoods{}
-	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
+func Read(input_files []*file.File) *Config {
+	frelconfig := &Config{}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
 
-	for _, section := range iniconfig.Sections {
-		commodity := &Commodity{}
-		commodity.Map(section)
-		commodity.Category = semantic.NewString(section, "category")
+	frelconfig.Goods = make([]*Good, 0, 100)
+	frelconfig.GoodsMap = lower_map.NewKeyLoweredMap[string, *Good]()
 
-		switch category := commodity.Category.Get(); category {
-		case "commodity":
-			commodity.Nickname = semantic.NewString(section, "nickname")
-			commodity.Equipment = semantic.NewString(section, "equipment")
-			commodity.Price = semantic.NewInt(section, "price")
-			commodity.Combinable = semantic.NewString(section, "combinable")
-			commodity.GoodSellPrice = semantic.NewFloat(section, "good_sell_price", semantic.Precision(2))
-			commodity.BadBuyPrice = semantic.NewFloat(section, "bad_buy_price", semantic.Precision(2))
-			commodity.BadSellPrice = semantic.NewFloat(section, "bad_sell_price", semantic.Precision(2))
-			commodity.GoodBuyPrice = semantic.NewFloat(section, "good_buy_price", semantic.Precision(2))
-			commodity.ShopArchetype = semantic.NewPath(section, "shop_archetype")
-			commodity.ItemIcon = semantic.NewPath(section, "item_icon")
-			commodity.JumpDist = semantic.NewInt(section, "jump_dist")
+	for _, input_file := range input_files {
+		fileconfig := &ConfigFile{}
+		iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
+		fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
+		frelconfig.Files = append(frelconfig.Files, fileconfig)
 
-			frelconfig.Commodities = append(frelconfig.Commodities, commodity)
-			frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
+		for _, section := range iniconfig.SectionMap["[Good]"] {
+			good := &Good{}
+			good.Map(section)
+			good.Nickname = semantic.NewString(section, "nickname")
+			good.Category = semantic.NewString(section, "category")
+			good.Price = semantic.NewInt(section, "price", semantic.Optional())
+			frelconfig.Goods = append(frelconfig.Goods, good)
+			frelconfig.GoodsMap.MapSet(good.Nickname.Get(), good)
+
+			category := good.Category.Get()
+			switch category {
+			case "commodity":
+				commodity := &Commodity{}
+				commodity.Map(section)
+				commodity.Category = semantic.NewString(section, "category")
+				commodity.Nickname = semantic.NewString(section, "nickname")
+				commodity.Equipment = semantic.NewString(section, "equipment")
+				commodity.Price = semantic.NewInt(section, "price")
+				commodity.Combinable = semantic.NewString(section, "combinable")
+				commodity.GoodSellPrice = semantic.NewFloat(section, "good_sell_price", semantic.Precision(2))
+				commodity.BadBuyPrice = semantic.NewFloat(section, "bad_buy_price", semantic.Precision(2))
+				commodity.BadSellPrice = semantic.NewFloat(section, "bad_sell_price", semantic.Precision(2))
+				commodity.GoodBuyPrice = semantic.NewFloat(section, "good_buy_price", semantic.Precision(2))
+				commodity.ShopArchetype = semantic.NewPath(section, "shop_archetype")
+				commodity.ItemIcon = semantic.NewPath(section, "item_icon")
+				commodity.JumpDist = semantic.NewInt(section, "jump_dist")
+
+				frelconfig.Commodities = append(frelconfig.Commodities, commodity)
+				frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
+			}
+
 		}
 	}
+
 	return frelconfig
 }
 
-func (frelconfig *ConfigGoods) Write() *file.File {
-
-	inifile := frelconfig.Render()
-	inifile.Write(inifile.File)
-	return inifile.File
+func (frelconfig *Config) Write() []*file.File {
+	var files []*file.File
+	for _, file := range frelconfig.Files {
+		inifile := file.Render()
+		inifile.Write(inifile.File)
+		files = append(files, inifile.File)
+	}
+	return files
 }

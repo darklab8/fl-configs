@@ -7,7 +7,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/empathy_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
@@ -15,29 +15,30 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/market_mapped"
 
+	"github.com/darklab8/go-utils/goutils/utils"
 	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 type MappedConfigs struct {
-	Universe_config   *universe_mapped.Config
-	Systems           *systems_mapped.Config
-	MarketCapital     *market_mapped.Config
-	MarketShips       *market_mapped.Config
-	MarketCommidities *market_mapped.Config
-	MarketMisc        *market_mapped.Config
-	FreelancerINI     *exe_mapped.Config
-	InfocardmapINI    *interface_mapped.Config
-	Infocards         *infocard.Config
+	Universe_config *universe_mapped.Config
+	Systems         *systems_mapped.Config
 
-	Goods        *equipment_mapped.ConfigGoods
-	SelectEquip  *equipment_mapped.ConfigSelectEquip
-	InitialWorld *initialworld.Config
-	Empathy      *missions_mapped.Config
+	Market        *market_mapped.Config
+	Equip         *equip_mapped.Config
+	Goods         *equipment_mapped.Config
+	FreelancerINI *exe_mapped.Config
+
+	InfocardmapINI *interface_mapped.Config
+	Infocards      *infocard.Config
+	InitialWorld   *initialworld.Config
+	Empathy        *empathy_mapped.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -52,20 +53,19 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	p.Universe_config = universe_mapped.Read(filesystem.GetFile(universe_mapped.FILENAME))
 	p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
 
-	p.MarketCapital = market_mapped.Read(filesystem.GetFile("market_capital.ini"))
-	p.MarketCommidities = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_COMMODITIES))
-	p.MarketMisc = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_MISC))
-	p.MarketShips = market_mapped.Read(filesystem.GetFile(market_mapped.FILENAME_SHIPS))
+	get_files := func(paths []*semantic.Path) []*file.File {
+		return utils.CompL(paths, func(x *semantic.Path) *file.File { return filesystem.GetFile(utils_types.FilePath(x.FileName())) })
+	}
+
+	p.Market = market_mapped.Read(get_files(p.FreelancerINI.Markets))
+	p.Equip = equip_mapped.Read(get_files(p.FreelancerINI.Equips))
+	p.Goods = equipment_mapped.Read(get_files(p.FreelancerINI.Goods))
 
 	p.InfocardmapINI = interface_mapped.Read(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
-
 	p.Infocards = infocard_mapped.Read(filesystem, p.FreelancerINI, filesystem.GetFile(infocard_mapped.FILENAME, infocard_mapped.FILENAME_FALLBACK))
 
-	p.Goods = equipment_mapped.Read(filesystem.GetFile(equipment_mapped.FILENAME))
-	p.SelectEquip = equipment_mapped.ReadSelectEquip(filesystem.GetFile(equipment_mapped.FILENAME_SELECT_EQUIP))
-
 	p.InitialWorld = initialworld.Read(filesystem.GetFile(initialworld.FILENAME))
-	p.Empathy = missions_mapped.Read(filesystem.GetFile(missions_mapped.FILENAME))
+	p.Empathy = empathy_mapped.Read(filesystem.GetFile(empathy_mapped.FILENAME))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
 
@@ -80,11 +80,9 @@ func (p *MappedConfigs) Write(is_dry_run IsDruRun) {
 
 	files = append(files,
 		p.Universe_config.Write(),
-		p.MarketShips.Write(),
-		p.MarketCommidities.Write(),
-		p.MarketMisc.Write(),
 	)
 	files = append(files, p.Systems.Write()...)
+	files = append(files, p.Market.Write()...)
 
 	if is_dry_run {
 		return

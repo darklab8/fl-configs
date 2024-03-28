@@ -15,7 +15,7 @@ func TestReader(t *testing.T) {
 	test_directory := utils.GetCurrrentTestFolder()
 	fileref := file.NewFile(utils_filepath.Join(test_directory, FILENAME_SHIPS))
 
-	loaded_market_ships := Read(fileref)
+	loaded_market_ships := Read([]*file.File{fileref})
 
 	assert.Greater(t, len(loaded_market_ships.BaseGoods), 0, "market ships sections were not scanned")
 }
@@ -26,7 +26,7 @@ func TestWriter(t *testing.T) {
 
 	temp_directory := utils.GetCurrrentTempFolder()
 
-	config := Read(input_file)
-	config.SetOutputPath(utils_filepath.Join(temp_directory, FILENAME_SHIPS))
+	config := Read([]*file.File{input_file})
+	config.Files[0].SetOutputPath(utils_filepath.Join(temp_directory, FILENAME_SHIPS))
 	config.Write()
 }

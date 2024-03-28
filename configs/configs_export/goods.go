@@ -2,7 +2,6 @@ package configs_export
 
 import (
 	"math"
-	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
@@ -31,31 +30,37 @@ type MarketGood struct {
 func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 	var GoodsPerBase map[string][]MarketGood = make(map[string][]MarketGood)
 
-	for _, base_good := range e.configs.MarketCommidities.BaseGoods {
+	for _, base_good := range e.configs.Market.BaseGoods {
 		base_nickname := base_good.Base.Get()
 
-		var MarketGoods []MarketGood = make([]MarketGood, 0, 20)
+		var MarketGoods []MarketGood = make([]MarketGood, 0, 200)
 		for _, market_good := range base_good.MarketGoods {
 
-			commodity_selequip := e.configs.SelectEquip.CommoditiesMap.MapGet(strings.ToLower(market_good.Nickname.Get()))
-
+			var nickname string = market_good.Nickname.Get()
+			var price_base int
 			var Name infocard.Infoname
-			if infoname, ok := e.configs.Infocards.Infonames[commodity_selequip.IdsName.Get()]; ok {
-				Name = infoname
-			}
+			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(nickname); found_good {
+				price_base = good.Price.Get()
 
-			commodity_good := e.configs.Goods.CommoditiesMap.MapGet(strings.ToLower(market_good.Nickname.Get()))
+				switch good.Category.Get() {
+				case "commodity":
+					equip := e.configs.Equip.CommoditiesMap.MapGet(nickname)
+					if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
+						Name = infoname
+					}
+				}
+			}
 
 			MarketGoods = append(MarketGoods, MarketGood{
 				Name:          string(Name),
-				Nickname:      market_good.Nickname.Get(),
+				Nickname:      nickname,
 				Type:          TypeCommodity,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
 				IsBuyOnly:     market_good.IsBuyOnly.Get(),
 				PriceModifier: market_good.PriceModifier.Get(),
-				PriceBase:     commodity_good.Price.Get(),
-				Price:         int(math.Floor(float64(commodity_good.Price.Get()) * market_good.PriceModifier.Get())),
+				PriceBase:     price_base,
+				Price:         int(math.Floor(float64(price_base) * market_good.PriceModifier.Get())),
 			})
 		}
 
@@ -73,7 +78,7 @@ type GoodSelEquip struct {
 func (e *Exporter) getGoodSelEquip() []GoodSelEquip {
 
 	var goods []GoodSelEquip = make([]GoodSelEquip, 0, 100)
-	for _, good := range e.configs.SelectEquip.Commodities {
+	for _, good := range e.configs.Equip.Commodities {
 
 		var infocardStart []string
 		infocard, infocard_exists := e.configs.Infocards.Infocards[good.IdsInfo.Get()]

@@ -27,11 +27,14 @@ type BaseGood struct {
 	MarketGoods []*MarketGood
 }
 
-type Config struct {
+type ConfigFile struct {
 	semantic.ConfigModel
+}
+
+type Config struct {
+	Files []*ConfigFile
 
 	BaseGoods []*BaseGood
-	Comments  []string
 }
 
 const (
@@ -44,37 +47,46 @@ const (
 	KEY_BASE                                       = "base"
 )
 
-func Read(input_file *file.File) *Config {
+func Read(input_files []*file.File) *Config {
+
 	frelconfig := &Config{}
-	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 	frelconfig.BaseGoods = make([]*BaseGood, 0)
 
-	for _, section := range iniconfig.Sections {
-		base_to_add := &BaseGood{}
-		base_to_add.Map(section)
-		base_to_add.Base = semantic.NewString(section, KEY_BASE)
+	for _, input_file := range input_files {
+		fileconfig := &ConfigFile{}
+		iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
+		fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
+		frelconfig.Files = append(frelconfig.Files, fileconfig)
 
-		for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
-			good_to_add := &MarketGood{}
-			good_to_add.Map(section)
-			good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)))
-			good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
-			good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
-			good_to_add.IsBuyOnly = semantic.NewIntBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))
-			good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
-			base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
+		for _, section := range iniconfig.Sections {
+			base_to_add := &BaseGood{}
+			base_to_add.Map(section)
+			base_to_add.Base = semantic.NewString(section, KEY_BASE)
+
+			for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
+				good_to_add := &MarketGood{}
+				good_to_add.Map(section)
+				good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)))
+				good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
+				good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
+				good_to_add.IsBuyOnly = semantic.NewIntBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))
+				good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
+				base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
+			}
+
+			frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 		}
-
-		frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)
 	}
-	frelconfig.Comments = iniconfig.Comments
+
 	return frelconfig
 }
 
-func (frelconfig *Config) Write() *file.File {
-
-	inifile := frelconfig.Render()
-	inifile.Write(inifile.File)
-	return inifile.File
+func (frelconfig *Config) Write() []*file.File {
+	var files []*file.File
+	for _, file := range frelconfig.Files {
+		inifile := file.Render()
+		inifile.Write(inifile.File)
+		files = append(files, inifile.File)
+	}
+	return files
 }
