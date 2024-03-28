@@ -4,15 +4,16 @@ See package `configs` for description and code examples
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime/pprof"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/fl-configs/configs/configs_export"
+	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
+	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
+	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 func main() {
@@ -26,13 +27,17 @@ func main() {
 	defer pprof.StopCPUProfile()
 
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-		game_location := configs_fixtures.FixtureGameLocation()
-		config := exe_mapped.FixtureFLINIConfig()
-		ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
+		real_game_loc := utils_types.FilePath(os.Getenv("FREELANCER_FOLDER"))
 
-		for id, text := range ids.Infocards {
-			fmt.Println(id)
-			fmt.Println(text)
+		configs := configs_mapped.NewMappedConfigs()
+		logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(real_game_loc))
+		configs.Read(real_game_loc)
+		exported := configs_export.Export(configs)
+
+		// config := exe_mapped.FixtureFLINIConfig()
+		// ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(real_game_loc), config.GetDlls())
+
+		for range exported.Bases {
 			break
 		}
 	})
