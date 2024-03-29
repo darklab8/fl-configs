@@ -31,7 +31,7 @@ type Config struct {
 func Read(input_file *file.File) *Config {
 	frelconfig := &Config{}
 
-	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
+	iniconfig := inireader.Read(input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 
 	if resources, ok := iniconfig.SectionMap["[Resources]"]; ok {

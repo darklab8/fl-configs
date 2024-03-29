@@ -2,8 +2,6 @@ package configs_export
 
 import (
 	"math"
-
-	"github.com/darklab8/fl-configs/configs/settings/logus"
 )
 
 type MarketGood struct {
@@ -13,7 +11,7 @@ type MarketGood struct {
 
 	LevelRequired int
 	RepRequired   float64
-	Infocard      Infocard
+	Infocard      InfocardKey
 
 	IsBuyOnly     bool
 	PriceModifier float64
@@ -39,29 +37,23 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 		var MarketGoods []MarketGood = make([]MarketGood, 0, 200)
 		for _, market_good := range base_good.MarketGoods {
 
-			var nickname string = market_good.Nickname.Get()
+			var market_good_nickname string = market_good.Nickname.Get()
 			var price_base int
 			var Name string
 			var category string
-			var infocard_res Infocard
-			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(nickname); found_good {
+			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(market_good_nickname); found_good {
 				price_base = good.Price.Get()
 
 				category = good.Category.Get()
 				switch category {
 				default:
-					if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(nickname); ok {
+					if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(market_good_nickname); ok {
 						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
 							Name = string(infoname)
 							category = equip.Category
 						}
 
-						if infocard, infocard_exists := e.configs.Infocards.Infocards[equip.IdsInfo.Get()]; infocard_exists {
-							infocardStart, err := infocard.XmlToText()
-							logus.Log.CheckError(err, "failed to xml infocard")
-							infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
-						}
-
+						e.infocards_parser.Set(InfocardKey(market_good_nickname), equip.IdsInfo.Get())
 					}
 				case "ship":
 					ship := e.configs.Goods.ShipsMap.MapGet(good.Nickname.Get())
@@ -76,26 +68,9 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 					if infoname, ok := e.configs.Infocards.Infonames[shiparch.IdsName.Get()]; ok {
 						Name = string(infoname)
 					}
-					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo.Get()]; infocard_exists {
-						infocardStart, err := infocard.XmlToText()
-						logus.Log.CheckError(err, "failed to xml infocard")
-						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
-					}
-					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo1.Get()]; infocard_exists {
-						infocardStart, err := infocard.XmlToText()
-						logus.Log.CheckError(err, "failed to xml infocard")
-						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
-					}
-					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo2.Get()]; infocard_exists {
-						infocardStart, err := infocard.XmlToText()
-						logus.Log.CheckError(err, "failed to xml infocard")
-						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
-					}
-					if infocard, infocard_exists := e.configs.Infocards.Infocards[shiparch.IdsInfo3.Get()]; infocard_exists {
-						infocardStart, err := infocard.XmlToText()
-						logus.Log.CheckError(err, "failed to xml infocard")
-						infocard_res.Lines = append(infocard_res.Lines, infocardStart...)
-					}
+
+					e.infocards_parser.Set(InfocardKey(market_good_nickname),
+						shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
 				}
 
 			}
@@ -106,7 +81,7 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 
 			MarketGoods = append(MarketGoods, MarketGood{
 				Name:          Name,
-				Nickname:      nickname,
+				Nickname:      market_good_nickname,
 				Type:          category,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
@@ -114,12 +89,13 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 				PriceModifier: market_good.PriceModifier.Get(),
 				PriceBase:     price_base,
 				Price:         int(math.Floor(float64(price_base) * market_good.PriceModifier.Get())),
-				Infocard:      infocard_res,
+				Infocard:      InfocardKey(market_good_nickname),
 			})
 		}
 
 		goods_per_base[base_nickname] = append(goods_per_base[base_nickname], MarketGoods...)
 
+		e.infocards_parser.makeReady() // clearing calculating queue to be not calculating repetions
 	}
 	return goods_per_base
 }

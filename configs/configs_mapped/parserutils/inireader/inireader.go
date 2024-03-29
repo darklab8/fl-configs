@@ -302,8 +302,9 @@ func isKeyCaseSensetive(key string) bool {
 	return false
 }
 
-func (config INIFile) Read(fileref *file.File) INIFile {
+func Read(fileref *file.File) *INIFile {
 	logus.Log.Debug("started reading INIFileRead for", utils_logus.FilePath(fileref.GetFilepath()))
+	config := &INIFile{}
 	config.File = fileref
 
 	logus.Log.Debug("opening file", utils_logus.FilePath(fileref.GetFilepath()))

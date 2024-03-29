@@ -32,7 +32,7 @@ func Read(input_file *file.File) *Config {
 		InfocardMapTable: InfocardMapTable{Map: make(map[int]int)},
 	}
 
-	iniconfig := inireader.INIFile.Read(inireader.INIFile{}, input_file)
+	iniconfig := inireader.Read(input_file)
 	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 
 	if resources, ok := iniconfig.SectionMap[RESOURCE_HEADER_MAP_TABLE]; ok {

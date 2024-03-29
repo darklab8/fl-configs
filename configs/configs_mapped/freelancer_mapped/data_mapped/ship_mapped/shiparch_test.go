@@ -3,6 +3,7 @@ package ship_mapped
 import (
 	"testing"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/go-utils/goutils/utils"
 	"github.com/darklab8/go-utils/goutils/utils/utils_filepath"
@@ -14,7 +15,7 @@ func TestReader(t *testing.T) {
 	fileref1 := file.NewFile(utils_filepath.Join(test_directory, "shiparch.ini"))
 	fileref2 := file.NewFile(utils_filepath.Join(test_directory, "rtc_shiparch.ini"))
 
-	config := Read([]*file.File{fileref1, fileref2})
+	config := Read([]*configfile.ConfigFile{configfile.NewConfigFile(fileref1).Scan(), configfile.NewConfigFile(fileref2).Scan()})
 
 	assert.Greater(t, len(config.Ships), 0)
 

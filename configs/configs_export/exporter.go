@@ -1,13 +1,19 @@
 package configs_export
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/lower_map"
+)
 
 type Exporter struct {
 	configs                    *configs_mapped.MappedConfigs
 	are_no_name_bases_included NoNameIncluded
 
-	Bases    []Base
-	Factions []Faction
+	Bases     []Base
+	Factions  []Faction
+	Infocards *lower_map.KeyLoweredMap[InfocardKey, *Infocard]
+
+	infocards_parser *InfocardsParser
 }
 
 type OptExport func(e *Exporter)
@@ -20,6 +26,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 	e := &Exporter{
 		configs:                    configs,
 		are_no_name_bases_included: false,
+		infocards_parser:           NewInfocardsParser(configs.Infocards),
 	}
 
 	for _, opt := range opts {
@@ -31,6 +38,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 func (e *Exporter) Export() *Exporter {
 	e.Bases = e.getBases(e.are_no_name_bases_included)
 	e.Factions = e.GetFactions()
+	e.Infocards = e.infocards_parser.Get()
 	return e
 }
 

@@ -4,7 +4,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/lower_map"
-	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -46,30 +45,18 @@ func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 			}
 		}
 
-		var infocardStart []string
-		if base_infocard_part1, exists := e.configs.Infocards.Infocards[infocard_id]; exists {
-			var err error
-			infocardStart, err = base_infocard_part1.XmlToText()
-			logus.Log.CheckError(err, "failed to xml infocard")
-		}
+		var infocard_ids []int = make([]int, 0)
 
-		var infocardMiddle []string
+		infocard_ids = append(infocard_ids, infocard_id)
+
 		if infocard_middle_id, exists := e.configs.InfocardmapINI.InfocardMapTable.Map[infocard_id]; exists {
-			if base_infocard_part2, info_exists := e.configs.Infocards.Infocards[infocard_middle_id]; info_exists {
-				var err error
-				infocardMiddle, err = base_infocard_part2.XmlToText()
-				logus.Log.CheckError(err, "failed to xml infocard")
-			}
+			infocard_ids = append(infocard_ids, infocard_middle_id)
 		}
 
-		var infocardEnd []string
 		var factionName string
 		if group, exists := e.configs.InitialWorld.GroupsMap.MapGetValue(reputation_nickname); exists {
-			if infocard_part, info_exists := e.configs.Infocards.Infocards[group.IdsInfo.Get()]; info_exists {
-				var err error
-				infocardEnd, err = infocard_part.XmlToText()
-				logus.Log.CheckError(err, "failed to xml infocard")
-			}
+
+			infocard_ids = append(infocard_ids, group.IdsInfo.Get())
 
 			if faction_name, exists := e.configs.Infocards.Infonames[group.IdsName.Get()]; exists {
 				factionName = string(faction_name)
@@ -80,17 +67,19 @@ func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 		if found_commodities, ok := commodities_per_base.MapGetValue(base.Nickname.Get()); ok {
 			market_goods = found_commodities
 		}
+
+		var nickname string = base.Nickname.Get()
+		e.infocards_parser.Set(InfocardKey(nickname), infocard_ids...)
+
 		results[iterator] = Base{
-			Name:           name,
-			Nickname:       base.Nickname.Get(),
-			FactionName:    factionName,
-			System:         string(system_name),
-			SystemNickname: base.System.Get(),
-			StridName:      base.StridName.Get(),
-			InfocardID:     infocard_id,
-			Infocard: Infocard{
-				Lines: append(infocardStart, append(infocardMiddle, infocardEnd...)...),
-			},
+			Name:             name,
+			Nickname:         nickname,
+			FactionName:      factionName,
+			System:           string(system_name),
+			SystemNickname:   base.System.Get(),
+			StridName:        base.StridName.Get(),
+			InfocardID:       infocard_id,
+			Infocard:         InfocardKey(nickname),
 			File:             utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
 			MarketGoods:      market_goods,
@@ -103,10 +92,6 @@ func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
 	return results
 }
 
-type Infocard struct {
-	Lines []string
-}
-
 type Base struct {
 	Name             string
 	Nickname         string
@@ -115,7 +100,7 @@ type Base struct {
 	SystemNickname   string
 	StridName        int
 	InfocardID       int
-	Infocard         Infocard
+	Infocard         InfocardKey
 	File             utils_types.FilePath
 	BGCS_base_run_by string
 	MarketGoods      []MarketGood
