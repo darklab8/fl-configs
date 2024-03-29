@@ -26,7 +26,11 @@ func TestExportBases(t *testing.T) {
 
 	infocards := exporter.infocards_parser.Get()
 	for _, base := range bases {
-		lines := infocards.MapGet(base.Infocard)
-		fmt.Println(lines.Lines)
+		if base.Nickname == "Br01_01_Base" {
+			lines := infocards.MapGet(base.Infocard)
+			fmt.Println(base.Nickname, lines.Lines)
+			assert.Greater(t, len(lines.Lines), 0, "expected finding lines in infocard")
+			break
+		}
 	}
 }
