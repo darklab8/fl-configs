@@ -1,8 +1,8 @@
 package ship_mapped
 
 import (
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
@@ -21,25 +21,21 @@ type Ship struct {
 	ShipClass *semantic.Int
 }
 
-type ConfigFile struct {
-	semantic.ConfigModel
-}
-
 type Config struct {
-	Files []*configfile.ConfigFile
+	Files []*iniload.IniLoader
 
 	Ships    []*Ship
 	ShipsMap *lower_map.KeyLoweredMap[string, *Ship]
 }
 
-func Read(files []*configfile.ConfigFile) *Config {
+func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{Files: files}
 	frelconfig.Ships = make([]*Ship, 0, 100)
 	frelconfig.ShipsMap = lower_map.NewKeyLoweredMap[string, *Ship]()
 
-	for _, file := range files {
+	for _, Iniconfig := range files {
 
-		for _, section := range file.Iniconfig.SectionMap["[Ship]"] {
+		for _, section := range Iniconfig.SectionMap["[Ship]"] {
 			ship := &Ship{}
 			ship.Map(section)
 			ship.Nickname = semantic.NewString(section, "nickname")

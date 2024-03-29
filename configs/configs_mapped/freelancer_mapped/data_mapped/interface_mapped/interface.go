@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader/inireader_types"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
@@ -22,20 +22,17 @@ type InfocardMapTable struct {
 }
 
 type Config struct {
-	semantic.ConfigModel
-
+	*iniload.IniLoader
 	InfocardMapTable InfocardMapTable
 }
 
-func Read(input_file *file.File) *Config {
+func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
+		IniLoader:        input_file,
 		InfocardMapTable: InfocardMapTable{Map: make(map[int]int)},
 	}
 
-	iniconfig := inireader.Read(input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-
-	if resources, ok := iniconfig.SectionMap[RESOURCE_HEADER_MAP_TABLE]; ok {
+	if resources, ok := input_file.SectionMap[RESOURCE_HEADER_MAP_TABLE]; ok {
 
 		for _, mappy := range resources[0].Params {
 

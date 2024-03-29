@@ -2,7 +2,7 @@ package empathy_mapped
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 
@@ -30,8 +30,7 @@ type RepChangeEffects struct {
 }
 
 type Config struct {
-	semantic.ConfigModel
-
+	*iniload.IniLoader
 	RepChangeEffects []*RepChangeEffects
 	RepoChangeMap    *lower_map.KeyLoweredMap[string, *RepChangeEffects]
 }
@@ -40,14 +39,13 @@ const (
 	FILENAME utils_types.FilePath = "empathy.ini"
 )
 
-func Read(input_file *file.File) *Config {
-	frelconfig := &Config{}
-	iniconfig := inireader.Read(input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
+func Read(input_file *iniload.IniLoader) *Config {
+	frelconfig := &Config{IniLoader: input_file}
+
 	frelconfig.RepChangeEffects = make([]*RepChangeEffects, 0, 20)
 	frelconfig.RepoChangeMap = lower_map.NewKeyLoweredMap[string, *RepChangeEffects]()
 
-	for _, section := range iniconfig.SectionMap["[RepChangeEffects]"] {
+	for _, section := range input_file.SectionMap["[RepChangeEffects]"] {
 		repo_changes := &RepChangeEffects{}
 		repo_changes.Map(section)
 		repo_changes.Group = semantic.NewString(section, "group")

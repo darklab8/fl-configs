@@ -2,7 +2,7 @@ package exe_mapped
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/go-utils/goutils/utils"
 )
@@ -18,7 +18,7 @@ func (r *Config) GetDlls() []string {
 }
 
 type Config struct {
-	semantic.ConfigModel
+	*iniload.IniLoader
 
 	Dlls     []*semantic.String
 	Markets  []*semantic.Path
@@ -28,13 +28,10 @@ type Config struct {
 	Ships    []*semantic.Path
 }
 
-func Read(input_file *file.File) *Config {
-	frelconfig := &Config{}
+func Read(input_file *iniload.IniLoader) *Config {
+	frelconfig := &Config{IniLoader: input_file}
 
-	iniconfig := inireader.Read(input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-
-	if resources, ok := iniconfig.SectionMap["[Resources]"]; ok {
+	if resources, ok := input_file.SectionMap["[Resources]"]; ok {
 
 		for dll_index, _ := range resources[0].Params {
 			frelconfig.Dlls = append(frelconfig.Dlls,
@@ -43,7 +40,7 @@ func Read(input_file *file.File) *Config {
 		}
 	}
 
-	if resources, ok := iniconfig.SectionMap["[Data]"]; ok {
+	if resources, ok := input_file.SectionMap["[Data]"]; ok {
 		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
 			frelconfig.Equips = append(frelconfig.Equips,
 				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),

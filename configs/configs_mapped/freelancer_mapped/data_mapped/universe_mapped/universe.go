@@ -5,7 +5,7 @@ package universe_mapped
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 )
@@ -69,7 +69,7 @@ type System struct {
 }
 
 type Config struct {
-	semantic.ConfigModel
+	File     *iniload.IniLoader
 	Bases    []*Base
 	BasesMap *lower_map.KeyLoweredMap[BaseNickname, *Base]
 
@@ -79,19 +79,16 @@ type Config struct {
 	TimeSeconds *semantic.Int
 }
 
-func Read(input_file *file.File) *Config {
-	frelconfig := &Config{}
+func Read(ini *iniload.IniLoader) *Config {
+	frelconfig := &Config{File: ini}
 
-	iniconfig := inireader.Read(input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-
-	frelconfig.TimeSeconds = semantic.NewInt(iniconfig.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG)
+	frelconfig.TimeSeconds = semantic.NewInt(ini.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG)
 	frelconfig.BasesMap = lower_map.NewKeyLoweredMap[BaseNickname, *Base]()
 	frelconfig.Bases = make([]*Base, 0)
 	frelconfig.SystemMap = lower_map.NewKeyLoweredMap[SystemNickname, *System]()
 	frelconfig.Systems = make([]*System, 0)
 
-	if bases, ok := iniconfig.SectionMap[KEY_BASE_TAG]; ok {
+	if bases, ok := ini.SectionMap[KEY_BASE_TAG]; ok {
 		for _, base := range bases {
 			base_to_add := &Base{}
 			base_to_add.Map(base)
@@ -106,7 +103,7 @@ func Read(input_file *file.File) *Config {
 		}
 	}
 
-	if systems, ok := iniconfig.SectionMap[KEY_SYSTEM_TAG]; ok {
+	if systems, ok := ini.SectionMap[KEY_SYSTEM_TAG]; ok {
 		for _, system := range systems {
 			system_to_add := System{}
 			system_to_add.Map(system)
@@ -128,7 +125,7 @@ func Read(input_file *file.File) *Config {
 }
 
 func (frelconfig *Config) Write() *file.File {
-	inifile := frelconfig.Render()
+	inifile := frelconfig.File.Render()
 	inifile.Write(inifile.File)
 	return inifile.File
 }
