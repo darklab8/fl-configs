@@ -12,7 +12,7 @@ func TestFaction(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
-	items := exporter.GetFactions()
+	items := exporter.GetFactions([]Base{})
 	assert.Greater(t, len(items), 0)
 
 	infocards := exporter.infocards_parser.Get()

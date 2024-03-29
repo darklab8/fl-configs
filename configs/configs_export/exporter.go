@@ -36,8 +36,8 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 }
 
 func (e *Exporter) Export() *Exporter {
-	e.Bases = e.getBases(e.are_no_name_bases_included)
-	e.Factions = e.GetFactions()
+	e.Bases = e.GetBases(e.are_no_name_bases_included)
+	e.Factions = e.GetFactions(e.Bases)
 	e.Infocards = e.infocards_parser.Get()
 	return e
 }
