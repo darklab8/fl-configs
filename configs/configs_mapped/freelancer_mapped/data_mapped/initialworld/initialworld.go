@@ -2,7 +2,7 @@ package initialworld
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 )
@@ -30,22 +30,20 @@ type Group struct {
 }
 
 type Config struct {
-	semantic.ConfigModel
+	*iniload.IniLoader
 
 	Groups    []*Group
 	GroupsMap *lower_map.KeyLoweredMap[string, *Group]
 }
 
-func Read(input_file *file.File) *Config {
+func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
+		IniLoader: input_file,
 		Groups:    make([]*Group, 0, 100),
 		GroupsMap: lower_map.NewKeyLoweredMap[string, *Group](),
 	}
 
-	iniconfig := inireader.Read(input_file)
-	frelconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-
-	if groups, ok := iniconfig.SectionMap["[Group]"]; ok {
+	if groups, ok := frelconfig.SectionMap["[Group]"]; ok {
 
 		for _, group_res := range groups {
 			group := &Group{}

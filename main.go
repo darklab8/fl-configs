@@ -28,19 +28,24 @@ func main() {
 
 	for i := 0; i < 1; i++ {
 		time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-			real_game_loc := utils_types.FilePath(os.Getenv("FREELANCER_FOLDER"))
+			var configs *configs_mapped.MappedConfigs
+			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+				real_game_loc := utils_types.FilePath(os.Getenv("FREELANCER_FOLDER"))
 
-			configs := configs_mapped.NewMappedConfigs()
-			logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(real_game_loc))
-			configs.Read(real_game_loc)
-			exported := configs_export.Export(configs)
+				configs = configs_mapped.NewMappedConfigs()
+				logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(real_game_loc))
+				configs.Read(real_game_loc)
+			}, time_measure.WithMsg("read mapping"))
+			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+				exported := configs_export.Export(configs)
 
-			// config := exe_mapped.FixtureFLINIConfig()
-			// ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(real_game_loc), config.GetDlls())
+				// config := exe_mapped.FixtureFLINIConfig()
+				// ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(real_game_loc), config.GetDlls())
 
-			for range exported.Bases {
-				break
-			}
-		})
+				for range exported.Bases {
+					break
+				}
+			}, time_measure.WithMsg("exported time"))
+		}, time_measure.WithMsg("total time"))
 	}
 }

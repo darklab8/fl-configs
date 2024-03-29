@@ -1,4 +1,4 @@
-package configfile
+package iniload
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
@@ -6,21 +6,21 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 )
 
-type ConfigFile struct {
+type IniLoader struct {
 	semantic.ConfigModel
 	input_file *file.File
-	Iniconfig  *inireader.INIFile
+	*inireader.INIFile
 }
 
-func NewConfigFile(input_file *file.File) *ConfigFile {
-	fileconfig := &ConfigFile{input_file: input_file}
+func NewLoader(input_file *file.File) *IniLoader {
+	fileconfig := &IniLoader{input_file: input_file}
 	return fileconfig
 }
 
 // Scan is heavy operations for goroutine ^_^
-func (fileconfig *ConfigFile) Scan() *ConfigFile {
+func (fileconfig *IniLoader) Scan() *IniLoader {
 	iniconfig := inireader.Read(fileconfig.input_file)
 	fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
-	fileconfig.Iniconfig = iniconfig
+	fileconfig.INIFile = iniconfig
 	return fileconfig
 }

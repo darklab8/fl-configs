@@ -3,8 +3,8 @@ package equip_mapped
 import (
 	"strings"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/configfile"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
@@ -33,12 +33,8 @@ type Commodity struct {
 	HitPts            *semantic.Int
 }
 
-type ConfigFile struct {
-	semantic.ConfigModel
-}
-
 type Config struct {
-	Files []*configfile.ConfigFile
+	Files []*iniload.IniLoader
 
 	Commodities    []*Commodity
 	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
@@ -51,7 +47,7 @@ const (
 	FILENAME_SELECT_EQUIP utils_types.FilePath = "select_equip.ini"
 )
 
-func Read(files []*configfile.ConfigFile) *Config {
+func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{Files: files}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
@@ -59,7 +55,7 @@ func Read(files []*configfile.ConfigFile) *Config {
 	frelconfig.ItemsMap = lower_map.NewKeyLoweredMap[string, *Item]()
 
 	for _, file := range files {
-		for _, section := range file.Iniconfig.SectionMap["[Commodity]"] {
+		for _, section := range file.SectionMap["[Commodity]"] {
 			commodity := &Commodity{}
 			commodity.Map(section)
 			commodity.Nickname = semantic.NewString(section, "nickname")
@@ -76,7 +72,7 @@ func Read(files []*configfile.ConfigFile) *Config {
 			frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
 		}
 
-		for _, section := range file.Iniconfig.Sections {
+		for _, section := range file.Sections {
 			item := &Item{}
 			item.Map(section)
 			item.Category = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(string(section.Type), "[", ""), "]", ""))
