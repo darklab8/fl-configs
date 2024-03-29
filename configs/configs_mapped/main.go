@@ -10,6 +10,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/empathy_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/mbases_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/ship_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
@@ -46,6 +47,7 @@ type MappedConfigs struct {
 	Infocards      *infocard.Config
 	InitialWorld   *initialworld.Config
 	Empathy        *empathy_mapped.Config
+	MBases         *mbases_mapped.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -71,6 +73,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	file_interface := iniload.NewLoader(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
 	file_initialworld := iniload.NewLoader(filesystem.GetFile(initialworld.FILENAME))
 	file_empathy := iniload.NewLoader(filesystem.GetFile(empathy_mapped.FILENAME))
+	file_mbases := iniload.NewLoader(filesystem.GetFile(mbases_mapped.FILENAME))
 
 	all_files := append(files_goods, files_market...)
 	all_files = append(all_files, files_equip...)
@@ -80,6 +83,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		file_interface,
 		file_initialworld,
 		file_empathy,
+		file_mbases,
 	)
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		var wg sync.WaitGroup
@@ -108,6 +112,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 
 		p.InitialWorld = initialworld.Read(file_initialworld)
 		p.Empathy = empathy_mapped.Read(file_empathy)
+		p.MBases = mbases_mapped.Read(file_mbases)
 	}, time_measure.WithMsg("Mapped stuff"))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))

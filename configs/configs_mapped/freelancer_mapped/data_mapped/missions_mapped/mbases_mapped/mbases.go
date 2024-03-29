@@ -171,6 +171,11 @@ func (frelconfig *Config) Write() *file.File {
 	return inifile.File
 }
 
+type BaseChance struct {
+	Base   string
+	Chance float64
+}
+
 func FactionRephacks(config *Config) map[string]map[string]float64 {
 	// for faction, chance at certain base
 	var faction_rephacks map[string]map[string]float64 = make(map[string]map[string]float64)

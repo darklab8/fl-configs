@@ -1,5 +1,12 @@
 package configs_export
 
+import (
+	"strings"
+
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/mbases_mapped"
+	"github.com/darklab8/fl-configs/configs/lower_map"
+)
+
 type Reputation struct {
 	Name     string
 	Rep      float64
@@ -21,10 +28,28 @@ type Faction struct {
 	InfocardID  int
 	Infocard    InfocardKey
 	Reputations []Reputation
+	Rephacks    []Rephack
 }
 
-func (e *Exporter) GetFactions() []Faction {
+type Rephack struct {
+	BaseName   string
+	BaseOwner  string
+	BaseSystem string
+
+	BaseNickname string
+	Chance       float64
+}
+
+func (e *Exporter) GetFactions(bases []Base) []Faction {
 	var factions []Faction = make([]Faction, 0, 100)
+
+	var basemap *lower_map.KeyLoweredMap[string, Base] = lower_map.NewKeyLoweredMap[string, Base]()
+	for _, base := range bases {
+		basemap.MapSet(base.Nickname, base)
+	}
+
+	// for faction, at base, chance
+	faction_rephacks := mbases_mapped.FactionRephacks(e.configs.MBases)
 
 	for _, group := range e.configs.InitialWorld.Groups {
 		var nickname string = group.Nickname.Get()
@@ -33,6 +58,24 @@ func (e *Exporter) GetFactions() []Faction {
 			InfonameID: group.IdsName.Get(),
 			InfocardID: group.IdsInfo.Get(),
 			Infocard:   InfocardKey(nickname),
+		}
+
+		if rephacks, ok := faction_rephacks[strings.ToLower(nickname)]; ok {
+
+			for base, chance := range rephacks {
+				rephack := Rephack{
+					BaseNickname: strings.ToLower(base),
+					Chance:       chance,
+				}
+
+				if base_info, ok := basemap.MapGetValue(strings.ToLower(base)); ok {
+					rephack.BaseName = base_info.Name
+					rephack.BaseOwner = base_info.FactionName
+					rephack.BaseSystem = base_info.System
+				}
+
+				faction.Rephacks = append(faction.Rephacks, rephack)
+			}
 		}
 
 		if faction_name, ok := e.configs.Infocards.Infonames[group.IdsName.Get()]; ok {

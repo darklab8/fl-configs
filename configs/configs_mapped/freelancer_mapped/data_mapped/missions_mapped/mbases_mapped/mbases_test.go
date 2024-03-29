@@ -31,12 +31,12 @@ func TestGetRepHacks(t *testing.T) {
 
 	for base, chance := range faction_rephacks[strings.ToLower("br_p_grp")] {
 		chances = append(chances, BaseChance{
-			base:   base,
-			chance: chance,
+			Base:   base,
+			Chance: chance,
 		})
 	}
 	sort.Slice(chances, func(i, j int) bool {
-		return chances[i].chance > chances[j].chance
+		return chances[i].Chance > chances[j].Chance
 	})
 
 	for _, chance := range chances {
@@ -47,11 +47,6 @@ func TestGetRepHacks(t *testing.T) {
 		// 	}
 		// }
 
-		fmt.Println(chance.base, " = ", 100*chance.chance, " ", name)
+		fmt.Println(chance.Base, " = ", 100*chance.Chance, " ", name)
 	}
-}
-
-type BaseChance struct {
-	base   string
-	chance float64
 }
