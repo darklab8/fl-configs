@@ -37,4 +37,3 @@ flowchart TD
     freelancer --> semantic[semantic\nORM mapper of inireader values for quick typed acess to values\nfor reading and writing, without need to map all file structure]
     semantic --> inireader
 ```
-
