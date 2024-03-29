@@ -1,6 +1,7 @@
 package mbases_mapped
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
@@ -168,4 +169,60 @@ func (frelconfig *Config) Write() *file.File {
 	inifile := frelconfig.Render()
 	inifile.Write(inifile.File)
 	return inifile.File
+}
+
+func FactionRephacks(config *Config) map[string]map[string]float64 {
+	// for faction, chance at certain base
+	var faction_rephacks map[string]map[string]float64 = make(map[string]map[string]float64)
+
+	for _, base := range config.Bases {
+
+		// per faction chance at base
+		fmt.Println("base=", base.Nickname.Get())
+		var base_bribe_chances map[string]float64 = make(map[string]float64)
+		var faction_members map[string]int = make(map[string]int)
+		for _, npc := range base.NPCs {
+			faction_members[strings.ToLower(npc.Affiliation.Get())] += 1
+
+		}
+		for _, npc := range base.NPCs {
+			if base.Bar == nil {
+				continue
+			}
+			npc_nickname := npc.Nickname.Get()
+			bartrender := base.Bar.Bartrender.Get()
+			if npc_nickname == bartrender {
+				for _, bribe := range npc.Bribes {
+					chance_increase := 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
+					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
+				}
+			} else {
+				for _, bribe := range npc.Bribes {
+					var weight float64 = 0
+					if faction, ok := base.BaseFactionsMap.MapGetValue(npc.Affiliation.Get()); ok {
+						weight = float64(faction.Weight.Get())
+
+						if value, ok := faction_members[strings.ToLower(npc.Affiliation.Get())]; ok {
+							if value != 0 {
+								weight = weight / float64(value)
+							}
+						}
+					}
+
+					chance_increase := float64(weight/100) * 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
+					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
+				}
+			}
+		}
+
+		for faction, chance := range base_bribe_chances {
+			_, ok := faction_rephacks[strings.ToLower(faction)]
+			if !ok {
+				faction_rephacks[strings.ToLower(faction)] = make(map[string]float64)
+			}
+			faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] += chance
+		}
+
+	}
+	return faction_rephacks
 }

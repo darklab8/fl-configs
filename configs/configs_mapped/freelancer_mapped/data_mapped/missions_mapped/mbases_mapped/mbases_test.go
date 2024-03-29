@@ -20,58 +20,16 @@ func TestGetRepHacks(t *testing.T) {
 	config := Read(iniload.NewLoader(fileref).Scan())
 	assert.Greater(t, len(config.Bases), 0, "expected finding some elements")
 
-	// for faction, chance at certain base
-	var faction_rephacks map[string]map[string]float64 = make(map[string]map[string]float64)
+	// configs := configs_mapped.TestFixtureConfigs()
+	// exporter := configs_export.NewExporter(configs)
+	// bases := exporter.GetBases(configs_export.NoNameIncluded(true))
 
-	for index, base := range config.Bases {
-
-		// per faction chance at base
-		fmt.Println("base=", base.Nickname.Get())
-		var base_bribe_chances map[string]float64 = make(map[string]float64)
-		for _, npc := range base.NPCs {
-			if base.Bar == nil {
-				continue
-			}
-			npc_nickname := npc.Nickname.Get()
-			bartrender := base.Bar.Bartrender.Get()
-			if npc_nickname == bartrender {
-				for _, bribe := range npc.Bribes {
-					chance_increase := 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
-					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
-				}
-			} else {
-				for _, bribe := range npc.Bribes {
-					var weight float64 = 0
-					if faction, ok := base.BaseFactionsMap.MapGetValue(npc.Affiliation.Get()); ok {
-						weight = float64(faction.Weight.Get())
-					}
-
-					chance_increase := float64(weight/100) * 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
-					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
-				}
-			}
-		}
-
-		for faction, chance := range base_bribe_chances {
-			_, ok := faction_rephacks[faction]
-			if !ok {
-				faction_rephacks[faction] = make(map[string]float64)
-			}
-			faction_rephacks[faction][base.Nickname.Get()] += chance
-		}
-
-		if index == 0 {
-			fmt.Println("chances")
-			for faction, chance := range base_bribe_chances {
-				fmt.Println(faction, " = ", chance*100)
-			}
-		}
-	}
+	faction_rephacks := FactionRephacks(config)
 
 	fmt.Println("printing for br_p_grp")
-	chances := make([]BaseChance, 0, len(faction_rephacks["br_p_grp"]))
+	chances := make([]BaseChance, 0, len(faction_rephacks[strings.ToLower("br_p_grp")]))
 
-	for base, chance := range faction_rephacks["br_p_grp"] {
+	for base, chance := range faction_rephacks[strings.ToLower("br_p_grp")] {
 		chances = append(chances, BaseChance{
 			base:   base,
 			chance: chance,
@@ -82,7 +40,14 @@ func TestGetRepHacks(t *testing.T) {
 	})
 
 	for _, chance := range chances {
-		fmt.Println(chance.base, " = ", 100*chance.chance)
+		var name string
+		// for _, base := range bases {
+		// 	if strings.ToLower(chance.base) == strings.ToLower(base.Nickname) {
+		// 		name = base.Name
+		// 	}
+		// }
+
+		fmt.Println(chance.base, " = ", 100*chance.chance, " ", name)
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 
 type NoNameIncluded bool
 
-func (e *Exporter) getBases(is_no_name_included NoNameIncluded) []Base {
+func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
 	var results []Base = make([]Base, len(e.configs.Universe_config.Bases))
 
 	commodities_per_base := lower_map.NewKeyLoweredMap(lower_map.WithData(e.getMarketGoods()))
