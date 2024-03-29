@@ -14,7 +14,7 @@ func TestReadSelectEquip(t *testing.T) {
 	test_directory := utils.GetCurrrentTestFolder()
 	fileref := file.NewFile(utils_filepath.Join(test_directory, FILENAME_SELECT_EQUIP))
 
-	config := Read([]*configfile.ConfigFile{configfile.NewConfigFile(fileref)})
+	config := Read([]*configfile.ConfigFile{configfile.NewConfigFile(fileref).Scan()})
 
 	assert.Greater(t, len(config.Commodities), 0, "expected finding items")
 

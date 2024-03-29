@@ -15,7 +15,7 @@ func TestReader(t *testing.T) {
 	fileref1 := file.NewFile(utils_filepath.Join(test_directory, "shiparch.ini"))
 	fileref2 := file.NewFile(utils_filepath.Join(test_directory, "rtc_shiparch.ini"))
 
-	config := Read([]*configfile.ConfigFile{configfile.NewConfigFile(fileref1), configfile.NewConfigFile(fileref2)})
+	config := Read([]*configfile.ConfigFile{configfile.NewConfigFile(fileref1).Scan(), configfile.NewConfigFile(fileref2).Scan()})
 
 	assert.Greater(t, len(config.Ships), 0)
 

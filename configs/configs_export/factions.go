@@ -1,9 +1,5 @@
 package configs_export
 
-import (
-	"github.com/darklab8/fl-configs/configs/settings/logus"
-)
-
 type Reputation struct {
 	Name     string
 	Rep      float64
@@ -23,7 +19,7 @@ type Faction struct {
 
 	InfonameID  int
 	InfocardID  int
-	Infocard    Infocard
+	Infocard    InfocardKey
 	Reputations []Reputation
 }
 
@@ -31,21 +27,19 @@ func (e *Exporter) GetFactions() []Faction {
 	var factions []Faction = make([]Faction, 0, 100)
 
 	for _, group := range e.configs.InitialWorld.Groups {
+		var nickname string = group.Nickname.Get()
 		faction := Faction{
-			Nickname:   group.Nickname.Get(),
+			Nickname:   nickname,
 			InfonameID: group.IdsName.Get(),
 			InfocardID: group.IdsInfo.Get(),
+			Infocard:   InfocardKey(nickname),
 		}
 
 		if faction_name, ok := e.configs.Infocards.Infonames[group.IdsName.Get()]; ok {
 			faction.Name = string(faction_name)
 		}
 
-		if infocard, ok := e.configs.Infocards.Infocards[group.IdsInfo.Get()]; ok {
-			infocard_parts, err := infocard.XmlToText()
-			logus.Log.CheckError(err, "failed to xml infocard")
-			faction.Infocard.Lines = append(faction.Infocard.Lines, infocard_parts...)
-		}
+		e.infocards_parser.Set(InfocardKey(nickname), group.IdsInfo.Get())
 
 		if short_name, ok := e.configs.Infocards.Infonames[group.IdsShortName.Get()]; ok {
 			faction.ShortName = string(short_name)

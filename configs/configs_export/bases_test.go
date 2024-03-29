@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
@@ -22,4 +23,10 @@ func TestExportBases(t *testing.T) {
 		}
 	}
 	assert.True(t, found_goods, "expected finding some goods")
+
+	infocards := exporter.infocards_parser.Get()
+	for _, base := range bases {
+		lines := infocards.MapGet(base.Infocard)
+		fmt.Println(lines.Lines)
+	}
 }

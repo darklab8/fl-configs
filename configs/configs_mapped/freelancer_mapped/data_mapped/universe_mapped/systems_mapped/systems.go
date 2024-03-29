@@ -41,6 +41,12 @@ type Config struct {
 	Systems    []*System
 }
 
+type FileRead struct {
+	system_key string
+	file       *file.File
+	ini        *inireader.INIFile
+}
+
 func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesystem) *Config {
 	frelconfig := &Config{}
 
@@ -53,16 +59,24 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 	var system_iniconfigs map[string]*inireader.INIFile = make(map[string]*inireader.INIFile)
 
-	iniconfigs_channel := make(chan *inireader.INIFile, len(system_files))
-	read_file := func(file *file.File) {
-		iniconfigs_channel <- inireader.Read(file)
-	}
-	for _, file := range system_files {
-		go read_file(file)
-	}
-	for system_key, _ := range system_files {
-		system_iniconfigs[system_key] = <-iniconfigs_channel
-	}
+	func() {
+		// Read system files with parallelism ^_^
+		iniconfigs_channel := make(chan *FileRead)
+		read_file := func(data *FileRead) {
+			data.ini = inireader.Read(data.file)
+			iniconfigs_channel <- data
+		}
+		for system_key, file := range system_files {
+			go read_file(&FileRead{
+				system_key: system_key,
+				file:       file,
+			})
+		}
+		for range system_files {
+			result := <-iniconfigs_channel
+			system_iniconfigs[result.system_key] = result.ini
+		}
+	}()
 
 	frelconfig.SystemsMap = lower_map.NewKeyLoweredMap[string, *System]()
 	frelconfig.Systems = make([]*System, 0)
