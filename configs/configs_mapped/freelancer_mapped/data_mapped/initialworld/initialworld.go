@@ -4,7 +4,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 )
 
 const (
@@ -33,14 +32,14 @@ type Config struct {
 	*iniload.IniLoader
 
 	Groups    []*Group
-	GroupsMap *lower_map.KeyLoweredMap[string, *Group]
+	GroupsMap map[string]*Group
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
 		IniLoader: input_file,
 		Groups:    make([]*Group, 0, 100),
-		GroupsMap: lower_map.NewKeyLoweredMap[string, *Group](),
+		GroupsMap: make(map[string]*Group),
 	}
 
 	if groups, ok := frelconfig.SectionMap["[Group]"]; ok {
@@ -48,7 +47,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		for _, group_res := range groups {
 			group := &Group{}
 			group.Map(group_res)
-			group.Nickname = semantic.NewString(group_res, "nickname")
+			group.Nickname = semantic.NewString(group_res, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			group.IdsName = semantic.NewInt(group_res, "ids_name")
 			group.IdsInfo = semantic.NewInt(group_res, "ids_info")
 			group.IdsShortName = semantic.NewInt(group_res, "ids_short_name")
@@ -61,12 +60,12 @@ func Read(input_file *iniload.IniLoader) *Config {
 				rep := &Relationship{}
 				rep.Map(group_res)
 				rep.Rep = semantic.NewFloat(group_res, param_rep_key, semantic.Precision(2), semantic.Index(rep_index))
-				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.OptsS(semantic.Index(rep_index), semantic.Order(1)))
+				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.OptsS(semantic.Index(rep_index), semantic.Order(1)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				group.Relationships = append(group.Relationships, rep)
 			}
 
 			frelconfig.Groups = append(frelconfig.Groups, group)
-			frelconfig.GroupsMap.MapSet(group.Nickname.Get(), group)
+			frelconfig.GroupsMap[group.Nickname.Get()] = group
 		}
 	}
 

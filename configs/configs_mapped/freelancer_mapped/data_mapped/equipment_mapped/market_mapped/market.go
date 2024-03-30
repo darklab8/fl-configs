@@ -4,7 +4,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
@@ -26,7 +25,7 @@ type BaseGood struct {
 	Base *semantic.String
 
 	MarketGoods    []*MarketGood
-	MarketGoodsMap *lower_map.KeyLoweredMap[string, *MarketGood]
+	MarketGoodsMap map[string]*MarketGood
 }
 
 type Config struct {
@@ -53,21 +52,21 @@ func Read(files []*iniload.IniLoader) *Config {
 
 		for _, section := range file.Sections {
 			base_to_add := &BaseGood{
-				MarketGoodsMap: lower_map.NewKeyLoweredMap[string, *MarketGood](),
+				MarketGoodsMap: make(map[string]*MarketGood),
 			}
 			base_to_add.Map(section)
-			base_to_add.Base = semantic.NewString(section, KEY_BASE, semantic.WithLowercaseS())
+			base_to_add.Base = semantic.NewString(section, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 
 			for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
 				good_to_add := &MarketGood{}
 				good_to_add.Map(section)
-				good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)))
+				good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
 				good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
 				good_to_add.IsBuyOnly = semantic.NewIntBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))
 				good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
 				base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
-				base_to_add.MarketGoodsMap.MapSet(good_to_add.Nickname.Get(), good_to_add)
+				base_to_add.MarketGoodsMap[good_to_add.Nickname.Get()] = good_to_add
 			}
 
 			frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)

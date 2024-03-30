@@ -41,13 +41,13 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			var price_base int
 			var Name string
 			var category string
-			if good, found_good := e.configs.Goods.GoodsMap.MapGetValue(market_good_nickname); found_good {
+			if good, found_good := e.configs.Goods.GoodsMap[market_good_nickname]; found_good {
 				price_base = good.Price.Get()
 
 				category = good.Category.Get()
 				switch category {
 				default:
-					if equip, ok := e.configs.Equip.ItemsMap.MapGetValue(market_good_nickname); ok {
+					if equip, ok := e.configs.Equip.ItemsMap[market_good_nickname]; ok {
 						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
 							Name = string(infoname)
 							category = equip.Category
@@ -56,14 +56,14 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 						e.infocards_parser.Set(InfocardKey(market_good_nickname), equip.IdsInfo.Get())
 					}
 				case "ship":
-					ship := e.configs.Goods.ShipsMap.MapGet(good.Nickname.Get())
+					ship := e.configs.Goods.ShipsMap[good.Nickname.Get()]
 
-					ship_hull := e.configs.Goods.ShipHullsMap.MapGet(ship.Hull.Get())
+					ship_hull := e.configs.Goods.ShipHullsMap[ship.Hull.Get()]
 					price_base = ship_hull.Price.Get()
 
 					// Infocard data
 					ship_nickname := ship_hull.Ship.Get()
-					shiparch := e.configs.Shiparch.ShipsMap.MapGet(ship_nickname)
+					shiparch := e.configs.Shiparch.ShipsMap[ship_nickname]
 
 					if infoname, ok := e.configs.Infocards.Infonames[shiparch.IdsName.Get()]; ok {
 						Name = string(infoname)

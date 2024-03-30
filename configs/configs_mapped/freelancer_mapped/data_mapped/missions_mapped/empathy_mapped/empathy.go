@@ -4,7 +4,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
@@ -26,13 +25,13 @@ type RepChangeEffects struct {
 	MissionAbort      *semantic.Float
 
 	EmpathyRates    []*EmpathyRate
-	EmpathyRatesMap *lower_map.KeyLoweredMap[string, *EmpathyRate]
+	EmpathyRatesMap map[string]*EmpathyRate
 }
 
 type Config struct {
 	*iniload.IniLoader
 	RepChangeEffects []*RepChangeEffects
-	RepoChangeMap    *lower_map.KeyLoweredMap[string, *RepChangeEffects]
+	RepoChangeMap    map[string]*RepChangeEffects
 }
 
 const (
@@ -43,13 +42,13 @@ func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{IniLoader: input_file}
 
 	frelconfig.RepChangeEffects = make([]*RepChangeEffects, 0, 20)
-	frelconfig.RepoChangeMap = lower_map.NewKeyLoweredMap[string, *RepChangeEffects]()
+	frelconfig.RepoChangeMap = make(map[string]*RepChangeEffects)
 
 	for _, section := range input_file.SectionMap["[RepChangeEffects]"] {
 		repo_changes := &RepChangeEffects{}
 		repo_changes.Map(section)
-		repo_changes.Group = semantic.NewString(section, "group")
-		repo_changes.EmpathyRatesMap = lower_map.NewKeyLoweredMap[string, *EmpathyRate]()
+		repo_changes.Group = semantic.NewString(section, "group", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
+		repo_changes.EmpathyRatesMap = make(map[string]*EmpathyRate)
 
 		event_key := "event"
 		for event_index, event := range section.ParamMap[event_key] {
@@ -72,11 +71,11 @@ func Read(input_file *iniload.IniLoader) *Config {
 			empathy.TargetFactionNickname = semantic.NewString(section, empathy_rate_key, semantic.OptsS(semantic.Index(good_index), semantic.Order(0)))
 			empathy.RepoChange = semantic.NewFloat(section, empathy_rate_key, semantic.Precision(2), semantic.Index(good_index), semantic.Order(1))
 			repo_changes.EmpathyRates = append(repo_changes.EmpathyRates, empathy)
-			repo_changes.EmpathyRatesMap.MapSet(empathy.TargetFactionNickname.Get(), empathy)
+			repo_changes.EmpathyRatesMap[empathy.TargetFactionNickname.Get()] = empathy
 		}
 
 		frelconfig.RepChangeEffects = append(frelconfig.RepChangeEffects, repo_changes)
-		frelconfig.RepoChangeMap.MapSet(repo_changes.Group.Get(), repo_changes)
+		frelconfig.RepoChangeMap[repo_changes.Group.Get()] = repo_changes
 	}
 	return frelconfig
 

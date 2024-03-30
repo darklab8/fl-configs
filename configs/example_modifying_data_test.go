@@ -6,7 +6,6 @@ package configs
 
 import (
 	"os"
-	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
@@ -27,17 +26,17 @@ func Example_modifyingConfigs() {
 
 	// Modifying files
 	for _, base := range configs.Universe_config.Bases {
-		base.Nickname.Set(strings.ToLower(base.Nickname.Get()))
-		base.System.Set(strings.ToLower(base.System.Get()))
-		base.File.Set(strings.ToLower(base.File.Get()))
+		base.Nickname.Set(base.Nickname.Get())
+		base.System.Set(base.System.Get())
+		base.File.Set(base.File.Get())
 	}
 
 	for _, system := range configs.Universe_config.Systems {
-		system.Nickname.Set(strings.ToLower(system.Nickname.Get()))
-		system.Msg_id_prefix.Set(strings.ToLower(system.Msg_id_prefix.Get()))
+		system.Nickname.Set(system.Nickname.Get())
+		system.Msg_id_prefix.Set(system.Msg_id_prefix.Get())
 
 		if system.File.Get() != "" {
-			system.File.Set(strings.ToLower(system.File.Get()))
+			system.File.Set(system.File.Get())
 		}
 	}
 

@@ -53,7 +53,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 		}
 
 		equipment_name := comm.Equipment.Get()
-		equipment := e.configs.Equip.CommoditiesMap.MapGet(equipment_name)
+		equipment := e.configs.Equip.CommoditiesMap[equipment_name]
 
 		commodity.NameID = equipment.IdsName.Get()
 		if infoname, ok := e.configs.Infocards.Infonames[equipment.IdsName.Get()]; ok {
@@ -75,7 +75,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 
 		for _, base_goods := range e.configs.Market.BaseGoods {
 			base_nickname := base_goods.Base.Get()
-			if market_good, ok := base_goods.MarketGoodsMap.MapGetValue(commodity.Nickname); ok {
+			if market_good, ok := base_goods.MarketGoodsMap[commodity.Nickname]; ok {
 				base_info := CommodityAtBase{}
 				base_info.BaseSells = !market_good.IsBuyOnly.Get()
 				base_info.BaseNickname = base_nickname
@@ -85,21 +85,21 @@ func (e *Exporter) GetCommodities() []Commodity {
 				base_info.LevelRequired = market_good.LevelRequired.Get()
 				base_info.RepRequired = market_good.RepRequired.Get()
 
-				if universe_base, ok := e.configs.Universe_config.BasesMap.MapGetValue(universe_mapped.BaseNickname(base_nickname)); ok {
+				if universe_base, ok := e.configs.Universe_config.BasesMap[universe_mapped.BaseNickname(base_nickname)]; ok {
 
 					if infoname, ok := e.configs.Infocards.Infonames[universe_base.StridName.Get()]; ok {
 						base_info.BaseName = string(infoname)
 					}
 					system_nickname := universe_base.System.Get()
 
-					if system, ok := e.configs.Universe_config.SystemMap.MapGetValue(universe_mapped.SystemNickname(system_nickname)); ok {
+					if system, ok := e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(system_nickname)]; ok {
 						if infoname, ok := e.configs.Infocards.Infonames[system.Strid_name.Get()]; ok {
 							base_info.SystemName = string(infoname)
 						}
 					}
 
 					var reputation_nickname string
-					if system, ok := e.configs.Systems.SystemsMap.MapGetValue(universe_base.System.Get()); ok {
+					if system, ok := e.configs.Systems.SystemsMap[universe_base.System.Get()]; ok {
 						for _, system_base := range system.Bases {
 							if system_base.IdsName.Get() == universe_base.StridName.Get() {
 								reputation_nickname = system_base.RepNickname.Get()
@@ -108,7 +108,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 					}
 
 					var factionName string
-					if group, exists := e.configs.InitialWorld.GroupsMap.MapGetValue(reputation_nickname); exists {
+					if group, exists := e.configs.InitialWorld.GroupsMap[reputation_nickname]; exists {
 						if faction_name, exists := e.configs.Infocards.Infonames[group.IdsName.Get()]; exists {
 							factionName = string(faction_name)
 						}

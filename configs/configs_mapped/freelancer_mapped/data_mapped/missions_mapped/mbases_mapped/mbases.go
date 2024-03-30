@@ -2,12 +2,10 @@ package mbases_mapped
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 )
 
 const (
@@ -63,7 +61,7 @@ type Base struct {
 	Diff         *semantic.Int
 
 	BaseFactions    []*BaseFaction
-	BaseFactionsMap *lower_map.KeyLoweredMap[string, *BaseFaction]
+	BaseFactionsMap map[string]*BaseFaction
 	NPCs            []*NPC
 	Bar             *Mroom
 }
@@ -72,13 +70,13 @@ type Config struct {
 	semantic.ConfigModel
 
 	Bases   []*Base
-	BaseMap *lower_map.KeyLoweredMap[string, *Base]
+	BaseMap map[string]*Base
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
 		Bases:   make([]*Base, 0, 100),
-		BaseMap: lower_map.NewKeyLoweredMap[string, *Base](),
+		BaseMap: make(map[string]*Base),
 	}
 
 	for i := 0; i < len(input_file.Sections); i++ {
@@ -87,14 +85,14 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 			mbase_section := input_file.Sections[i]
 			base := &Base{
-				BaseFactionsMap: lower_map.NewKeyLoweredMap[string, *BaseFaction](),
+				BaseFactionsMap: make(map[string]*BaseFaction),
 			}
 			base.Map(mbase_section)
-			base.Nickname = semantic.NewString(mbase_section, "nickname")
+			base.Nickname = semantic.NewString(mbase_section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			base.LocalFaction = semantic.NewString(mbase_section, "local_faction")
 			base.Diff = semantic.NewInt(mbase_section, "diff")
 			frelconfig.Bases = append(frelconfig.Bases, base)
-			frelconfig.BaseMap.MapSet(base.Nickname.Get(), base)
+			frelconfig.BaseMap[base.Nickname.Get()] = base
 
 			for j := i + 1; j < len(input_file.Sections) && input_file.Sections[j].Type != "[MBase]"; j++ {
 				section := input_file.Sections[j]
@@ -102,7 +100,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 				switch section.Type {
 				case "[BaseFaction]":
 					faction := &BaseFaction{
-						Faction: semantic.NewString(section, "faction"),
+						Faction: semantic.NewString(section, "faction", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						Weight:  semantic.NewInt(section, "weight"),
 					}
 					faction.Map(section)
@@ -112,28 +110,28 @@ func Read(input_file *iniload.IniLoader) *Config {
 							semantic.NewString(mbase_section, "weight", semantic.OptsS(semantic.Index(index))))
 					}
 					base.BaseFactions = append(base.BaseFactions, faction)
-					base.BaseFactionsMap.MapSet(faction.Faction.Get(), faction)
+					base.BaseFactionsMap[faction.Faction.Get()] = faction
 				case "[MRoom]":
 					mroom := &Mroom{
-						Nickname:         semantic.NewString(section, "nickname"),
+						Nickname:         semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						CharacterDensity: semantic.NewInt(section, "character_density"),
 						Bartrender:       semantic.NewString(section, "fixture", semantic.OptsS(semantic.Order(0), semantic.Optional())),
 					}
 					mroom.Map(section)
-					if strings.ToLower(mroom.Nickname.Get()) == "bar" {
+					if mroom.Nickname.Get() == "bar" {
 						base.Bar = mroom
 					}
 				case "[GF_NPC]":
 					npc := &NPC{
-						Nickname:    semantic.NewString(section, "nickname"),
+						Nickname:    semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						Room:        semantic.NewString(section, "room", semantic.OptsS(semantic.Optional())),
-						Affiliation: semantic.NewString(section, "affiliation"),
+						Affiliation: semantic.NewString(section, "affiliation", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					}
 					npc.Map(section)
 
 					for index, _ := range section.ParamMap["bribe"] {
 						bribe := &Bribe{
-							Faction: semantic.NewString(section, "bribe", semantic.OptsS(semantic.Index(index))),
+							Faction: semantic.NewString(section, "bribe", semantic.OptsS(semantic.Index(index)), semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						}
 						bribe.Map(section)
 						npc.Bribes = append(npc.Bribes, bribe)
@@ -187,7 +185,7 @@ func FactionRephacks(config *Config) map[string]map[string]float64 {
 		var base_bribe_chances map[string]float64 = make(map[string]float64)
 		var faction_members map[string]int = make(map[string]int)
 		for _, npc := range base.NPCs {
-			faction_members[strings.ToLower(npc.Affiliation.Get())] += 1
+			faction_members[npc.Affiliation.Get()] += 1
 
 		}
 		for _, npc := range base.NPCs {
@@ -199,15 +197,15 @@ func FactionRephacks(config *Config) map[string]map[string]float64 {
 			if npc_nickname == bartrender {
 				for _, bribe := range npc.Bribes {
 					chance_increase := 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
-					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
+					base_bribe_chances[bribe.Faction.Get()] += chance_increase
 				}
 			} else {
 				for _, bribe := range npc.Bribes {
 					var weight float64 = 0
-					if faction, ok := base.BaseFactionsMap.MapGetValue(npc.Affiliation.Get()); ok {
+					if faction, ok := base.BaseFactionsMap[npc.Affiliation.Get()]; ok {
 						weight = float64(faction.Weight.Get())
 
-						if value, ok := faction_members[strings.ToLower(npc.Affiliation.Get())]; ok {
+						if value, ok := faction_members[npc.Affiliation.Get()]; ok {
 							if value != 0 {
 								weight = weight / float64(value)
 							}
@@ -215,20 +213,20 @@ func FactionRephacks(config *Config) map[string]map[string]float64 {
 					}
 
 					chance_increase := float64(weight/100) * 1 / float64(len(npc.Bribes)+len(npc.Rumors)+len(npc.Missions)+len(npc.Knows))
-					base_bribe_chances[strings.ToLower(bribe.Faction.Get())] += chance_increase
+					base_bribe_chances[bribe.Faction.Get()] += chance_increase
 				}
 			}
 		}
 
 		for faction, chance := range base_bribe_chances {
-			_, ok := faction_rephacks[strings.ToLower(faction)]
+			_, ok := faction_rephacks[faction]
 			if !ok {
-				faction_rephacks[strings.ToLower(faction)] = make(map[string]float64)
+				faction_rephacks[faction] = make(map[string]float64)
 			}
-			faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] += chance
+			faction_rephacks[faction][base.Nickname.Get()] += chance
 
-			if faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] > 1.0 {
-				faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] = 1.0
+			if faction_rephacks[faction][base.Nickname.Get()] > 1.0 {
+				faction_rephacks[faction][base.Nickname.Get()] = 1.0
 			}
 		}
 

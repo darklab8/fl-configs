@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
 // Linux friendly filepath, that can be returned to Windows way from linux
@@ -41,7 +42,7 @@ func NewPath(section *inireader.Section, key string, opts ...PathOption) *Path {
 	return s
 }
 
-func (s *Path) FileName() string {
+func (s *Path) FileName() utils_types.FilePath {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
@@ -54,10 +55,10 @@ func (s *Path) FileName() string {
 	if s.lowercase {
 		value = strings.ToLower(value)
 	}
-	return value
+	return utils_types.FilePath(value)
 }
 
-func (s *Path) Get() string {
+func (s *Path) Get() utils_types.FilePath {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
@@ -69,15 +70,15 @@ func (s *Path) Get() string {
 	if s.lowercase {
 		value = strings.ToLower(value)
 	}
-	return value
+	return utils_types.FilePath(value)
 }
 
-func (s *Path) Set(value string) {
+func (s *Path) Set(value utils_types.FilePath) {
 	if s.isComment() {
 		s.Delete()
 	}
 
-	processed_value := inireader.UniParseStr(value)
+	processed_value := inireader.UniParseStr(string(value))
 	if len(s.section.ParamMap[s.key]) == 0 {
 		s.section.AddParamToStart(s.key, (&inireader.Param{IsComment: s.isComment()}).AddValue(processed_value))
 	}

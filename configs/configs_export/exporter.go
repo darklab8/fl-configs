@@ -2,7 +2,6 @@ package configs_export
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 )
 
 type Exporter struct {
@@ -11,7 +10,7 @@ type Exporter struct {
 
 	Bases       []Base
 	Factions    []Faction
-	Infocards   *lower_map.KeyLoweredMap[InfocardKey, *Infocard]
+	Infocards   map[InfocardKey]*Infocard
 	Commodities []Commodity
 
 	infocards_parser *InfocardsParser
