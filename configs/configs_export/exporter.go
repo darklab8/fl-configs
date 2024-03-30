@@ -9,9 +9,10 @@ type Exporter struct {
 	configs                    *configs_mapped.MappedConfigs
 	are_no_name_bases_included NoNameIncluded
 
-	Bases     []Base
-	Factions  []Faction
-	Infocards *lower_map.KeyLoweredMap[InfocardKey, *Infocard]
+	Bases       []Base
+	Factions    []Faction
+	Infocards   *lower_map.KeyLoweredMap[InfocardKey, *Infocard]
+	Commodities []Commodity
 
 	infocards_parser *InfocardsParser
 }
@@ -38,6 +39,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 func (e *Exporter) Export() *Exporter {
 	e.Bases = e.GetBases(e.are_no_name_bases_included)
 	e.Factions = e.GetFactions(e.Bases)
+	e.Commodities = e.GetCommodities()
 	e.Infocards = e.infocards_parser.Get()
 	return e
 }

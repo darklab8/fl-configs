@@ -29,7 +29,7 @@ type Commodity struct {
 	PodApperance      *semantic.String
 	LootAppearance    *semantic.String
 	DecayPerSecond    *semantic.Int
-	Volume            *semantic.Int
+	Volume            *semantic.Float
 	HitPts            *semantic.Int
 }
 
@@ -65,7 +65,7 @@ func Read(files []*iniload.IniLoader) *Config {
 			commodity.PodApperance = semantic.NewString(section, "pod_appearance")
 			commodity.LootAppearance = semantic.NewString(section, "loot_appearance")
 			commodity.DecayPerSecond = semantic.NewInt(section, "decay_per_second")
-			commodity.Volume = semantic.NewInt(section, "volume")
+			commodity.Volume = semantic.NewFloat(section, "volume", semantic.Precision(6))
 			commodity.HitPts = semantic.NewInt(section, "hit_pts")
 
 			frelconfig.Commodities = append(frelconfig.Commodities, commodity)

@@ -27,7 +27,6 @@ func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
 
 		var system_name infocard.Infoname
 		if system, ok := e.configs.Universe_config.SystemMap.MapGetValue(universe_mapped.SystemNickname(base.System.Get())); ok {
-
 			if infoname, ok := e.configs.Infocards.Infonames[system.Strid_name.Get()]; ok {
 				system_name = infoname
 			}
@@ -55,9 +54,7 @@ func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
 
 		var factionName string
 		if group, exists := e.configs.InitialWorld.GroupsMap.MapGetValue(reputation_nickname); exists {
-
 			infocard_ids = append(infocard_ids, group.IdsInfo.Get())
-
 			if faction_name, exists := e.configs.Infocards.Infonames[group.IdsName.Get()]; exists {
 				factionName = string(faction_name)
 			}

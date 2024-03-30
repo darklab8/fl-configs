@@ -226,6 +226,10 @@ func FactionRephacks(config *Config) map[string]map[string]float64 {
 				faction_rephacks[strings.ToLower(faction)] = make(map[string]float64)
 			}
 			faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] += chance
+
+			if faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] > 1.0 {
+				faction_rephacks[strings.ToLower(faction)][strings.ToLower(base.Nickname.Get())] = 1.0
+			}
 		}
 
 	}
