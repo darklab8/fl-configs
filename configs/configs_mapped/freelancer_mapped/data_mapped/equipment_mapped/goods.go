@@ -15,7 +15,7 @@ type Commodity struct {
 	Category  *semantic.String
 
 	Price         *semantic.Int
-	Combinable    *semantic.String // should be StrBool
+	Combinable    *semantic.Bool
 	GoodSellPrice *semantic.Float
 	BadBuyPrice   *semantic.Float
 	BadSellPrice  *semantic.Float
@@ -96,7 +96,7 @@ func Read(configs []*iniload.IniLoader) *Config {
 				commodity.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				commodity.Equipment = semantic.NewString(section, "equipment", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				commodity.Price = semantic.NewInt(section, "price")
-				commodity.Combinable = semantic.NewString(section, "combinable")
+				commodity.Combinable = semantic.NewBool(section, "combinable", semantic.StrBool)
 				commodity.GoodSellPrice = semantic.NewFloat(section, "good_sell_price", semantic.Precision(2))
 				commodity.BadBuyPrice = semantic.NewFloat(section, "bad_buy_price", semantic.Precision(2))
 				commodity.BadSellPrice = semantic.NewFloat(section, "bad_sell_price", semantic.Precision(2))

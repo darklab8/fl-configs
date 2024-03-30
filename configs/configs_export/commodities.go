@@ -1,9 +1,6 @@
 package configs_export
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 )
 
@@ -43,14 +40,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 		var name string
 		commodity := Commodity{}
 		commodity.Nickname = comm.Nickname.Get()
-
-		if "commodity_biostability" == commodity.Nickname {
-			fmt.Println()
-		}
-
-		if strings.Contains(comm.Combinable.Get(), "true") {
-			commodity.Combinable = true
-		}
+		commodity.Combinable = comm.Combinable.Get()
 
 		equipment_name := comm.Equipment.Get()
 		equipment := e.configs.Equip.CommoditiesMap[equipment_name]
