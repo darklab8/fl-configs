@@ -11,6 +11,7 @@ type CommodityAtBase struct {
 	BaseNickname   string
 	BaseName       string
 	BaseSells      bool
+	Price          int
 	PricePerVolume int
 	LevelRequired  int
 	RepRequired    float64
@@ -78,6 +79,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 				base_info := CommodityAtBase{}
 				base_info.BaseSells = !market_good.IsBuyOnly.Get()
 				base_info.BaseNickname = base_nickname
+				base_info.Price = int(market_good.PriceModifier.Get() * float64(commodity.Price))
 				base_info.PricePerVolume = int(market_good.PriceModifier.Get() * float64(commodity.PricePerVolume))
 
 				base_info.LevelRequired = market_good.LevelRequired.Get()
