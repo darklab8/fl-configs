@@ -1,10 +1,7 @@
 package configs_export
 
 import (
-	"strings"
-
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/mbases_mapped"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 )
 
 type Reputation struct {
@@ -43,9 +40,9 @@ type Rephack struct {
 func (e *Exporter) GetFactions(bases []Base) []Faction {
 	var factions []Faction = make([]Faction, 0, 100)
 
-	var basemap *lower_map.KeyLoweredMap[string, Base] = lower_map.NewKeyLoweredMap[string, Base]()
+	var basemap map[string]Base = make(map[string]Base)
 	for _, base := range bases {
-		basemap.MapSet(base.Nickname, base)
+		basemap[base.Nickname] = base
 	}
 
 	// for faction, at base, chance
@@ -60,15 +57,15 @@ func (e *Exporter) GetFactions(bases []Base) []Faction {
 			Infocard:   InfocardKey(nickname),
 		}
 
-		if rephacks, ok := faction_rephacks[strings.ToLower(nickname)]; ok {
+		if rephacks, ok := faction_rephacks[nickname]; ok {
 
 			for base, chance := range rephacks {
 				rephack := Rephack{
-					BaseNickname: strings.ToLower(base),
+					BaseNickname: base,
 					Chance:       chance,
 				}
 
-				if base_info, ok := basemap.MapGetValue(strings.ToLower(base)); ok {
+				if base_info, ok := basemap[base]; ok {
 					rephack.BaseName = base_info.Name
 					rephack.BaseOwner = base_info.FactionName
 					rephack.BaseSystem = base_info.System
@@ -88,7 +85,7 @@ func (e *Exporter) GetFactions(bases []Base) []Faction {
 			faction.ShortName = string(short_name)
 		}
 
-		empathy_rates, empathy_exists := e.configs.Empathy.RepoChangeMap.MapGetValue(faction.Nickname)
+		empathy_rates, empathy_exists := e.configs.Empathy.RepoChangeMap[faction.Nickname]
 
 		if empathy_exists {
 			faction.ObjectDestruction = empathy_rates.ObjectDestruction.Get()
@@ -102,14 +99,14 @@ func (e *Exporter) GetFactions(bases []Base) []Faction {
 			rep_to_add.Nickname = reputation.TargetNickname.Get()
 			rep_to_add.Rep = reputation.Rep.Get()
 
-			target_faction := e.configs.InitialWorld.GroupsMap.MapGet(rep_to_add.Nickname)
+			target_faction := e.configs.InitialWorld.GroupsMap[rep_to_add.Nickname]
 
 			if name, ok := e.configs.Infocards.Infonames[target_faction.IdsName.Get()]; ok {
 				rep_to_add.Name = string(name)
 			}
 
 			if empathy_exists {
-				if empathy_rate, ok := empathy_rates.EmpathyRatesMap.MapGetValue(rep_to_add.Nickname); ok {
+				if empathy_rate, ok := empathy_rates.EmpathyRatesMap[rep_to_add.Nickname]; ok {
 					rep_to_add.Empathy = empathy_rate.RepoChange.Get()
 				}
 			}

@@ -3,7 +3,6 @@ package mbases_mapped
 import (
 	"fmt"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
@@ -27,9 +26,9 @@ func TestGetRepHacks(t *testing.T) {
 	faction_rephacks := FactionRephacks(config)
 
 	fmt.Println("printing for br_p_grp")
-	chances := make([]BaseChance, 0, len(faction_rephacks[strings.ToLower("br_p_grp")]))
+	chances := make([]BaseChance, 0, len(faction_rephacks["br_p_grp"]))
 
-	for base, chance := range faction_rephacks[strings.ToLower("br_p_grp")] {
+	for base, chance := range faction_rephacks["br_p_grp"] {
 		chances = append(chances, BaseChance{
 			Base:   base,
 			Chance: chance,
@@ -41,12 +40,6 @@ func TestGetRepHacks(t *testing.T) {
 
 	for _, chance := range chances {
 		var name string
-		// for _, base := range bases {
-		// 	if strings.ToLower(chance.base) == strings.ToLower(base.Nickname) {
-		// 		name = base.Name
-		// 	}
-		// }
-
 		fmt.Println(chance.Base, " = ", 100*chance.Chance, " ", name)
 	}
 }

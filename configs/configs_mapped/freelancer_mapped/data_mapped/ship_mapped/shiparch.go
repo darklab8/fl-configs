@@ -4,7 +4,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
@@ -25,20 +24,20 @@ type Config struct {
 	Files []*iniload.IniLoader
 
 	Ships    []*Ship
-	ShipsMap *lower_map.KeyLoweredMap[string, *Ship]
+	ShipsMap map[string]*Ship
 }
 
 func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{Files: files}
 	frelconfig.Ships = make([]*Ship, 0, 100)
-	frelconfig.ShipsMap = lower_map.NewKeyLoweredMap[string, *Ship]()
+	frelconfig.ShipsMap = make(map[string]*Ship)
 
 	for _, Iniconfig := range files {
 
 		for _, section := range Iniconfig.SectionMap["[Ship]"] {
 			ship := &Ship{}
 			ship.Map(section)
-			ship.Nickname = semantic.NewString(section, "nickname")
+			ship.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			ship.Type = semantic.NewString(section, "type")
 			ship.ShipClass = semantic.NewInt(section, "ship_class")
 			ship.IdsName = semantic.NewInt(section, "ids_name")
@@ -56,7 +55,7 @@ func Read(files []*iniload.IniLoader) *Config {
 
 				ship.IdsName.Get()
 				frelconfig.Ships = append(frelconfig.Ships, ship)
-				frelconfig.ShipsMap.MapSet(ship.Nickname.Get(), ship)
+				frelconfig.ShipsMap[ship.Nickname.Get()] = ship
 			}()
 
 		}

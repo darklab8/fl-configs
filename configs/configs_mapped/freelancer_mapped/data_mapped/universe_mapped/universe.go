@@ -7,7 +7,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 )
 
 // Feel free to map it xD
@@ -71,10 +70,10 @@ type System struct {
 type Config struct {
 	File     *iniload.IniLoader
 	Bases    []*Base
-	BasesMap *lower_map.KeyLoweredMap[BaseNickname, *Base]
+	BasesMap map[BaseNickname]*Base
 
 	Systems   []*System
-	SystemMap *lower_map.KeyLoweredMap[SystemNickname, *System]
+	SystemMap map[SystemNickname]*System
 
 	TimeSeconds *semantic.Int
 }
@@ -83,23 +82,23 @@ func Read(ini *iniload.IniLoader) *Config {
 	frelconfig := &Config{File: ini}
 
 	frelconfig.TimeSeconds = semantic.NewInt(ini.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG)
-	frelconfig.BasesMap = lower_map.NewKeyLoweredMap[BaseNickname, *Base]()
+	frelconfig.BasesMap = make(map[BaseNickname]*Base)
 	frelconfig.Bases = make([]*Base, 0)
-	frelconfig.SystemMap = lower_map.NewKeyLoweredMap[SystemNickname, *System]()
+	frelconfig.SystemMap = make(map[SystemNickname]*System)
 	frelconfig.Systems = make([]*System, 0)
 
 	if bases, ok := ini.SectionMap[KEY_BASE_TAG]; ok {
 		for _, base := range bases {
 			base_to_add := &Base{}
 			base_to_add.Map(base)
-			base_to_add.Nickname = semantic.NewString(base, KEY_NICKNAME)
+			base_to_add.Nickname = semantic.NewString(base, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			base_to_add.StridName = semantic.NewInt(base, KEY_STRIDNAME)
 			base_to_add.BGCS_base_run_by = semantic.NewString(base, KEY_BASE_BGCS, semantic.OptsS(semantic.Optional()))
-			base_to_add.System = semantic.NewString(base, KEY_SYSTEM)
-			base_to_add.File = semantic.NewPath(base, KEY_FILE)
+			base_to_add.System = semantic.NewString(base, KEY_SYSTEM, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
+			base_to_add.File = semantic.NewPath(base, KEY_FILE, semantic.WithLowercaseP())
 
 			frelconfig.Bases = append(frelconfig.Bases, base_to_add)
-			frelconfig.BasesMap.MapSet(BaseNickname(base_to_add.Nickname.Get()), base_to_add)
+			frelconfig.BasesMap[BaseNickname(base_to_add.Nickname.Get())] = base_to_add
 		}
 	}
 
@@ -112,12 +111,12 @@ func Read(ini *iniload.IniLoader) *Config {
 			system_to_add.Strid_name = semantic.NewInt(system, KEY_STRIDNAME, semantic.Optional())
 			system_to_add.Ids_info = semantic.NewInt(system, KEY_SYSTEM_IDS_INFO, semantic.Optional())
 			// system_to_add.NavMapScale = system.GetParamNumber(KEY_SYSTEM_NAVMAPSCALE, inireader.OPTIONAL_p)
-			system_to_add.Nickname = semantic.NewString(system, KEY_NICKNAME)
-			system_to_add.File = semantic.NewPath(system, KEY_FILE)
+			system_to_add.Nickname = semantic.NewString(system, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
+			system_to_add.File = semantic.NewPath(system, KEY_FILE, semantic.WithLowercaseP())
 			system_to_add.Msg_id_prefix = semantic.NewString(system, KEY_SYSTEM_MSG_ID_PREFIX, semantic.OptsS(semantic.Optional()))
 
 			frelconfig.Systems = append(frelconfig.Systems, &system_to_add)
-			frelconfig.SystemMap.MapSet(SystemNickname(system_to_add.Nickname.Get()), &system_to_add)
+			frelconfig.SystemMap[SystemNickname(system_to_add.Nickname.Get())] = &system_to_add
 		}
 	}
 

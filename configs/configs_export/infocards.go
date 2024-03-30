@@ -2,7 +2,6 @@ package configs_export
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
@@ -17,7 +16,7 @@ type InfocardKey string
 // for infocards extracting, plus adds reusage
 type InfocardsParser struct {
 	infocards *infocard.Config
-	data      *lower_map.KeyLoweredMap[InfocardKey, *Infocard]
+	data      map[InfocardKey]*Infocard
 
 	results       chan *InfocardResult
 	awaited_count int
@@ -28,7 +27,7 @@ func NewInfocardsParser(Infocards *infocard.Config) *InfocardsParser {
 	return &InfocardsParser{
 		infocards: Infocards,
 		results:   make(chan *InfocardResult),
-		data:      lower_map.NewKeyLoweredMap[InfocardKey, *Infocard](),
+		data:      make(map[InfocardKey]*Infocard),
 	}
 }
 
@@ -38,7 +37,7 @@ type InfocardResult struct {
 }
 
 func (i *InfocardsParser) Set(key InfocardKey, ids ...int) {
-	_, exists := i.data.MapGetValue(key)
+	_, exists := i.data[key]
 	if exists {
 		logus.Log.Debug("such infocard is already parsed", typelog.Any("key", key), typelog.Any("ids", ids))
 		return
@@ -67,23 +66,23 @@ func (s *InfocardsParser) makeReady() {
 	for i := 0; i < s.awaited_count; i++ {
 		result := <-s.results
 
-		_, exists := s.data.MapGetValue(result.Key)
+		_, exists := s.data[result.Key]
 		if exists {
 			s.recalculated++
 			logus.Log.Debug("you recalculated infocard!", typelog.Any("key", result.Key), typelog.Int("recalculated", s.recalculated))
 
 		}
 
-		s.data.MapSet(result.Key, &result.Infocard)
+		s.data[result.Key] = &result.Infocard
 	}
 	s.awaited_count = 0
 }
 
-func (s *InfocardsParser) Get() *lower_map.KeyLoweredMap[InfocardKey, *Infocard] {
+func (s *InfocardsParser) Get() map[InfocardKey]*Infocard {
 	s.makeReady()
 	close(s.results)
 	for result := range s.results {
-		s.data.MapSet(result.Key, &result.Infocard)
+		s.data[result.Key] = &result.Infocard
 		logus.Log.Warn("you received results after channel closing!")
 	}
 	if s.recalculated > 0 {

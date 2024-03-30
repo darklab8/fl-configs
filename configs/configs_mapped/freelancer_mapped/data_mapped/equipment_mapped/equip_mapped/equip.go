@@ -6,7 +6,6 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/lower_map"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
@@ -37,10 +36,10 @@ type Config struct {
 	Files []*iniload.IniLoader
 
 	Commodities    []*Commodity
-	CommoditiesMap *lower_map.KeyLoweredMap[string, *Commodity]
+	CommoditiesMap map[string]*Commodity
 
 	Items    []*Item
-	ItemsMap *lower_map.KeyLoweredMap[string, *Item]
+	ItemsMap map[string]*Item
 }
 
 const (
@@ -50,15 +49,15 @@ const (
 func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{Files: files}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
-	frelconfig.CommoditiesMap = lower_map.NewKeyLoweredMap[string, *Commodity]()
+	frelconfig.CommoditiesMap = make(map[string]*Commodity)
 	frelconfig.Items = make([]*Item, 0, 100)
-	frelconfig.ItemsMap = lower_map.NewKeyLoweredMap[string, *Item]()
+	frelconfig.ItemsMap = make(map[string]*Item)
 
 	for _, file := range files {
 		for _, section := range file.SectionMap["[Commodity]"] {
 			commodity := &Commodity{}
 			commodity.Map(section)
-			commodity.Nickname = semantic.NewString(section, "nickname")
+			commodity.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			commodity.IdsName = semantic.NewInt(section, "ids_name")
 			commodity.IdsInfo = semantic.NewInt(section, "ids_info")
 			commodity.UnitsPerContainer = semantic.NewInt(section, "units_per_container")
@@ -69,18 +68,18 @@ func Read(files []*iniload.IniLoader) *Config {
 			commodity.HitPts = semantic.NewInt(section, "hit_pts")
 
 			frelconfig.Commodities = append(frelconfig.Commodities, commodity)
-			frelconfig.CommoditiesMap.MapSet(commodity.Nickname.Get(), commodity)
+			frelconfig.CommoditiesMap[commodity.Nickname.Get()] = commodity
 		}
 
 		for _, section := range file.Sections {
 			item := &Item{}
 			item.Map(section)
 			item.Category = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(string(section.Type), "[", ""), "]", ""))
-			item.Nickname = semantic.NewString(section, "nickname", semantic.OptsS(semantic.Optional()))
+			item.Nickname = semantic.NewString(section, "nickname", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			item.IdsName = semantic.NewInt(section, "ids_name", semantic.Optional())
 			item.IdsInfo = semantic.NewInt(section, "ids_info", semantic.Optional())
 			frelconfig.Items = append(frelconfig.Items, item)
-			frelconfig.ItemsMap.MapSet(item.Nickname.Get(), item)
+			frelconfig.ItemsMap[item.Nickname.Get()] = item
 		}
 	}
 
