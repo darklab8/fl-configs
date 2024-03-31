@@ -51,6 +51,7 @@ type Explosion struct {
 	Nickname      *semantic.String
 	HullDamage    *semantic.Int
 	EnergyDamange *semantic.Int
+	Radius        *semantic.Int
 }
 
 type Gun struct {
@@ -70,6 +71,39 @@ type Gun struct {
 	Lootable            *semantic.Bool
 }
 
+type Mine struct {
+	semantic.Model
+	Nickname           *semantic.String
+	ExplosionArch      *semantic.String
+	AmmoLimit          *semantic.Int
+	HitPts             *semantic.Int
+	Lifetime           *semantic.Float
+	IdsName            *semantic.Int
+	IdsInfo            *semantic.Int
+	SeekDist           *semantic.Int
+	TopSpeed           *semantic.Int
+	Acceleration       *semantic.Int
+	OwnerSafeTime      *semantic.Int
+	DetonationDistance *semantic.Int
+	LinearDrag         *semantic.Float
+}
+
+type MineDropper struct {
+	semantic.Model
+
+	Nickname            *semantic.String
+	IdsName             *semantic.Int
+	IdsInfo             *semantic.Int
+	HitPts              *semantic.Int
+	ChildImpulse        *semantic.Float
+	PowerUsage          *semantic.Float
+	RefireDelay         *semantic.Float
+	MuzzleVelocity      *semantic.Float
+	Toughness           *semantic.Float
+	ProjectileArchetype *semantic.String
+	Lootable            *semantic.Bool
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -82,6 +116,10 @@ type Config struct {
 
 	Explosions   []*Explosion
 	ExplosionMap map[string]*Explosion
+
+	MineDroppers []*MineDropper
+	Mines        []*Mine
+	MinesMap     map[string]*Mine
 
 	Items    []*Item
 	ItemsMap map[string]*Item
@@ -96,8 +134,10 @@ func Read(files []*iniload.IniLoader) *Config {
 		Files:        files,
 		Guns:         make([]*Gun, 0, 100),
 		Munitions:    make([]*Munition, 0, 100),
+		MineDroppers: make([]*MineDropper, 0, 100),
 		MunitionMap:  make(map[string]*Munition),
 		ExplosionMap: make(map[string]*Explosion),
+		MinesMap:     make(map[string]*Mine),
 	}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = make(map[string]*Commodity)
@@ -168,8 +208,43 @@ func Read(files []*iniload.IniLoader) *Config {
 				explosion.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				explosion.HullDamage = semantic.NewInt(section, "hull_damage")
 				explosion.EnergyDamange = semantic.NewInt(section, "energy_damage")
+				explosion.Radius = semantic.NewInt(section, "radius")
 				frelconfig.Explosions = append(frelconfig.Explosions, explosion)
 				frelconfig.ExplosionMap[explosion.Nickname.Get()] = explosion
+			case "[MineDropper]":
+				mine_dropper := &MineDropper{
+					Nickname:            semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:             semantic.NewInt(section, "ids_name"),
+					IdsInfo:             semantic.NewInt(section, "ids_info"),
+					HitPts:              semantic.NewInt(section, "hit_pts"),
+					ChildImpulse:        semantic.NewFloat(section, "child_impulse", semantic.Precision(2)),
+					PowerUsage:          semantic.NewFloat(section, "power_usage", semantic.Precision(2)),
+					RefireDelay:         semantic.NewFloat(section, "refire_delay", semantic.Precision(2)),
+					MuzzleVelocity:      semantic.NewFloat(section, "muzzle_velocity", semantic.Precision(2)),
+					Toughness:           semantic.NewFloat(section, "toughness", semantic.Precision(2)),
+					ProjectileArchetype: semantic.NewString(section, "projectile_archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					Lootable:            semantic.NewBool(section, "lootable", semantic.StrBool),
+				}
+
+				frelconfig.MineDroppers = append(frelconfig.MineDroppers, mine_dropper)
+			case "[Mine]":
+				mine := &Mine{
+					Nickname:           semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					ExplosionArch:      semantic.NewString(section, "explosion_arch", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					AmmoLimit:          semantic.NewInt(section, "ammo_limit"),
+					HitPts:             semantic.NewInt(section, "hit_pts"),
+					Lifetime:           semantic.NewFloat(section, "lifetime", semantic.Precision(2)),
+					IdsName:            semantic.NewInt(section, "ids_name"),
+					IdsInfo:            semantic.NewInt(section, "ids_info"),
+					SeekDist:           semantic.NewInt(section, "seek_dist"),
+					TopSpeed:           semantic.NewInt(section, "top_speed"),
+					Acceleration:       semantic.NewInt(section, "acceleration"),
+					OwnerSafeTime:      semantic.NewInt(section, "owner_safe_time"),
+					DetonationDistance: semantic.NewInt(section, "detonation_dist"),
+					LinearDrag:         semantic.NewFloat(section, "linear_drag", semantic.Precision(6)),
+				}
+				frelconfig.Mines = append(frelconfig.Mines, mine)
+				frelconfig.MinesMap[mine.Nickname.Get()] = mine
 			}
 		}
 	}
