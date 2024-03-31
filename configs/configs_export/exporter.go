@@ -12,6 +12,7 @@ type Exporter struct {
 	Factions    []Faction
 	Infocards   map[InfocardKey]*Infocard
 	Commodities []Commodity
+	Guns        []Gun
 
 	infocards_parser *InfocardsParser
 }
@@ -39,6 +40,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Bases = e.GetBases(e.are_no_name_bases_included)
 	e.Factions = e.GetFactions(e.Bases)
 	e.Commodities = e.GetCommodities()
+	e.Guns = e.GetGuns()
 	e.Infocards = e.infocards_parser.Get()
 	return e
 }

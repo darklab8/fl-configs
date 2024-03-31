@@ -16,8 +16,8 @@ type MarketGood struct {
 	LevelRequired *semantic.Int   // 1
 	RepRequired   *semantic.Float // 2
 
-	IsBuyOnly     *semantic.IntBool // 5
-	PriceModifier *semantic.Float   // 6
+	IsBuyOnly     *semantic.Bool  // 5
+	PriceModifier *semantic.Float // 6
 }
 
 type BaseGood struct {
@@ -28,10 +28,16 @@ type BaseGood struct {
 	MarketGoodsMap map[string]*MarketGood
 }
 
+type MarketGoodAtBase struct {
+	MarketGood *MarketGood
+	Base       string
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
-	BaseGoods []*BaseGood
+	BaseGoods    []*BaseGood
+	BasesPerGood map[string][]*MarketGoodAtBase
 }
 
 const (
@@ -47,6 +53,7 @@ const (
 func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{Files: files}
 	frelconfig.BaseGoods = make([]*BaseGood, 0)
+	frelconfig.BasesPerGood = make(map[string][]*MarketGoodAtBase)
 
 	for _, file := range frelconfig.Files {
 
@@ -56,6 +63,7 @@ func Read(files []*iniload.IniLoader) *Config {
 			}
 			base_to_add.Map(section)
 			base_to_add.Base = semantic.NewString(section, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
+			base_nickname := base_to_add.Base.Get()
 
 			for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
 				good_to_add := &MarketGood{}
@@ -63,10 +71,15 @@ func Read(files []*iniload.IniLoader) *Config {
 				good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
 				good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
-				good_to_add.IsBuyOnly = semantic.NewIntBool(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(5))
+				good_to_add.IsBuyOnly = semantic.NewBool(section, KEY_MARKET_GOOD, semantic.IntBool, semantic.Index(good_index), semantic.Order(5))
 				good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
 				base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
 				base_to_add.MarketGoodsMap[good_to_add.Nickname.Get()] = good_to_add
+
+				frelconfig.BasesPerGood[good_to_add.Nickname.Get()] = append(frelconfig.BasesPerGood[good_to_add.Nickname.Get()], &MarketGoodAtBase{
+					MarketGood: good_to_add,
+					Base:       base_nickname,
+				})
 			}
 
 			frelconfig.BaseGoods = append(frelconfig.BaseGoods, base_to_add)

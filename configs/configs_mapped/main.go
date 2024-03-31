@@ -6,6 +6,7 @@ package configs_mapped
 import (
 	"sync"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/const_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/interface_mapped"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/market_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/weaponmoddb"
 
 	"github.com/darklab8/go-utils/goutils/utils"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
@@ -48,6 +50,8 @@ type MappedConfigs struct {
 	InitialWorld   *initialworld.Config
 	Empathy        *empathy_mapped.Config
 	MBases         *mbases_mapped.Config
+	Consts         *const_mapped.Config
+	WeaponMods     *weaponmoddb.Config
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -74,6 +78,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	file_initialworld := iniload.NewLoader(filesystem.GetFile(initialworld.FILENAME))
 	file_empathy := iniload.NewLoader(filesystem.GetFile(empathy_mapped.FILENAME))
 	file_mbases := iniload.NewLoader(filesystem.GetFile(mbases_mapped.FILENAME))
+	file_consts := iniload.NewLoader(filesystem.GetFile(const_mapped.FILENAME))
+	file_weaponmoddb := iniload.NewLoader(filesystem.GetFile(weaponmoddb.FILENAME))
 
 	all_files := append(files_goods, files_market...)
 	all_files = append(all_files, files_equip...)
@@ -84,6 +90,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		file_initialworld,
 		file_empathy,
 		file_mbases,
+		file_consts,
+		file_weaponmoddb,
 	)
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		var wg sync.WaitGroup
@@ -113,6 +121,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		p.InitialWorld = initialworld.Read(file_initialworld)
 		p.Empathy = empathy_mapped.Read(file_empathy)
 		p.MBases = mbases_mapped.Read(file_mbases)
+		p.Consts = const_mapped.Read(file_consts)
+		p.WeaponMods = weaponmoddb.Read(file_weaponmoddb)
 	}, time_measure.WithMsg("Mapped stuff"))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))

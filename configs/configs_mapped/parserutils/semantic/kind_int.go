@@ -1,6 +1,10 @@
 package semantic
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
+)
 
 type Int struct {
 	*Value
@@ -21,6 +25,22 @@ func (s *Int) Get() int {
 		return 0
 	}
 	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value)
+}
+
+func (s *Int) GetValue() (int, bool) {
+	var value int
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
+
+	return value, ok
 }
 
 func (s *Int) Set(value int) {

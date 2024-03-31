@@ -1,40 +1,88 @@
 package semantic
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+import (
+	"strings"
 
-type IntBool struct {
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
+)
+
+type Bool struct {
 	*Value
+	bool_type BoolType
 }
 
-func NewIntBool(section *inireader.Section, key string, opts ...ValueOption) *IntBool {
+type BoolType int64
+
+const (
+	IntBool BoolType = iota
+	StrBool
+)
+
+func NewBool(section *inireader.Section, key string, bool_type BoolType, opts ...ValueOption) *Bool {
 	v := NewValue(section, key)
 	for _, opt := range opts {
 		opt(v)
 	}
-	s := &IntBool{Value: v}
+	s := &Bool{
+		Value:     v,
+		bool_type: bool_type,
+	}
 
 	return s
 }
 
-func (s *IntBool) Get() bool {
+func (s *Bool) Get() bool {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return false
 	}
-	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value) == 1
+	switch s.bool_type {
+	case IntBool:
+		return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value) == 1
+	case StrBool:
+		return strings.Contains(s.section.ParamMap[s.key][s.index].Values[s.order].AsString(), "true")
+	}
+	panic("not expected bool type")
 }
 
-func (s *IntBool) Set(value bool) {
-	var int_bool int
+func (s *Bool) GetValue() (bool, bool) {
+	var value bool
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
 
-	if value {
-		int_bool = 1
-	}
+	return value, ok
+}
 
+func (s *Bool) Set(value bool) {
+	var processed_value inireader.UniValue
 	if s.isComment() {
 		s.Delete()
 	}
 
-	processed_value := inireader.UniParseInt(int_bool)
+	switch s.bool_type {
+	case IntBool:
+		var int_bool int
+		if value {
+			int_bool = 1
+		}
+		processed_value = inireader.UniParseInt(int_bool)
+	case StrBool:
+		if value {
+			processed_value = inireader.UniParseStr("true")
+		} else {
+			processed_value = inireader.UniParseStr("false")
+		}
+	}
+
 	if len(s.section.ParamMap[s.key]) == 0 {
 		s.section.AddParamToStart(s.key, (&inireader.Param{IsComment: s.isComment()}).AddValue(processed_value))
 	}
@@ -43,7 +91,7 @@ func (s *IntBool) Set(value bool) {
 	s.section.ParamMap[s.key][0].Values[0] = processed_value
 }
 
-func (s *IntBool) Delete() {
+func (s *Bool) Delete() {
 	delete(s.section.ParamMap, s.key)
 	for index, param := range s.section.Params {
 		if param.Key == s.key {

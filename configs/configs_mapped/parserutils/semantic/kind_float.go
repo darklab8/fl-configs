@@ -1,6 +1,10 @@
 package semantic
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
+)
 
 type Precision int
 
@@ -27,6 +31,22 @@ func (s *Float) Get() float64 {
 		return 0
 	}
 	return s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value
+}
+
+func (s *Float) GetValue() (float64, bool) {
+	var value float64
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
+
+	return value, ok
 }
 
 func (s *Float) Set(value float64) {
