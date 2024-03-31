@@ -88,6 +88,7 @@ func (e *Exporter) GetMines() []Mine {
 			}
 		}
 
+		e.infocards_parser.Set(InfocardKey(mine.Nickname), mine.IdsInfo)
 		mines = append(mines, mine)
 	}
 
