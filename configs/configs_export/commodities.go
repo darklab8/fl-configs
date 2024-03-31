@@ -9,7 +9,7 @@ type GoodAtBase struct {
 	BaseName       string
 	BaseSells      bool
 	Price          int
-	PricePerVolume int
+	PricePerVolume float64
 	LevelRequired  int
 	RepRequired    float64
 	SystemName     string
@@ -20,16 +20,16 @@ type Commodity struct {
 	Nickname            string
 	Name                string
 	Price               int
-	PricePerVolume      int
+	PricePerVolume      float64
 	Combinable          bool
 	Volume              float64
 	NameID              int
 	InfocardID          int
 	Infocard            InfocardKey
 	Bases               []GoodAtBase
-	BestBuyPricePerVol  int
-	BestSellPricePerVol int
-	ProffitMarginPerVol int
+	BestBuyPricePerVol  float64
+	BestSellPricePerVol float64
+	ProffitMarginPerVol float64
 }
 
 func (e *Exporter) GetCommodities() []Commodity {
@@ -58,7 +58,7 @@ func (e *Exporter) GetCommodities() []Commodity {
 		commodity.Volume = volume
 		commodity.Price = comm.Price.Get()
 		if volume != 0 {
-			commodity.PricePerVolume = int(float64(commodity.Price) / float64(volume))
+			commodity.PricePerVolume = float64(commodity.Price) / float64(volume)
 		} else {
 			commodity.PricePerVolume = -1
 		}
@@ -66,11 +66,11 @@ func (e *Exporter) GetCommodities() []Commodity {
 		commodity.Bases = e.GetAtBasesSold(GetAtBasesInput{
 			Nickname:       commodity.Nickname,
 			Price:          commodity.Price,
-			PricePerVolume: commodity.Volume,
+			PricePerVolume: commodity.PricePerVolume,
 		})
 
 		for _, base_info := range commodity.Bases {
-			if base_info.PricePerVolume > commodity.BestSellPricePerVol {
+			if base_info.PricePerVolume > float64(commodity.BestSellPricePerVol) {
 				commodity.BestSellPricePerVol = base_info.PricePerVolume
 			}
 
@@ -105,7 +105,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []GoodAtBase {
 		base_info.BaseSells = !market_good.IsBuyOnly.Get()
 		base_info.BaseNickname = base_nickname
 		base_info.Price = int(market_good.PriceModifier.Get() * float64(commodity.Price))
-		base_info.PricePerVolume = int(market_good.PriceModifier.Get() * float64(commodity.PricePerVolume))
+		base_info.PricePerVolume = market_good.PriceModifier.Get() * float64(commodity.PricePerVolume)
 
 		base_info.LevelRequired = market_good.LevelRequired.Get()
 		base_info.RepRequired = market_good.RepRequired.Get()

@@ -179,7 +179,10 @@ func (e *Exporter) GetGuns() []Gun {
 		}
 
 		// weapon platforms
-		if strings.Contains(gun.Nickname, "_wp_") || strings.Contains(gun.Nickname, "_wps_") || strings.Contains(gun.Nickname, "_station_") {
+		if strings.Contains(gun.Nickname, "_wp_") ||
+			strings.Contains(gun.Nickname, "_wps_") ||
+			strings.Contains(gun.Nickname, "_station_") ||
+			strings.Contains(gun.Nickname, "admin_cannon") {
 			continue
 		}
 
