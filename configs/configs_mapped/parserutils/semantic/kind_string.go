@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
 )
 
 type String struct {
@@ -52,6 +54,22 @@ func (s *String) Get() string {
 		value = strings.ToLower(value)
 	}
 	return value
+}
+
+func (s *String) GetValue() (string, bool) {
+	var value string
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
+
+	return value, ok
 }
 
 func (s *String) Set(value string) {

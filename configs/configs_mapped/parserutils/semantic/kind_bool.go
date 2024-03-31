@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
 )
 
 type Bool struct {
@@ -42,6 +44,22 @@ func (s *Bool) Get() bool {
 		return strings.Contains(s.section.ParamMap[s.key][s.index].Values[s.order].AsString(), "true")
 	}
 	panic("not expected bool type")
+}
+
+func (s *Bool) GetValue() (bool, bool) {
+	var value bool
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
+
+	return value, ok
 }
 
 func (s *Bool) Set(value bool) {

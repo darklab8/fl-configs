@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetGuns(t *testing.T) {
@@ -11,7 +12,6 @@ func TestGetGuns(t *testing.T) {
 	exporter := NewExporter(configs)
 
 	guns := exporter.GetGuns()
-	_ = guns
-	// assert.Greater(t, len(guns), 0)
+	assert.Greater(t, len(guns), 0)
 	// exporter.infocards_parser.Get()
 }
