@@ -104,6 +104,25 @@ type MineDropper struct {
 	Lootable            *semantic.Bool
 }
 
+type ShieldGenerator struct {
+	semantic.Model
+
+	Nickname           *semantic.String
+	IdsName            *semantic.Int
+	IdsInfo            *semantic.Int
+	HitPts             *semantic.Int
+	Volume             *semantic.Int
+	RegenerationRate   *semantic.Int
+	MaxCapacity        *semantic.Int
+	Toughness          *semantic.Float
+	HpType             *semantic.String
+	ConstPowerDraw     *semantic.Int
+	RebuildPowerDraw   *semantic.Int
+	OfflineRebuildTime *semantic.Int
+	Lootable           *semantic.Bool
+	ShieldType         *semantic.String
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -123,6 +142,8 @@ type Config struct {
 
 	Items    []*Item
 	ItemsMap map[string]*Item
+
+	ShieldGens []*ShieldGenerator
 }
 
 const (
@@ -245,6 +266,24 @@ func Read(files []*iniload.IniLoader) *Config {
 				}
 				frelconfig.Mines = append(frelconfig.Mines, mine)
 				frelconfig.MinesMap[mine.Nickname.Get()] = mine
+			case "[ShieldGenerator]":
+				shield := &ShieldGenerator{
+					Nickname:           semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:            semantic.NewInt(section, "ids_name"),
+					IdsInfo:            semantic.NewInt(section, "ids_info"),
+					HitPts:             semantic.NewInt(section, "hit_pts"),
+					Volume:             semantic.NewInt(section, "volume"),
+					RegenerationRate:   semantic.NewInt(section, "regeneration_rate"),
+					MaxCapacity:        semantic.NewInt(section, "max_capacity"),
+					Toughness:          semantic.NewFloat(section, "toughness", semantic.Precision(2)),
+					HpType:             semantic.NewString(section, "hp_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					ConstPowerDraw:     semantic.NewInt(section, "constant_power_draw"),
+					RebuildPowerDraw:   semantic.NewInt(section, "rebuild_power_draw"),
+					OfflineRebuildTime: semantic.NewInt(section, "offline_rebuild_time"),
+					Lootable:           semantic.NewBool(section, "lootable", semantic.StrBool),
+					ShieldType:         semantic.NewString(section, "shield_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+				}
+				frelconfig.ShieldGens = append(frelconfig.ShieldGens, shield)
 			}
 		}
 	}
