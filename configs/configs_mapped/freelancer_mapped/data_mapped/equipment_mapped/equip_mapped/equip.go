@@ -123,6 +123,19 @@ type ShieldGenerator struct {
 	ShieldType         *semantic.String
 }
 
+type Thruster struct {
+	semantic.Model
+
+	Nickname *semantic.String
+	IdsName  *semantic.Int
+	IdsInfo  *semantic.Int
+	HitPts   *semantic.Int
+	Lootable *semantic.Bool
+
+	MaxForce   *semantic.Int
+	PowerUsage *semantic.Int
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -144,6 +157,7 @@ type Config struct {
 	ItemsMap map[string]*Item
 
 	ShieldGens []*ShieldGenerator
+	Thrusters  []*Thruster
 }
 
 const (
@@ -284,6 +298,17 @@ func Read(files []*iniload.IniLoader) *Config {
 					ShieldType:         semantic.NewString(section, "shield_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 				}
 				frelconfig.ShieldGens = append(frelconfig.ShieldGens, shield)
+			case "[Thruster]":
+				thruster := &Thruster{
+					Nickname:   semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:    semantic.NewInt(section, "ids_name"),
+					IdsInfo:    semantic.NewInt(section, "ids_info"),
+					HitPts:     semantic.NewInt(section, "hit_pts"),
+					Lootable:   semantic.NewBool(section, "lootable", semantic.StrBool),
+					MaxForce:   semantic.NewInt(section, "max_force"),
+					PowerUsage: semantic.NewInt(section, "power_usage"),
+				}
+				frelconfig.Thrusters = append(frelconfig.Thrusters, thruster)
 			}
 		}
 	}
