@@ -158,6 +158,16 @@ type Power struct {
 	ThrustRecharge *semantic.Int
 }
 
+type Tractor struct {
+	semantic.Model
+	Nickname   *semantic.String
+	IdsName    *semantic.Int
+	IdsInfo    *semantic.Int
+	MaxLength  *semantic.Int
+	ReachSpeed *semantic.Int
+	Lootable   *semantic.Bool
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -185,6 +195,8 @@ type Config struct {
 	EnginesMap map[string]*Engine
 	Powers     []*Power
 	PowersMap  map[string]*Power
+
+	Tractors []*Tractor
 }
 
 const (
@@ -362,6 +374,16 @@ func Read(files []*iniload.IniLoader) *Config {
 				}
 				frelconfig.Engines = append(frelconfig.Engines, engine)
 				frelconfig.EnginesMap[engine.Nickname.Get()] = engine
+			case "[Tractor]":
+				tractor := &Tractor{
+					Nickname:   semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:    semantic.NewInt(section, "ids_name"),
+					IdsInfo:    semantic.NewInt(section, "ids_info"),
+					MaxLength:  semantic.NewInt(section, "max_length"),
+					ReachSpeed: semantic.NewInt(section, "reach_speed"),
+					Lootable:   semantic.NewBool(section, "lootable", semantic.StrBool),
+				}
+				frelconfig.Tractors = append(frelconfig.Tractors, tractor)
 			}
 		}
 	}

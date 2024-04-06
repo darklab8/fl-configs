@@ -8,17 +8,17 @@ type Exporter struct {
 	configs                    *configs_mapped.MappedConfigs
 	are_no_name_bases_included NoNameIncluded
 
-	Bases       []Base
-	Factions    []Faction
-	Infocards   map[InfocardKey]*Infocard
-	Commodities []Commodity
-	Guns        []Gun
-	Missiles    []Gun
-	Mines       []Mine
-	Shields     []Shield
-	Thrusters   []Thruster
-	Ships       []Ship
-
+	Bases            []Base
+	Factions         []Faction
+	Infocards        map[InfocardKey]*Infocard
+	Commodities      []Commodity
+	Guns             []Gun
+	Missiles         []Gun
+	Mines            []Mine
+	Shields          []Shield
+	Thrusters        []Thruster
+	Ships            []Ship
+	Tractors         []Tractor
 	infocards_parser *InfocardsParser
 }
 
@@ -51,6 +51,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Shields = e.GetShields()
 	e.Thrusters = e.GetThrusters()
 	e.Ships = e.GetShips()
+	e.Tractors = e.GetTractors()
 	e.Infocards = e.infocards_parser.Get()
 	return e
 }
