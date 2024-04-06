@@ -136,6 +136,28 @@ type Thruster struct {
 	PowerUsage *semantic.Int
 }
 
+type Engine struct {
+	semantic.Model
+	Nickname        *semantic.String
+	IdsName         *semantic.Int
+	IdsInfo         *semantic.Int
+	CruiseSpeed     *semantic.Int
+	LinearDrag      *semantic.Int
+	MaxForce        *semantic.Int
+	ReverseFraction *semantic.Float
+}
+
+type Power struct {
+	semantic.Model
+	Nickname       *semantic.String
+	IdsName        *semantic.Int
+	IdsInfo        *semantic.Int
+	Capacity       *semantic.Int
+	ChargeRate     *semantic.Int
+	ThrustCapacity *semantic.Int
+	ThrustRecharge *semantic.Int
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -158,6 +180,11 @@ type Config struct {
 
 	ShieldGens []*ShieldGenerator
 	Thrusters  []*Thruster
+
+	Engines    []*Engine
+	EnginesMap map[string]*Engine
+	Powers     []*Power
+	PowersMap  map[string]*Power
 }
 
 const (
@@ -173,6 +200,8 @@ func Read(files []*iniload.IniLoader) *Config {
 		MunitionMap:  make(map[string]*Munition),
 		ExplosionMap: make(map[string]*Explosion),
 		MinesMap:     make(map[string]*Mine),
+		EnginesMap:   make(map[string]*Engine),
+		PowersMap:    make(map[string]*Power),
 	}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = make(map[string]*Commodity)
@@ -309,6 +338,30 @@ func Read(files []*iniload.IniLoader) *Config {
 					PowerUsage: semantic.NewInt(section, "power_usage"),
 				}
 				frelconfig.Thrusters = append(frelconfig.Thrusters, thruster)
+			case "[Power]":
+				power := &Power{
+					Nickname:       semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:        semantic.NewInt(section, "ids_name"),
+					IdsInfo:        semantic.NewInt(section, "ids_info"),
+					Capacity:       semantic.NewInt(section, "capacity"),
+					ChargeRate:     semantic.NewInt(section, "charge_rate"),
+					ThrustCapacity: semantic.NewInt(section, "thrust_capacity"),
+					ThrustRecharge: semantic.NewInt(section, "thrust_charge_rate"),
+				}
+				frelconfig.Powers = append(frelconfig.Powers, power)
+				frelconfig.PowersMap[power.Nickname.Get()] = power
+			case "[Engine]":
+				engine := &Engine{
+					Nickname:        semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:         semantic.NewInt(section, "ids_name"),
+					IdsInfo:         semantic.NewInt(section, "ids_info"),
+					CruiseSpeed:     semantic.NewInt(section, "cruise_speed"),
+					LinearDrag:      semantic.NewInt(section, "linear_drag"),
+					MaxForce:        semantic.NewInt(section, "max_force"),
+					ReverseFraction: semantic.NewFloat(section, "reverse_fraction", semantic.Precision(2)),
+				}
+				frelconfig.Engines = append(frelconfig.Engines, engine)
+				frelconfig.EnginesMap[engine.Nickname.Get()] = engine
 			}
 		}
 	}

@@ -30,6 +30,14 @@ type Ship struct {
 	Category *semantic.String
 	Nickname *semantic.String
 	Hull     *semantic.String
+	Addons   []*Addon
+}
+
+type Addon struct {
+	semantic.Model
+	ItemNickname *semantic.String
+	ItemClass    *semantic.String
+	Quantity     *semantic.Int
 }
 type ShipHull struct {
 	semantic.Model
@@ -53,12 +61,14 @@ type Config struct {
 	Goods    []*Good
 	GoodsMap map[string]*Good
 
-	Commodities    []*Commodity
-	CommoditiesMap map[string]*Commodity
-	Ships          []*Ship
-	ShipsMap       map[string]*Ship
-	ShipHulls      []*ShipHull
-	ShipHullsMap   map[string]*ShipHull
+	Commodities        []*Commodity
+	CommoditiesMap     map[string]*Commodity
+	Ships              []*Ship
+	ShipsMap           map[string]*Ship
+	ShipsMapByHull     map[string]*Ship
+	ShipHulls          []*ShipHull
+	ShipHullsMap       map[string]*ShipHull
+	ShipHullsMapByShip map[string]*ShipHull
 }
 
 const (
@@ -76,6 +86,8 @@ func Read(configs []*iniload.IniLoader) *Config {
 
 	frelconfig.Goods = make([]*Good, 0, 100)
 	frelconfig.GoodsMap = make(map[string]*Good)
+	frelconfig.ShipHullsMapByShip = make(map[string]*ShipHull)
+	frelconfig.ShipsMapByHull = make(map[string]*Ship)
 
 	for _, config := range configs {
 		for _, section := range config.SectionMap["[Good]"] {
@@ -114,8 +126,25 @@ func Read(configs []*iniload.IniLoader) *Config {
 				ship.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				ship.Hull = semantic.NewString(section, "hull")
 
+				for addon_i, _ := range section.ParamMap["addon"] {
+					addon := &Addon{
+						ItemNickname: semantic.NewString(section, "addon",
+							semantic.OptsS(semantic.Index(addon_i), semantic.Order(0)),
+							semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						ItemClass: semantic.NewString(section, "addon",
+							semantic.OptsS(semantic.Index(addon_i), semantic.Order(1)),
+							semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						Quantity: semantic.NewInt(section, "addon",
+							semantic.Index(addon_i), semantic.Order(2),
+						),
+					}
+					addon.Map(section)
+					ship.Addons = append(ship.Addons, addon)
+				}
+
 				frelconfig.Ships = append(frelconfig.Ships, ship)
 				frelconfig.ShipsMap[ship.Nickname.Get()] = ship
+				frelconfig.ShipsMapByHull[ship.Hull.Get()] = ship
 			case "shiphull":
 				shiphull := &ShipHull{}
 				shiphull.Map(section)
@@ -127,6 +156,7 @@ func Read(configs []*iniload.IniLoader) *Config {
 
 				frelconfig.ShipHulls = append(frelconfig.ShipHulls, shiphull)
 				frelconfig.ShipHullsMap[shiphull.Nickname.Get()] = shiphull
+				frelconfig.ShipHullsMapByShip[shiphull.Ship.Get()] = shiphull
 			}
 
 		}
