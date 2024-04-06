@@ -145,6 +145,11 @@ type Engine struct {
 	LinearDrag      *semantic.Int
 	MaxForce        *semantic.Int
 	ReverseFraction *semantic.Float
+
+	HpType           *semantic.String
+	FlameEffect      *semantic.String
+	TrailEffect      *semantic.String
+	CruiseChargeTime *semantic.Int
 }
 
 type Power struct {
@@ -371,6 +376,11 @@ func Read(files []*iniload.IniLoader) *Config {
 					LinearDrag:      semantic.NewInt(section, "linear_drag"),
 					MaxForce:        semantic.NewInt(section, "max_force"),
 					ReverseFraction: semantic.NewFloat(section, "reverse_fraction", semantic.Precision(2)),
+
+					HpType:           semantic.NewString(section, "hp_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					FlameEffect:      semantic.NewString(section, "flame_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					TrailEffect:      semantic.NewString(section, "trail_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					CruiseChargeTime: semantic.NewInt(section, "cruise_charge_time"),
 				}
 				frelconfig.Engines = append(frelconfig.Engines, engine)
 				frelconfig.EnginesMap[engine.Nickname.Get()] = engine

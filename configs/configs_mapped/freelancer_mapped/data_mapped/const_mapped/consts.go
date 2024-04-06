@@ -15,10 +15,16 @@ type ShieldEquipConsts struct {
 	HULL_DAMAGE_FACTOR *semantic.Float
 }
 
+type EngineEquipConsts struct {
+	semantic.Model
+	CRUISING_SPEED *semantic.Int
+}
+
 type Config struct {
 	*iniload.IniLoader
 
 	ShieldEquipConsts *ShieldEquipConsts
+	EngineEquipConsts *EngineEquipConsts
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
@@ -31,6 +37,13 @@ func Read(input_file *iniload.IniLoader) *Config {
 		shield_consts.HULL_DAMAGE_FACTOR = semantic.NewFloat(groups[0], "hull_damage_factor", semantic.Precision(2))
 
 		frelconfig.ShieldEquipConsts = shield_consts
+	}
+	if groups, ok := frelconfig.SectionMap["[EngineEquipConsts]"]; ok {
+		const_group := &EngineEquipConsts{}
+		const_group.Map(groups[0])
+		const_group.CRUISING_SPEED = semantic.NewInt(groups[0], "cruising_speed")
+
+		frelconfig.EngineEquipConsts = const_group
 	}
 
 	return frelconfig
