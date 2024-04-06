@@ -2,6 +2,7 @@ package configs_export
 
 import (
 	"math"
+	"strings"
 )
 
 type Ship struct {
@@ -45,7 +46,7 @@ func (e *Exporter) GetShips() []Ship {
 		}
 
 		ship.Class, _ = ship_info.ShipClass.GetValue()
-		ship.Type = ship_info.Type.Get()
+		ship.Type = strings.ToLower(ship_info.Type.Get())
 		ship.NameID = ship_info.IdsName.Get()
 		ship.InfoID, _ = ship_info.IdsInfo.GetValue()
 
@@ -68,18 +69,20 @@ func (e *Exporter) GetShips() []Ship {
 
 			ship_hull_nickname := ship_hull_good.Nickname.Get()
 			if ship_package_good, ok := e.configs.Goods.ShipsMapByHull[ship_hull_nickname]; ok {
-				ship.Bases = e.GetAtBasesSold(GetAtBasesInput{
-					Nickname:       ship_package_good.Nickname.Get(),
-					Price:          ship.Price,
-					PricePerVolume: -1,
-				})
 
 				for _, addon := range ship_package_good.Addons {
+
 					// can be Power or Engine or Smth else
 					// addon = dsy_hessian_engine, HpEngine01, 1
 					// addon = dsy_loki_core, internal, 1
 					// addon = ge_s_scanner_01, internal, 1
 					addon_nickname := addon.ItemNickname.Get()
+
+					if good_info, ok := e.configs.Goods.GoodsMap[addon_nickname]; ok {
+						if addon_price, ok := good_info.Price.GetValue(); ok {
+							ship.Price += addon_price
+						}
+					}
 
 					if power, ok := e.configs.Equip.PowersMap[addon_nickname]; ok {
 						ship.PowerCapacity = power.Capacity.Get()
@@ -111,6 +114,12 @@ func (e *Exporter) GetShips() []Ship {
 						}
 					}
 				}
+
+				ship.Bases = e.GetAtBasesSold(GetAtBasesInput{
+					Nickname:       ship_package_good.Nickname.Get(),
+					Price:          ship.Price,
+					PricePerVolume: -1,
+				})
 			}
 
 		}
@@ -121,6 +130,9 @@ func (e *Exporter) GetShips() []Ship {
 		if len(ship.Bases) == 0 {
 			continue
 		}
+
+		e.infocards_parser.Set(InfocardKey(ship.Nickname),
+			ship_info.IdsInfo.Get(), ship_info.IdsInfo1.Get(), ship_info.IdsInfo2.Get(), ship_info.IdsInfo3.Get())
 
 		ships = append(ships, ship)
 	}
