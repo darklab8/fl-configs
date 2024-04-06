@@ -1,6 +1,8 @@
 package configs_export
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
@@ -13,4 +15,10 @@ func TestGetShips(t *testing.T) {
 
 	items := exporter.GetShips()
 	assert.Greater(t, len(items), 0)
+
+	for _, item := range items {
+		if strings.Contains(item.Nickname, "loki") {
+			fmt.Println()
+		}
+	}
 }

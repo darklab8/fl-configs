@@ -1,5 +1,9 @@
 package configs_export
 
+import (
+	"math"
+)
+
 type Ship struct {
 	Name      string
 	Class     int
@@ -19,9 +23,9 @@ type Ship struct {
 	ThrustCapacity    int
 	ThrustRecharge    int
 
-	// MaxAngularSpeedDegS           float64
-	// AngularDistanceFrom0ToHalfSec float64
-	// TimeTo90MaxAngularSpeed       float64
+	MaxAngularSpeedDegS           float64
+	AngularDistanceFrom0ToHalfSec float64
+	TimeTo90MaxAngularSpeed       float64
 
 	NudgeForce  float64
 	StrafeForce float64
@@ -93,6 +97,18 @@ func (e *Exporter) GetShips() []Ship {
 						ship.ImpulseSpeed = float64(engine_max_force) / (float64(engine_linear_drag) + float64(ship_linear_drag))
 
 						ship.ReverseFraction = engine.ReverseFraction.Get()
+
+						ship.MaxAngularSpeedDegS = ship_info.SteeringTorque.X.Get() / ship_info.AngularDrag.X.Get()
+						ship.TimeTo90MaxAngularSpeed = ship_info.RotationIntertia.X.Get() / (ship_info.AngularDrag.X.Get() * LogOgE)
+
+						ship.MaxAngularSpeedDegS *= Pi180
+
+						// Estimation made on mn my own formula :/
+						if ship.TimeTo90MaxAngularSpeed > 0.5 {
+							ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS * (0.5 / ship.TimeTo90MaxAngularSpeed) / 2
+						} else {
+							ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS*(0.5-ship.TimeTo90MaxAngularSpeed) + ship.MaxAngularSpeedDegS*ship.TimeTo90MaxAngularSpeed/2
+						}
 					}
 				}
 			}
@@ -111,3 +127,6 @@ func (e *Exporter) GetShips() []Ship {
 
 	return ships
 }
+
+var Pi180 = 57.29578 // number turning radians to degrees
+var LogOgE = math.Log10(math.E)
