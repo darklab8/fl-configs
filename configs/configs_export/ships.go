@@ -2,6 +2,7 @@ package configs_export
 
 import (
 	"math"
+	"sort"
 	"strings"
 )
 
@@ -34,7 +35,9 @@ type Ship struct {
 	NameID      int
 	InfoID      int
 
-	Bases []GoodAtBase
+	Bases            []GoodAtBase
+	Slots            []EquipmentSlot
+	BiggestHardpoint []string
 }
 
 func (e *Exporter) GetShips() []Ship {
@@ -134,10 +137,45 @@ func (e *Exporter) GetShips() []Ship {
 		e.infocards_parser.Set(InfocardKey(ship.Nickname),
 			ship_info.IdsInfo.Get(), ship_info.IdsInfo1.Get(), ship_info.IdsInfo2.Get(), ship_info.IdsInfo3.Get())
 
+		var hardpoints map[string][]string = make(map[string][]string)
+		for _, hp_type := range ship_info.HpTypes {
+			for _, equipment := range hp_type.AllowedEquipments {
+				equipment_slot := equipment.Get()
+				hardpoints[equipment_slot] = append(hardpoints[equipment_slot], hp_type.Nickname.Get())
+			}
+		}
+
+		for slot_name, allowed_equip := range hardpoints {
+			ship.Slots = append(ship.Slots, EquipmentSlot{
+				SlotName:     slot_name,
+				AllowedEquip: allowed_equip,
+			})
+		}
+
+		sort.Slice(ship.Slots, func(i, j int) bool {
+			return ship.Slots[i].SlotName < ship.Slots[j].SlotName
+		})
+		for _, slot := range ship.Slots {
+			sort.Slice(slot.AllowedEquip, func(i, j int) bool {
+				return slot.AllowedEquip[i] < slot.AllowedEquip[j]
+			})
+		}
+
+		for _, slot := range ship.Slots {
+			if len(slot.AllowedEquip) > len(ship.BiggestHardpoint) {
+				ship.BiggestHardpoint = slot.AllowedEquip
+			}
+		}
+
 		ships = append(ships, ship)
 	}
 
 	return ships
+}
+
+type EquipmentSlot struct {
+	SlotName     string
+	AllowedEquip []string
 }
 
 var Pi180 = 57.29578 // number turning radians to degrees
