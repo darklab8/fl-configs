@@ -5,10 +5,10 @@ import (
 )
 
 type Exporter struct {
-	configs                    *configs_mapped.MappedConfigs
-	are_no_name_bases_included NoNameIncluded
+	configs            *configs_mapped.MappedConfigs
+	show_empty_records bool
 
-	Bases            []Base
+	Bases            Bases
 	Factions         []Faction
 	Infocards        map[InfocardKey]*Infocard
 	Commodities      []Commodity
@@ -25,15 +25,15 @@ type Exporter struct {
 
 type OptExport func(e *Exporter)
 
-func WithNoNameBases() OptExport {
-	return func(e *Exporter) { e.are_no_name_bases_included = true }
+func WithEmptyRecords() OptExport {
+	return func(e *Exporter) { e.show_empty_records = true }
 }
 
 func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Exporter {
 	e := &Exporter{
-		configs:                    configs,
-		are_no_name_bases_included: false,
-		infocards_parser:           NewInfocardsParser(configs.Infocards),
+		configs:            configs,
+		show_empty_records: false,
+		infocards_parser:   NewInfocardsParser(configs.Infocards),
 	}
 
 	for _, opt := range opts {
@@ -43,8 +43,8 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 }
 
 func (e *Exporter) Export() *Exporter {
-	e.Bases = e.GetBases(e.are_no_name_bases_included)
-	e.Factions = e.GetFactions(e.Bases)
+	e.Bases = e.GetBases()
+	e.Factions = e.GetFactions(e.Bases.AllBases)
 	e.Commodities = e.GetCommodities()
 	e.Guns = e.GetGuns()
 	e.Missiles = e.GetMissiles()

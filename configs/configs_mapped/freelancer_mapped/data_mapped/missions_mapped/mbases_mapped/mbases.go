@@ -6,6 +6,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/fl-configs/configs/settings/logus"
 )
 
 const (
@@ -181,7 +182,7 @@ func FactionRephacks(config *Config) map[string]map[string]float64 {
 	for _, base := range config.Bases {
 
 		// per faction chance at base
-		fmt.Println("base=", base.Nickname.Get())
+		logus.Log.Debug(fmt.Sprintf("base=", base.Nickname.Get()))
 		var base_bribe_chances map[string]float64 = make(map[string]float64)
 		var faction_members map[string]int = make(map[string]int)
 		for _, npc := range base.NPCs {

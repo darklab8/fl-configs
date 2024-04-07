@@ -6,22 +6,23 @@ import (
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
-type NoNameIncluded bool
+type Bases struct {
+	Bases    []Base
+	AllBases []Base
+}
 
-func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
-	var results []Base = make([]Base, len(e.configs.Universe_config.Bases))
+func (e *Exporter) GetBases() Bases {
+	results := Bases{
+		Bases:    make([]Base, 0, len(e.configs.Universe_config.Bases)),
+		AllBases: make([]Base, 0, len(e.configs.Universe_config.Bases)),
+	}
 
 	commodities_per_base := e.getMarketGoods()
 
-	iterator := 0
 	for _, base := range e.configs.Universe_config.Bases {
 		var name string
 		if base_infocard, ok := e.configs.Infocards.Infonames[base.StridName.Get()]; ok {
 			name = string(base_infocard)
-		}
-
-		if !is_no_name_included && name == "" {
-			continue
 		}
 
 		var system_name infocard.Infoname
@@ -67,7 +68,7 @@ func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
 		var nickname string = base.Nickname.Get()
 		e.infocards_parser.Set(InfocardKey(nickname), infocard_ids...)
 
-		results[iterator] = Base{
+		base := Base{
 			Name:             name,
 			Nickname:         nickname,
 			FactionName:      factionName,
@@ -80,10 +81,13 @@ func (e *Exporter) GetBases(is_no_name_included NoNameIncluded) []Base {
 			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
 			MarketGoods:      market_goods,
 		}
-		iterator += 1
-	}
 
-	results = results[:iterator]
+		if name != "" {
+			results.Bases = append(results.Bases, base)
+		}
+
+		results.AllBases = append(results.Bases, base)
+	}
 
 	return results
 }
