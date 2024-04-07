@@ -72,7 +72,6 @@ func getGunClass(gun_info *equip_mapped.Gun) string {
 func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun) Gun {
 	gun := Gun{
 		Nickname:     gun_info.Nickname.Get(),
-		HpType:       gun_info.HPGunType.Get(),
 		IdsName:      gun_info.IdsName.Get(),
 		IdsInfo:      gun_info.IdsInfo.Get(),
 		Class:        getGunClass(gun_info),
@@ -85,6 +84,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun) Gun {
 		TurnRate:     gun_info.TurnRate.Get(),
 		Lootable:     gun_info.Lootable.Get(),
 	}
+	gun.HpType, _ = gun_info.HPGunType.GetValue()
 
 	gun.PowerPerSec = gun.PowerUsage * gun.Refire
 	munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
