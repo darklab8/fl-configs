@@ -42,7 +42,7 @@ func main() {
 				// config := exe_mapped.FixtureFLINIConfig()
 				// ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(real_game_loc), config.GetDlls())
 
-				for range exported.Bases.Bases {
+				for range exported.Bases {
 					break
 				}
 			}, time_measure.WithMsg("exported time"))

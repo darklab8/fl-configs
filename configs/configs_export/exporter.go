@@ -8,7 +8,7 @@ type Exporter struct {
 	configs            *configs_mapped.MappedConfigs
 	show_empty_records bool
 
-	Bases            Bases
+	Bases            []Base
 	Factions         []Faction
 	Infocards        map[InfocardKey]*Infocard
 	Commodities      []Commodity
@@ -44,7 +44,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 
 func (e *Exporter) Export() *Exporter {
 	e.Bases = e.GetBases()
-	e.Factions = e.GetFactions(e.Bases.AllBases)
+	e.Factions = e.GetFactions(e.Bases)
 	e.Commodities = e.GetCommodities()
 	e.Guns = e.GetGuns()
 	e.Missiles = e.GetMissiles()

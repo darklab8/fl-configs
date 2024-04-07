@@ -13,11 +13,11 @@ func TestExportBases(t *testing.T) {
 	exporter := NewExporter(configs)
 
 	bases := exporter.GetBases()
-	assert.Greater(t, len(bases.Bases), 0)
-	assert.NotEqual(t, bases.Bases[0].Nickname, bases.Bases[1].Nickname)
+	assert.Greater(t, len(bases), 0)
+	assert.NotEqual(t, bases[0].Nickname, bases[1].Nickname)
 
 	found_goods := false
-	for _, base := range bases.Bases {
+	for _, base := range bases {
 		if len(base.MarketGoods) > 0 {
 			found_goods = true
 		}
@@ -25,7 +25,7 @@ func TestExportBases(t *testing.T) {
 	assert.True(t, found_goods, "expected finding some goods")
 
 	infocards := exporter.infocards_parser.Get()
-	for _, base := range bases.Bases {
+	for _, base := range bases {
 		if base.Nickname == "Br01_01_Base" {
 			lines := infocards[base.Infocard]
 			fmt.Println(base.Nickname, lines.Lines)

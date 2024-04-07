@@ -6,16 +6,8 @@ import (
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
-type Bases struct {
-	Bases    []Base
-	AllBases []Base
-}
-
-func (e *Exporter) GetBases() Bases {
-	results := Bases{
-		Bases:    make([]Base, 0, len(e.configs.Universe_config.Bases)),
-		AllBases: make([]Base, 0, len(e.configs.Universe_config.Bases)),
-	}
+func (e *Exporter) GetBases() []Base {
+	results := make([]Base, 0, len(e.configs.Universe_config.Bases))
 
 	commodities_per_base := e.getMarketGoods()
 
@@ -82,11 +74,7 @@ func (e *Exporter) GetBases() Bases {
 			MarketGoods:      market_goods,
 		}
 
-		if name != "" {
-			results.Bases = append(results.Bases, base)
-		}
-
-		results.AllBases = append(results.Bases, base)
+		results = append(results, base)
 	}
 
 	return results
