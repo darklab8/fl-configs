@@ -28,6 +28,7 @@ type Shield struct {
 	Lootable  bool
 
 	Nickname string
+	HpType   string
 	IdsName  int
 	IdsInfo  int
 
@@ -95,6 +96,7 @@ func (e *Exporter) GetShields() []Shield {
 		}
 
 		if hp_type, ok := shield_gen.HpType.GetValue(); ok {
+			shield.HpType = hp_type
 			if parsed_type_class := TypeClassRegex.FindStringSubmatch(hp_type); len(parsed_type_class) > 0 {
 				shield.Type = parsed_type_class[1]
 				shield.Class = parsed_type_class[2]

@@ -20,6 +20,7 @@ type Gun struct {
 	Price    int
 	Class    string
 	Nickname string
+	HpType   string
 	IdsName  int
 	IdsInfo  int
 
@@ -71,6 +72,7 @@ func getGunClass(gun_info *equip_mapped.Gun) string {
 func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun) Gun {
 	gun := Gun{
 		Nickname:     gun_info.Nickname.Get(),
+		HpType:       gun_info.HPGunType.Get(),
 		IdsName:      gun_info.IdsName.Get(),
 		IdsInfo:      gun_info.IdsInfo.Get(),
 		Class:        getGunClass(gun_info),
