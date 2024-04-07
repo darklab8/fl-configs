@@ -183,6 +183,11 @@ func (e *Exporter) GetGuns() []Gun {
 
 	for _, gun_info := range e.configs.Equip.Guns {
 		gun := e.getGunInfo(gun_info)
+
+		if gun.HpType == "" {
+			continue
+		}
+
 		if strings.Contains(gun.DamageType, "w_npc") || strings.Contains(gun.DamageType, "station") {
 			continue
 		}
