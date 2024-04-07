@@ -94,3 +94,14 @@ func (e *Exporter) GetMines() []Mine {
 
 	return mines
 }
+
+func FilterToUsefulMines(mines []Mine) []Mine {
+	var items []Mine = make([]Mine, 0, len(mines))
+	for _, item := range mines {
+		if len(item.Bases) == 0 {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}

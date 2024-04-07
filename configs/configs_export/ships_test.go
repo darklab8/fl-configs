@@ -16,6 +16,9 @@ func TestGetShips(t *testing.T) {
 	items := exporter.GetShips()
 	assert.Greater(t, len(items), 0)
 
+	filtered := FilterToUsefulShips(items)
+	assert.Greater(t, len(filtered), 0)
+
 	for _, item := range items {
 		if strings.Contains(item.Nickname, "loki") {
 			fmt.Println()

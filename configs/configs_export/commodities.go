@@ -146,3 +146,14 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []GoodAtBase {
 	}
 	return bases_list
 }
+
+func FilterToUsefulCommodities(commodities []Commodity) []Commodity {
+	var items []Commodity = make([]Commodity, 0, len(commodities))
+	for _, item := range commodities {
+		if len(item.Bases) == 0 {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}

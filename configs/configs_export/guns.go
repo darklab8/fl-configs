@@ -188,6 +188,21 @@ func (e *Exporter) GetGuns() []Gun {
 			continue
 		}
 
+		munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
+		if _, ok := munition.Motor.GetValue(); ok {
+			// Excluded rocket launching stuff
+			continue
+		}
+
+		guns = append(guns, gun)
+	}
+
+	return guns
+}
+
+func FilterToUsefulGun(guns []Gun) []Gun {
+	var items []Gun = make([]Gun, 0, len(guns))
+	for _, gun := range guns {
 		if strings.Contains(gun.DamageType, "w_npc") || strings.Contains(gun.DamageType, "station") {
 			continue
 		}
@@ -201,14 +216,10 @@ func (e *Exporter) GetGuns() []Gun {
 			continue
 		}
 
-		munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
-		if _, ok := munition.Motor.GetValue(); ok {
-			// Excluded rocket launching stuff
+		if len(gun.Bases) == 0 {
 			continue
 		}
-
-		guns = append(guns, gun)
+		items = append(items, gun)
 	}
-
-	return guns
+	return items
 }

@@ -73,3 +73,14 @@ func (e *Exporter) GetThrusters() []Thruster {
 	}
 	return thrusters
 }
+
+func FilterToUsefulThrusters(thrusters []Thruster) []Thruster {
+	var items []Thruster = make([]Thruster, 0, len(thrusters))
+	for _, item := range thrusters {
+		if len(item.Bases) == 0 {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}

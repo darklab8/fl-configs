@@ -130,13 +130,6 @@ func (e *Exporter) GetShips() []Ship {
 		ship.HoldSize = ship_info.HoldSize.Get()
 		ship.Armor = ship_info.HitPts.Get()
 
-		if len(ship.Bases) == 0 {
-			continue
-		}
-
-		e.infocards_parser.Set(InfocardKey(ship.Nickname),
-			ship_info.IdsInfo.Get(), ship_info.IdsInfo1.Get(), ship_info.IdsInfo2.Get(), ship_info.IdsInfo3.Get())
-
 		var hardpoints map[string][]string = make(map[string][]string)
 		for _, hp_type := range ship_info.HpTypes {
 			for _, equipment := range hp_type.AllowedEquipments {
@@ -167,6 +160,20 @@ func (e *Exporter) GetShips() []Ship {
 			}
 		}
 
+		var infocards []int
+		if id, ok := ship_info.IdsInfo.GetValue(); ok {
+			infocards = append(infocards, id)
+		}
+		if id, ok := ship_info.IdsInfo1.GetValue(); ok {
+			infocards = append(infocards, id)
+		}
+		if id, ok := ship_info.IdsInfo2.GetValue(); ok {
+			infocards = append(infocards, id)
+		}
+		if id, ok := ship_info.IdsInfo3.GetValue(); ok {
+			infocards = append(infocards, id)
+		}
+		e.infocards_parser.Set(InfocardKey(ship.Nickname), infocards...)
 		ships = append(ships, ship)
 	}
 
@@ -180,3 +187,14 @@ type EquipmentSlot struct {
 
 var Pi180 = 57.29578 // number turning radians to degrees
 var LogOgE = math.Log10(math.E)
+
+func FilterToUsefulShips(ships []Ship) []Ship {
+	var items []Ship = make([]Ship, 0, len(ships))
+	for _, item := range ships {
+		if len(item.Bases) == 0 {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}

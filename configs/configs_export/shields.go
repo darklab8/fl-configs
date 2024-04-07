@@ -122,3 +122,14 @@ func InitRegexExpression(expression string) *regexp.Regexp {
 	logus.Log.CheckFatal(err, "failed to init regex={%s} in ", typelog.String("expression", expression))
 	return regex
 }
+
+func FilterToUsefulShields(shields []Shield) []Shield {
+	var items []Shield = make([]Shield, 0, len(shields))
+	for _, item := range shields {
+		if len(item.Bases) == 0 {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items
+}
