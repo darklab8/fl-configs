@@ -80,6 +80,17 @@ func (e *Exporter) GetBases() []Base {
 	return results
 }
 
+func FilterToUserfulBases(bases []Base) []Base {
+	var useful_bases []Base = make([]Base, 0, len(bases))
+	for _, item := range bases {
+		if item.Name == "" {
+			continue
+		}
+		useful_bases = append(useful_bases, item)
+	}
+	return useful_bases
+}
+
 type Base struct {
 	Name             string
 	Nickname         string

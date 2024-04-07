@@ -46,3 +46,14 @@ func (e *Exporter) GetTractors() []Tractor {
 	}
 	return tractors
 }
+
+func FilterToUsefulTractors(tractors []Tractor) []Tractor {
+	var buyable_tractors []Tractor = make([]Tractor, 0, len(tractors))
+	for _, item := range tractors {
+		if !Buyable(item.Bases) {
+			continue
+		}
+		buyable_tractors = append(buyable_tractors, item)
+	}
+	return buyable_tractors
+}

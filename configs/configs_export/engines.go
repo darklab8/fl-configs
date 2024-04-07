@@ -71,3 +71,15 @@ func (e *Exporter) GetEngines() []Engine {
 	}
 	return engines
 }
+
+func FilterToUsefulEngines(engines []Engine) []Engine {
+	var buyable_engines []Engine = make([]Engine, 0, len(engines))
+	for _, engine := range engines {
+		if !Buyable(engine.Bases) {
+			continue
+		}
+		buyable_engines = append(buyable_engines, engine)
+	}
+
+	return buyable_engines
+}

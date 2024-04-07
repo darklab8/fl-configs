@@ -1,6 +1,8 @@
 package configs_export
 
 import (
+	"strings"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
 )
 
@@ -60,4 +62,23 @@ func (e *Exporter) Export() *Exporter {
 
 func Export(configs *configs_mapped.MappedConfigs) *Exporter {
 	return NewExporter(configs).Export()
+}
+
+func Empty(phrase string) bool {
+	for _, letter := range phrase {
+		if letter != ' ' {
+			return false
+		}
+	}
+	return true
+}
+
+func Buyable(Bases []GoodAtBase) bool {
+	for _, base := range Bases {
+		if !strings.Contains(base.SystemName, "Bastille") {
+			return true
+		}
+	}
+
+	return false
 }

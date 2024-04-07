@@ -1,6 +1,8 @@
 package configs_export
 
 import (
+	"strings"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/mbases_mapped"
 )
 
@@ -119,4 +121,15 @@ func (e *Exporter) GetFactions(bases []Base) []Faction {
 	}
 
 	return factions
+}
+
+func FilterToUsefulFactions(factions []Faction) []Faction {
+	var useful_factions []Faction = make([]Faction, 0, len(factions))
+	for _, item := range factions {
+		if Empty(item.Name) || strings.Contains(item.Name, "_grp") {
+			continue
+		}
+		useful_factions = append(useful_factions, item)
+	}
+	return useful_factions
 }
