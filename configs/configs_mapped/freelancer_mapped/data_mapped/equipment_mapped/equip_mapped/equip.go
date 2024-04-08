@@ -173,6 +173,29 @@ type Tractor struct {
 	Lootable   *semantic.Bool
 }
 
+type CounterMeasureDropper struct {
+	semantic.Model
+	Nickname *semantic.String
+	IdsName  *semantic.Int
+	IdsInfo  *semantic.Int
+	Lootable *semantic.Bool
+
+	ProjectileArchetype *semantic.String
+	HitPts              *semantic.Int
+	AIRange             *semantic.Int
+}
+
+type CounterMeasure struct {
+	semantic.Model
+	Nickname      *semantic.String
+	IdsName       *semantic.Int
+	IdsInfo       *semantic.Int
+	AmmoLimit     *semantic.Int
+	Lifetime      *semantic.Int
+	Range         *semantic.Int
+	DiversionPctg *semantic.Int
+}
+
 type Config struct {
 	Files []*iniload.IniLoader
 
@@ -201,6 +224,10 @@ type Config struct {
 	Powers     []*Power
 	PowersMap  map[string]*Power
 
+	CounterMeasureDroppers []*CounterMeasureDropper
+	CounterMeasure         []*CounterMeasure
+	CounterMeasureMap      map[string]*CounterMeasure
+
 	Tractors []*Tractor
 }
 
@@ -210,15 +237,16 @@ const (
 
 func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{
-		Files:        files,
-		Guns:         make([]*Gun, 0, 100),
-		Munitions:    make([]*Munition, 0, 100),
-		MineDroppers: make([]*MineDropper, 0, 100),
-		MunitionMap:  make(map[string]*Munition),
-		ExplosionMap: make(map[string]*Explosion),
-		MinesMap:     make(map[string]*Mine),
-		EnginesMap:   make(map[string]*Engine),
-		PowersMap:    make(map[string]*Power),
+		Files:             files,
+		Guns:              make([]*Gun, 0, 100),
+		Munitions:         make([]*Munition, 0, 100),
+		MineDroppers:      make([]*MineDropper, 0, 100),
+		MunitionMap:       make(map[string]*Munition),
+		ExplosionMap:      make(map[string]*Explosion),
+		MinesMap:          make(map[string]*Mine),
+		EnginesMap:        make(map[string]*Engine),
+		PowersMap:         make(map[string]*Power),
+		CounterMeasureMap: make(map[string]*CounterMeasure),
 	}
 	frelconfig.Commodities = make([]*Commodity, 0, 100)
 	frelconfig.CommoditiesMap = make(map[string]*Commodity)
@@ -394,6 +422,31 @@ func Read(files []*iniload.IniLoader) *Config {
 					Lootable:   semantic.NewBool(section, "lootable", semantic.StrBool),
 				}
 				frelconfig.Tractors = append(frelconfig.Tractors, tractor)
+			case "[CounterMeasureDropper]":
+				item := &CounterMeasureDropper{
+					Nickname: semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:  semantic.NewInt(section, "ids_name"),
+					IdsInfo:  semantic.NewInt(section, "ids_info"),
+					Lootable: semantic.NewBool(section, "lootable", semantic.StrBool),
+
+					ProjectileArchetype: semantic.NewString(section, "projectile_archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					HitPts:              semantic.NewInt(section, "hit_pts"),
+					AIRange:             semantic.NewInt(section, "ai_range"),
+				}
+				frelconfig.CounterMeasureDroppers = append(frelconfig.CounterMeasureDroppers, item)
+			case "[CounterMeasure]":
+				item := &CounterMeasure{
+					Nickname: semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					IdsName:  semantic.NewInt(section, "ids_name"),
+					IdsInfo:  semantic.NewInt(section, "ids_info"),
+
+					AmmoLimit:     semantic.NewInt(section, "ammo_limit"),
+					Lifetime:      semantic.NewInt(section, "lifetime"),
+					Range:         semantic.NewInt(section, "range"),
+					DiversionPctg: semantic.NewInt(section, "diversion_pctg"),
+				}
+				frelconfig.CounterMeasure = append(frelconfig.CounterMeasure, item)
+				frelconfig.CounterMeasureMap[item.Nickname.Get()] = item
 			}
 		}
 	}

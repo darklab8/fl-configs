@@ -22,6 +22,7 @@ type Exporter struct {
 	Ships            []Ship
 	Tractors         []Tractor
 	Engines          []Engine
+	CMs              []CounterMeasure
 	infocards_parser *InfocardsParser
 }
 
@@ -56,6 +57,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Ships = e.GetShips()
 	e.Tractors = e.GetTractors()
 	e.Engines = e.GetEngines()
+	e.CMs = e.GetCounterMeasures()
 	e.Infocards = e.infocards_parser.Get()
 	return e
 }
