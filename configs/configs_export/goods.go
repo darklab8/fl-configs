@@ -53,16 +53,6 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
 							Name = string(infoname)
 							category = equip.Category
-
-							if gun, ok := e.configs.Equip.GunMap[equip.Nickname.Get()]; ok {
-								hptype, _ = gun.HPGunType.GetValue()
-							}
-							if shield, ok := e.configs.Equip.ShidGenMap[equip.Nickname.Get()]; ok {
-								hptype, _ = shield.HpType.GetValue()
-							}
-							if engine, ok := e.configs.Equip.EnginesMap[equip.Nickname.Get()]; ok {
-								hptype, _ = engine.HpType.GetValue()
-							}
 						}
 
 						e.infocards_parser.Set(InfocardKey(market_good_nickname), equip.IdsInfo.Get())
@@ -83,6 +73,16 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 
 					e.infocards_parser.Set(InfocardKey(market_good_nickname),
 						shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
+				}
+
+				if gun, ok := e.configs.Equip.GunMap[market_good_nickname]; ok {
+					hptype, _ = gun.HPGunType.GetValue()
+				}
+				if shield, ok := e.configs.Equip.ShidGenMap[market_good_nickname]; ok {
+					hptype, _ = shield.HpType.GetValue()
+				}
+				if engine, ok := e.configs.Equip.EnginesMap[market_good_nickname]; ok {
+					hptype, _ = engine.HpType.GetValue()
 				}
 
 			}
