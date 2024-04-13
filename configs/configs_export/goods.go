@@ -7,6 +7,7 @@ import (
 type MarketGood struct {
 	Name     string
 	Nickname string
+	HpType   string
 	Type     string
 
 	LevelRequired int
@@ -41,6 +42,7 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			var price_base int
 			var Name string
 			var category string
+			var hptype string
 			if good, found_good := e.configs.Goods.GoodsMap[market_good_nickname]; found_good {
 				price_base = good.Price.Get()
 
@@ -51,6 +53,16 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 						if infoname, ok := e.configs.Infocards.Infonames[equip.IdsName.Get()]; ok {
 							Name = string(infoname)
 							category = equip.Category
+
+							if gun, ok := e.configs.Equip.GunMap[equip.Nickname.Get()]; ok {
+								hptype, _ = gun.HPGunType.GetValue()
+							}
+							if shield, ok := e.configs.Equip.ShidGenMap[equip.Nickname.Get()]; ok {
+								hptype, _ = shield.HpType.GetValue()
+							}
+							if engine, ok := e.configs.Equip.EnginesMap[equip.Nickname.Get()]; ok {
+								hptype, _ = engine.HpType.GetValue()
+							}
 						}
 
 						e.infocards_parser.Set(InfocardKey(market_good_nickname), equip.IdsInfo.Get())
@@ -82,6 +94,7 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			MarketGoods = append(MarketGoods, MarketGood{
 				Name:          Name,
 				Nickname:      market_good_nickname,
+				HpType:        hptype,
 				Type:          category,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
