@@ -27,7 +27,7 @@ jobs:
         repository: 'darklab8/${{ matrix.freelancer-repository }}'
         path: '${{ github.workspace }}/${{ matrix.freelancer-repository }}'
         token: ${{ secrets.FL_DATA_KEY }}
-    - run: ls ./fl-data
+    - run: ls ./${{ matrix.freelancer-repository }}
 
     - name: Install Task
       run: |
