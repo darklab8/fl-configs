@@ -5,24 +5,21 @@ https://github.com/darklab8/fl-darklint
 package configs
 
 import (
-	"os"
-
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
-	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
-
-var Freelancerfolder utils_types.FilePath = utils_types.FilePath(os.Getenv("CONFIGS_FREELANCER_FOLDER"))
 
 // ExampleModifyingData demononstrating how to change configs values
 func Example_modifyingConfigs() {
+	freelancer_folder := configs_fixtures.FixtureGameLocation()
 	configs := configs_mapped.NewMappedConfigs()
-	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(Freelancerfolder))
+	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 
 	// Reading ini reading universal format
 	// and mapping to ORM objects
-	configs.Read(FreelancerFolder)
+	configs.Read(freelancer_folder)
 
 	// Modifying files
 	for _, base := range configs.Universe_config.Bases {
