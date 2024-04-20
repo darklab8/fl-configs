@@ -10,6 +10,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/configs_fixtures"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
 	"github.com/stretchr/testify/assert"
@@ -17,9 +18,13 @@ import (
 
 func TestReadInfocards(t *testing.T) {
 	game_location := configs_fixtures.FixtureGameLocation()
-	config := FixtureFLINIConfig()
+	filesystem := filefind.FindConfigs(game_location)
+
+	fileref := filesystem.GetFile(FILENAME_FL_INI)
+	config := Read(iniload.NewLoader(fileref).Scan())
+
 	dlls := config.GetDlls()
-	infocards := GetAllInfocards(filefind.FindConfigs(game_location), dlls)
+	infocards := GetAllInfocards(filesystem, dlls)
 
 	assert.Greater(t, len(infocards.Infocards), 0)
 	assert.Greater(t, len(infocards.Infonames), 0)
@@ -30,16 +35,17 @@ func TestReadInfocards(t *testing.T) {
 		break
 	}
 
-	assert.Contains(t, infocards.Infocards[132903].Content, "We just brought a load of Fertilizers")
+	// Works only on Discovery dlls
+	// assert.Contains(t, infocards.Infocards[132903].Content, "We just brought a load of Fertilizers")
 
-	fmt.Println(infocards.Infocards[196624])
-	fmt.Println("second:", infocards.Infocards[66089])
+	// fmt.Println(infocards.Infocards[196624])
+	// fmt.Println("second:", infocards.Infocards[66089])
 
-	fmt.Println("Abandoned Depot infocard\n",
-		infocards.Infocards[465639],
-		infocards.Infocards[465639+1], // value from infocardmap.txt mapped
-		infocards.Infocards[500904],   // faction infocard id
-	)
+	// fmt.Println("Abandoned Depot infocard\n",
+	// 	infocards.Infocards[465639],
+	// 	infocards.Infocards[465639+1], // value from infocardmap.txt mapped
+	// 	infocards.Infocards[500904],   // faction infocard id
+	// )
 }
 
 func TestReadInfocardsToHtml(t *testing.T) {
@@ -52,7 +58,11 @@ func TestReadInfocardsToHtml(t *testing.T) {
 
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		game_location := configs_fixtures.FixtureGameLocation()
-		config := FixtureFLINIConfig()
+
+		filesystem := filefind.FindConfigs(game_location)
+		fileref := filesystem.GetFile(FILENAME_FL_INI)
+		config := Read(iniload.NewLoader(fileref).Scan())
+
 		infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
 
 		// assert.Greater(t, len(ids), 0)
@@ -63,14 +73,16 @@ func TestReadInfocardsToHtml(t *testing.T) {
 		// infocard tail 500904
 
 		xml_stuff := infocards.Infocards[501545]
-		fmt.Println("xml_stuff=", xml_stuff)
+		if xml_stuff != nil {
+			// Only for Discovery
+			fmt.Println("xml_stuff=", xml_stuff)
 
-		text, err := xml_stuff.XmlToText()
-		logus.Log.CheckFatal(err, "unable convert to text")
-
-		assert.Greater(t, len(text), 0)
-		assert.NotEmpty(t, text)
-		fmt.Println(text)
+			text, err := xml_stuff.XmlToText()
+			logus.Log.CheckFatal(err, "unable convert to text")
+			assert.Greater(t, len(text), 0)
+			assert.NotEmpty(t, text)
+			fmt.Println(text)
+		}
 
 	}, time_measure.WithMsg("measure time"))
 	logus.Log.CheckFatal(result.ResultErr, "non nil exit")
@@ -78,7 +90,10 @@ func TestReadInfocardsToHtml(t *testing.T) {
 
 func TestValidateInfocards(t *testing.T) {
 	game_location := configs_fixtures.FixtureGameLocation()
-	config := FixtureFLINIConfig()
+
+	filesystem := filefind.FindConfigs(game_location)
+	fileref := filesystem.GetFile(FILENAME_FL_INI)
+	config := Read(iniload.NewLoader(fileref).Scan())
 	infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
 
 	var parsed []*infocard.Infocard = make([]*infocard.Infocard, 0, 100)

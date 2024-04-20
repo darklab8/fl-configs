@@ -29,6 +29,15 @@ func TestReader(t *testing.T) {
 	assert.Greater(t, len(config.Systems), 0)
 }
 
+func TestReader2(t *testing.T) {
+	test_directory := utils.GetCurrrentTestFolder()
+	fileref := file.NewFile(utils_types.FilePath(utils_filepath.Join(test_directory, "universe.vanilla.ini")))
+	config := Read(iniload.NewLoader(fileref).Scan())
+
+	assert.Greater(t, len(config.Bases), 0)
+	assert.Greater(t, len(config.Systems), 0)
+}
+
 func TestIdentifySystemFiles(t *testing.T) {
 	test_directory := utils.GetCurrentFolder()
 	freelancer_folder := utils_filepath.Dir(utils_filepath.Dir(utils_filepath.Dir(test_directory)))
