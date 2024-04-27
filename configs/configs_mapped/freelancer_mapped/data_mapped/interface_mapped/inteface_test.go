@@ -28,3 +28,21 @@ func TestReaderVanilla(t *testing.T) {
 
 	assert.Greater(t, len(config.InfocardMapTable.Map), 0)
 }
+
+func TestReaderComments1(t *testing.T) {
+	test_directory := utils.GetCurrrentTestFolder()
+	fileref := file.NewFile(utils_types.FilePath(utils_filepath.Join(test_directory, "infocardmap.comments.ini")))
+
+	config := Read(iniload.NewLoader(fileref).Scan())
+
+	assert.Greater(t, len(config.InfocardMapTable.Map), 0)
+}
+
+func TestReaderComments2(t *testing.T) {
+	test_directory := utils.GetCurrrentTestFolder()
+	fileref := file.NewFile(utils_types.FilePath(utils_filepath.Join(test_directory, "infocardmap.comments2.ini")))
+
+	config := Read(iniload.NewLoader(fileref).Scan())
+
+	assert.Greater(t, len(config.InfocardMapTable.Map), 0)
+}
