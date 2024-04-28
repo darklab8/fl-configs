@@ -15,12 +15,12 @@ func TestFaction(t *testing.T) {
 	items := exporter.GetFactions([]Base{})
 	assert.Greater(t, len(items), 0)
 
-	infocards := exporter.infocards_parser.Get()
+	infocards := exporter.Infocards
 	for _, faction := range items {
 		if faction.Nickname == "br_m_grp" {
 			lines := infocards[faction.Infocard]
-			fmt.Println(faction.Nickname, lines.Lines)
-			assert.Greater(t, len(lines.Lines), 0)
+			fmt.Println(faction.Nickname, lines)
+			assert.Greater(t, len(lines), 0)
 			break
 		}
 

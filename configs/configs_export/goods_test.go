@@ -13,5 +13,4 @@ func TestExportMarketGoods(t *testing.T) {
 
 	goods := exporter.getMarketGoods()
 	assert.Greater(t, len(goods), 0)
-	exporter.infocards_parser.Get()
 }
