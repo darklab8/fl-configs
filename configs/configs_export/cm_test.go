@@ -10,7 +10,7 @@ import (
 func TestGetCounterMeasures(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-
-	items := exporter.GetCounterMeasures()
+	ids := exporter.GetTractors()
+	items := exporter.GetCounterMeasures(ids)
 	assert.Greater(t, len(items), 0)
 }

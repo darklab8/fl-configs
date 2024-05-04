@@ -72,7 +72,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Thrusters = e.GetThrusters(e.Tractors)
 	e.Ships = e.GetShips(e.Tractors)
 	e.Engines = e.GetEngines(e.Tractors)
-	e.CMs = e.GetCounterMeasures()
+	e.CMs = e.GetCounterMeasures(e.Tractors)
 	return e
 }
 
