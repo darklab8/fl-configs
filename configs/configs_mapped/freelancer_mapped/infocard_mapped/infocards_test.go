@@ -18,7 +18,7 @@ func TestReader(t *testing.T) {
 	filesystem := filefind.FindConfigs(test_directory)
 
 	freelancer_ini := exe_mapped.FixtureFLINIConfig()
-	config = Read(filesystem, freelancer_ini, filesystem.GetFile(FILENAME))
+	config, _ = Read(filesystem, freelancer_ini, filesystem.GetFile(FILENAME))
 
 	assert.Greater(t, len(config.Infocards), 0)
 }

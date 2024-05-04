@@ -12,8 +12,8 @@ import (
 func TestGetShips(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-
-	items := exporter.GetShips()
+	ids := exporter.GetTractors()
+	items := exporter.GetShips(ids)
 	assert.Greater(t, len(items), 0)
 
 	filtered := FilterToUsefulShips(items)
@@ -21,6 +21,12 @@ func TestGetShips(t *testing.T) {
 
 	for _, item := range items {
 		if strings.Contains(item.Nickname, "loki") {
+			fmt.Println()
+		}
+	}
+
+	for _, item := range items {
+		if strings.Contains(item.Nickname, "dsy_li_cruiser") {
 			fmt.Println()
 		}
 	}

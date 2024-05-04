@@ -9,7 +9,7 @@ import (
 func TestGetEngines(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-
-	exporter.GetEngines()
+	ids := exporter.GetTractors()
+	exporter.GetEngines(ids)
 	// assert.Greater(t, len(items), 0) # vanilla can have zero
 }

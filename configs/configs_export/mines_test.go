@@ -10,7 +10,7 @@ import (
 func TestGetMines(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-
-	items := exporter.GetMines()
+	ids := exporter.GetTractors()
+	items := exporter.GetMines(ids)
 	assert.Greater(t, len(items), 0)
 }

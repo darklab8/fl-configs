@@ -10,7 +10,7 @@ import (
 func TestGetShields(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-
-	items := exporter.GetShields()
+	ids := exporter.GetTractors()
+	items := exporter.GetShields(ids)
 	assert.Greater(t, len(items), 0)
 }

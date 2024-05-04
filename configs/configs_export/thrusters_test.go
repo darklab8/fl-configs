@@ -11,6 +11,7 @@ func TestGetThrusters(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
-	items := exporter.GetThrusters()
+	ids := exporter.GetTractors()
+	items := exporter.GetThrusters(ids)
 	assert.Greater(t, len(items), 0)
 }

@@ -11,7 +11,8 @@ func TestGetGuns(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
-	guns := exporter.GetGuns()
+	ids := exporter.GetTractors()
+	guns := exporter.GetGuns(ids)
 	assert.Greater(t, len(guns), 0)
 	// exporter.infocards_parser.Get()
 }
