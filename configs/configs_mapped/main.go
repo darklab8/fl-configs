@@ -123,8 +123,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 		var wg sync.WaitGroup
+		wg.Add(len(all_files))
 		for _, file := range all_files {
-			wg.Add(1)
 			go func(file *iniload.IniLoader) {
 				file.Scan()
 				wg.Done()
@@ -134,29 +134,76 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	}, time_measure.WithMsg("Scanned ini loaders"))
 
 	time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-		p.Universe_config = universe_mapped.Read(file_universe)
+		var wg sync.WaitGroup
+		wg.Add(12)
+		go func() {
+			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+				p.Universe_config = universe_mapped.Read(file_universe)
+				p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
+			}, time_measure.WithMsg("map systems"))
+			wg.Done()
+		}()
 
-		p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
+		go func() {
+			p.Market = market_mapped.Read(files_market)
+			wg.Done()
+		}()
+		go func() {
+			p.Equip = equip_mapped.Read(files_equip)
+			wg.Done()
+		}()
+		go func() {
+			p.Goods = equipment_mapped.Read(files_goods)
+			wg.Done()
+		}()
+		go func() {
+			p.Shiparch = ship_mapped.Read(files_shiparch)
+			wg.Done()
+		}()
 
-		p.Market = market_mapped.Read(files_market)
-		p.Equip = equip_mapped.Read(files_equip)
-		p.Goods = equipment_mapped.Read(files_goods)
-		p.Shiparch = ship_mapped.Read(files_shiparch)
+		go func() {
+			p.InfocardmapINI = interface_mapped.Read(file_interface)
+			wg.Done()
+		}()
 
-		p.InfocardmapINI = interface_mapped.Read(file_interface)
+		go func() {
+			p.Infocards, _ = infocard_mapped.Read(filesystem, p.FreelancerINI, infocards_override)
+			wg.Done()
+		}()
 
-		p.Infocards, _ = infocard_mapped.Read(filesystem, p.FreelancerINI, infocards_override)
-
-		p.InitialWorld = initialworld.Read(file_initialworld)
-		p.Empathy = empathy_mapped.Read(file_empathy)
-		p.MBases = mbases_mapped.Read(file_mbases)
-		p.Consts = const_mapped.Read(file_consts)
-		p.WeaponMods = weaponmoddb.Read(file_weaponmoddb)
+		go func() {
+			p.InitialWorld = initialworld.Read(file_initialworld)
+			wg.Done()
+		}()
+		go func() {
+			p.Empathy = empathy_mapped.Read(file_empathy)
+			wg.Done()
+		}()
+		go func() {
+			p.MBases = mbases_mapped.Read(file_mbases)
+			wg.Done()
+		}()
+		go func() {
+			p.Consts = const_mapped.Read(file_consts)
+			wg.Done()
+		}()
+		go func() {
+			p.WeaponMods = weaponmoddb.Read(file_weaponmoddb)
+			wg.Done()
+		}()
 
 		if p.Discovery != nil {
-			p.Discovery.Techcompat = techcompat.Read(file_techcompat)
-			p.Discovery.Prices = discoprices.Read(file_prices)
+			wg.Add(2)
+			go func() {
+				p.Discovery.Techcompat = techcompat.Read(file_techcompat)
+				wg.Done()
+			}()
+			go func() {
+				p.Discovery.Prices = discoprices.Read(file_prices)
+				wg.Done()
+			}()
 		}
+		wg.Wait()
 	}, time_measure.WithMsg("Mapped stuff"))
 
 	logus.Log.Info("Parse OK for FreelancerFolderLocation=", utils_logus.FilePath(file1path))
