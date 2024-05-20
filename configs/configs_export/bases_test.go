@@ -8,7 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExportBases(t *testing.T) {
+type FixtureBasesOutput struct {
+	configs *configs_mapped.MappedConfigs
+	expoter *Exporter
+	bases   []Base
+}
+
+func FixtureBases(t *testing.T) FixtureBasesOutput {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
@@ -33,4 +39,13 @@ func TestExportBases(t *testing.T) {
 			break
 		}
 	}
+	return FixtureBasesOutput{
+		configs: configs,
+		expoter: exporter,
+		bases:   bases,
+	}
+}
+
+func TestExportBases(t *testing.T) {
+	_ = FixtureBases(t)
 }
