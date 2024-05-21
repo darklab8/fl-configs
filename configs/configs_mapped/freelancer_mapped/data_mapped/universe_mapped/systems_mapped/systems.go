@@ -16,6 +16,87 @@ const (
 	KEY_BASE     = "base"
 )
 
+type MissionVignetteZone struct {
+	// [zone]
+	// nickname = Zone_BR07_destroy_vignette_02
+	// pos = -39714, 0, -20328
+	// shape = SPHERE
+	// size = 10000
+	// mission_type = lawful, unlawful
+	// sort = 99.500000
+	// vignette_type = field
+
+	// vignettes
+	semantic.Model
+	Nickname     *semantic.String
+	Size         *semantic.Int
+	Shape        *semantic.String
+	Pos          *semantic.Vect
+	VignetteType *semantic.String
+	MissionType  *semantic.String
+
+	// it has mission_type = lawful, unlawful this.
+	// who is lawful and unlawful? :)
+
+	// if has vignette_type = field
+	// Then it is Vignette
+}
+
+type Patrol struct {
+	semantic.Model
+	FactionNickname *semantic.String
+	Chance          *semantic.Float
+}
+
+type MissionPatrolZone struct {
+	semantic.Model
+	Nickname *semantic.String
+	Size     *semantic.Int
+	Shape    *semantic.String
+	Pos      *semantic.Vect
+
+	Factions []*Patrol
+	// [zone]
+	// nickname = Path_outcasts1_2
+	// pos = -314, 0, -1553.2
+	// rotate = 90, -75.2, 180
+	// shape = CYLINDER
+	// size = 750, 50000
+	// sort = 99
+	// toughness = 14
+	// density = 5
+	// repop_time = 30
+	// max_battle_size = 4
+	// pop_type = attack_patrol
+	// relief_time = 20
+	// path_label = BR07_outcasts1, 2
+	// usage = patrol
+	// mission_eligible = True
+	// encounter = patrolp_assault, 14, 0.4
+	// faction = fc_m_grp, 1.0
+}
+
+type TradeLaneRing struct {
+	// [Object]
+	// nickname = BR07_Trade_Lane_Ring_3_1
+	// ids_name = 260659
+	// pos = -20293, 0, 21375
+	// rotate = 0, 5, 0
+	// archetype = Trade_Lane_Ring
+	// next_ring = BR07_Trade_Lane_Ring_3_2
+	// ids_info = 66170
+	// reputation = br_n_grp
+	// tradelane_space_name = 501168
+	// difficulty_level = 1
+	// loadout = trade_lane_ring_br_01
+	// pilot = pilot_solar_easiest
+	semantic.Model
+	Nickname *semantic.String
+	Pos      *semantic.Vect
+	// has next_ring, then it is tradelane
+	// or if has Trade_Lane_Ring, then trade lane too.
+}
+
 type Base struct {
 	semantic.Model
 	Nickname *semantic.String
@@ -33,6 +114,11 @@ type System struct {
 	Bases        []*Base
 	BasesByNick  map[string]*Base
 	BasesByBases map[string][]*Base
+
+	MissionZoneVignettes []*MissionVignetteZone
+
+	MissionsSpawnZone           []*MissionPatrolZone
+	MissionsSpawnZonesByFaction map[string][]*MissionPatrolZone
 }
 
 type Config struct {
@@ -88,7 +174,9 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 		frelconfig.SystemsMap = make(map[string]*System)
 		frelconfig.Systems = make([]*System, 0)
 		for system_key, sysiniconf := range system_iniconfigs {
-			system_to_add := &System{}
+			system_to_add := &System{
+				MissionsSpawnZonesByFaction: make(map[string][]*MissionPatrolZone),
+			}
 			system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
 			system_to_add.Nickname = system_key
@@ -102,8 +190,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 				for _, obj := range objects {
 
 					// check if it is base object
-					_, ok := obj.ParamMap[KEY_BASE]
-					if ok {
+					if _, ok := obj.ParamMap[KEY_BASE]; ok {
 						base_to_add := &Base{}
 						base_to_add.Map(obj)
 
@@ -124,6 +211,52 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 				}
 			}
 
+			if zones, ok := sysiniconf.SectionMap["[zone]"]; ok {
+				for _, zone_info := range zones {
+
+					if vignette_type, ok := zone_info.ParamMap["vignette_type"]; ok && len(vignette_type) > 0 {
+						vignette := &MissionVignetteZone{
+							Nickname:     semantic.NewString(zone_info, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Size:         semantic.NewInt(zone_info, "ids_info", semantic.Optional()),
+							Shape:        semantic.NewString(zone_info, "shape", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Pos:          semantic.NewVector(zone_info, "pos", semantic.Precision(2)),
+							VignetteType: semantic.NewString(zone_info, "vignette_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							MissionType:  semantic.NewString(zone_info, "mission_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						}
+						vignette.Map(zone_info)
+						system_to_add.MissionZoneVignettes = append(system_to_add.MissionZoneVignettes, vignette)
+					}
+
+					if identifier, ok := zone_info.ParamMap["faction"]; ok && len(identifier) > 0 {
+						spawn_area := &MissionPatrolZone{
+							Nickname: semantic.NewString(zone_info, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Size:     semantic.NewInt(zone_info, "ids_info", semantic.Optional()),
+							Shape:    semantic.NewString(zone_info, "shape", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Pos:      semantic.NewVector(zone_info, "pos", semantic.Precision(2)),
+						}
+						spawn_area.Map(zone_info)
+
+						if factions, ok := zone_info.ParamMap["faction"]; ok {
+							for index, _ := range factions {
+								faction := &Patrol{
+									FactionNickname: semantic.NewString(zone_info, "faction",
+										semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(index), semantic.Order(0))),
+									Chance: semantic.NewFloat(zone_info, "faction", semantic.Precision(2), semantic.Index(index), semantic.Order(1)),
+								}
+								faction.Map(zone_info)
+								spawn_area.Factions = append(spawn_area.Factions, faction)
+							}
+						}
+
+						system_to_add.MissionsSpawnZone = append(system_to_add.MissionsSpawnZone, spawn_area)
+
+						for _, faction := range spawn_area.Factions {
+							faction_nickname := faction.FactionNickname.Get()
+							system_to_add.MissionsSpawnZonesByFaction[faction_nickname] = append(system_to_add.MissionsSpawnZonesByFaction[faction_nickname], spawn_area)
+						}
+					}
+				}
+			}
 		}
 	}, time_measure.WithMsg("Map universe itself"))
 

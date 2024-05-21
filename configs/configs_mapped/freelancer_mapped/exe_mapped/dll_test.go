@@ -78,14 +78,14 @@ func TestReadInfocardsToHtml(t *testing.T) {
 			fmt.Println("xml_stuff=", xml_stuff)
 
 			text, err := xml_stuff.XmlToText()
-			logus.Log.CheckFatal(err, "unable convert to text")
+			logus.Log.CheckPanic(err, "unable convert to text")
 			assert.Greater(t, len(text), 0)
 			assert.NotEmpty(t, text)
 			fmt.Println(text)
 		}
 
 	}, time_measure.WithMsg("measure time"))
-	logus.Log.CheckFatal(result.ResultErr, "non nil exit")
+	logus.Log.CheckPanic(result.ResultErr, "non nil exit")
 }
 
 func TestValidateInfocards(t *testing.T) {
