@@ -4,10 +4,67 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 )
+
+type EnemyFaction struct {
+	Faction
+	NpcExist float64 // 0 to 1, percentage
+}
+
+/*
+Calculates for enemy faction percentage of ships defined in faction_props/npcships.ini
+If they aren't defined, Freelancer will be showing corrupted no missions when they encounter.
+*/
+func (e *Exporter) NewEnemyFaction(faction Faction, npc_ranks []int) EnemyFaction {
+	var npc_ranks_need map[int]bool = make(map[int]bool)
+	for _, rank := range npc_ranks {
+		npc_ranks_need[rank] = true
+	}
+
+	var npc_ranks_exist map[int]bool = make(map[int]bool)
+
+	result := EnemyFaction{
+		Faction: faction,
+	}
+
+	faction_prop, prop_exists := e.configs.FactionProps.FactionPropMapByNickname[faction.Nickname]
+
+	if !prop_exists {
+		return result
+	}
+
+	for _, npc_ship := range faction_prop.NpcShips {
+		npc_ship_nickname := npc_ship.Get()
+		if npc_shiparch, ok := e.configs.NpcShips.NpcShipsByNickname[npc_ship_nickname]; ok {
+
+			has_class_fighter := false
+			for _, npc_class := range npc_shiparch.NpcClass {
+				if npc_class.Get() == "class_fighter" {
+					has_class_fighter = true
+					break
+				}
+			}
+			if !has_class_fighter {
+				continue
+			}
+			str_level := npc_shiparch.Level.Get()
+			if level, err := strconv.Atoi(str_level[1:]); err == nil {
+
+				if _, ok := npc_ranks_need[level]; ok {
+					npc_ranks_exist[level] = true
+				}
+			}
+		}
+	}
+
+	result.NpcExist = float64(len(npc_ranks_exist)) / float64(len(npc_ranks_need))
+
+	return result
+}
 
 type MissioNFaction struct {
 	FactionName     string
@@ -21,7 +78,7 @@ type MissioNFaction struct {
 	MinAward int
 	MaxAward int
 	NpcRanks []int
-	Enemies  []Faction
+	Enemies  []EnemyFaction
 	Err      error
 }
 
@@ -32,10 +89,11 @@ type BaseMissions struct {
 	NpcRanksAtBaseMap map[int]bool
 	NpcRanksAtBase    []int
 
-	EnemiesAtBaseMap map[string]Faction
+	EnemiesAtBaseMap map[string]EnemyFaction
 
 	MinMoneyAward int
 	MaxMoneyAward int
+	NpcExist      float64
 	Err           error
 }
 
@@ -64,7 +122,7 @@ func (e *Exporter) GetMissions(bases []Base, factions []Faction) []Base {
 
 	for base_index, base := range bases {
 		base.Missions.NpcRanksAtBaseMap = make(map[int]bool)
-		base.Missions.EnemiesAtBaseMap = make(map[string]Faction)
+		base.Missions.EnemiesAtBaseMap = make(map[string]EnemyFaction)
 
 		if strings.Contains(base.Name, "Brixt") {
 			fmt.Println()
@@ -236,20 +294,13 @@ func (e *Exporter) GetMissions(bases []Base, factions []Faction) []Base {
 				}
 			}
 
-			// Find if the factions has defined NPCs in faction_prop.ini
-			// Which have the necessary NPCRank
-			// if not defined, then skip this faction
-			// Add class of ships that will be encountered during missions of this faction
-			// for _, enemy_faction := range base_enemies {
-			// }
-
 			if len(base_enemies) == 0 {
 				faction.Err = errors.New("no enemy npc spawns near vignettes")
 				base.Missions.Factions = append(base.Missions.Factions, faction)
 				continue
 			}
 			for _, enemy_faction := range base_enemies {
-				faction.Enemies = append(faction.Enemies, enemy_faction)
+				faction.Enemies = append(faction.Enemies, e.NewEnemyFaction(enemy_faction, faction.NpcRanks))
 			}
 
 			base.Missions.Factions = append(base.Missions.Factions, faction)
@@ -293,6 +344,22 @@ func (e *Exporter) GetMissions(bases []Base, factions []Faction) []Base {
 				base.Missions.MaxMoneyAward = faction.MaxAward
 			}
 		}
+
+		npc_exists_count := 0
+		npc_exists_chance := 0.0
+		for _, faction := range base.Missions.Factions {
+			if faction.Err != nil {
+				continue
+			}
+			for _, enemy_faction := range faction.Enemies {
+				npc_exists_chance += enemy_faction.NpcExist
+				npc_exists_count += 1
+			}
+		}
+		if npc_exists_count == 0 {
+			npc_exists_count += 1
+		}
+		base.Missions.NpcExist = npc_exists_chance / float64(npc_exists_count)
 
 		// add unique found ship categories from factions to Missions overview
 		for key := range base.Missions.NpcRanksAtBaseMap {
