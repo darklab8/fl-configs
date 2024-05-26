@@ -67,6 +67,10 @@ func (e *Exporter) GetMissions(bases []Base, factions []Faction) []Base {
 		base.Missions.NpcRanksAtBaseMap = make(map[int]bool)
 		base.Missions.EnemiesAtBaseMap = make(map[string]Faction)
 
+		// if strings.Contains(base.System, "Texas") {
+		// 	fmt.Println()
+		// }
+
 		base_info, ok := e.configs.MBases.BaseMap[base.Nickname]
 		if !ok {
 			base.Missions.Err = errors.New("base is not defined in mbases")
@@ -104,7 +108,7 @@ func (e *Exporter) GetMissions(bases []Base, factions []Faction) []Base {
 				continue
 			}
 
-			if distance < vignette_valid_base_mission_range-float64(vignette.Size.Get()) {
+			if distance < vignette_valid_base_mission_range+float64(vignette.Size.Get()) {
 				base_has_vignettes = true
 				break
 			}
