@@ -6,14 +6,14 @@ package configs
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
-	"github.com/darklab8/fl-configs/configs/settings"
-	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
 )
 
 // ExampleModifyingData demononstrating how to change configs values
 func Example_modifyingConfigs() {
-	freelancer_folder := settings.GetGameLocation()
+	freelancer_folder := configs_settings.GetGameLocation()
 	configs := configs_mapped.NewMappedConfigs()
 	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 

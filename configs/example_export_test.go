@@ -9,15 +9,15 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_export"
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
-	"github.com/darklab8/fl-configs/configs/settings"
-	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 
 	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
 )
 
 // ExampleExportingData demonstrating exporting freelancer folder data for comfortable usage
 func Example_exportingData() {
-	freelancer_folder := settings.GetGameLocation()
+	freelancer_folder := configs_settings.GetGameLocation()
 	configs := configs_mapped.NewMappedConfigs()
 	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 

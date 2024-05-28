@@ -1,7 +1,7 @@
 package configs_mapped
 
 import (
-	"github.com/darklab8/fl-configs/configs/settings"
+	"github.com/darklab8/fl-configs/configs/configs_settings"
 )
 
 var parsed *MappedConfigs = nil
@@ -11,7 +11,7 @@ func TestFixtureConfigs() *MappedConfigs {
 		return parsed
 	}
 
-	game_location := settings.GetGameLocation()
+	game_location := configs_settings.GetGameLocation()
 	parsed = NewMappedConfigs().Read(game_location)
 
 	return parsed

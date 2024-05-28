@@ -10,14 +10,14 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
-	"github.com/darklab8/fl-configs/configs/settings"
-	"github.com/darklab8/fl-configs/configs/settings/logus"
+	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestReadInfocards(t *testing.T) {
-	game_location := settings.GetGameLocation()
+	game_location := configs_settings.GetGameLocation()
 	filesystem := filefind.FindConfigs(game_location)
 
 	fileref := filesystem.GetFile(FILENAME_FL_INI)
@@ -57,7 +57,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-		game_location := settings.GetGameLocation()
+		game_location := configs_settings.GetGameLocation()
 
 		filesystem := filefind.FindConfigs(game_location)
 		fileref := filesystem.GetFile(FILENAME_FL_INI)
@@ -89,7 +89,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 }
 
 func TestValidateInfocards(t *testing.T) {
-	game_location := settings.GetGameLocation()
+	game_location := configs_settings.GetGameLocation()
 
 	filesystem := filefind.FindConfigs(game_location)
 	fileref := filesystem.GetFile(FILENAME_FL_INI)

@@ -1,4 +1,4 @@
-package settings
+package configs_settings
 
 import (
 	"os"
