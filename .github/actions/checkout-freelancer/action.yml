@@ -7,9 +7,9 @@ inputs:
   freelancer-mod:
     description: insert vanilla or discovery
     required: true
-  ssh-key-base64:
+  ssh-key-base64-vanilla:
     description: Key to download freelancer repo
-    required: true
+    default: ''
 
 runs:
   using: "composite"
@@ -20,23 +20,13 @@ runs:
       run: |
         import base64
         import os
-        file_output_name = "${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out"
+        file_output_name = "${{ github.workspace }}/id_rsa.out"
         with open(file_output_name, "wb", 0o600) as file:
           file.write(base64.b64decode(bytes(os.environ["ID_RSA_FILES_FREELANCER_VANILLA"], encoding='utf8')))
         os.chmod(file_output_name, 0o600)
       env:
-        ID_RSA_FILES_FREELANCER_VANILLA: ${{ inputs.ssh-key-base64 }}
-    - shell: sh
-      run: cat ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
-    - shell: sh
-      run: stat -c '%a %n' *
-    # - uses: actions/checkout@v4
-    #   if: ${{ inputs.freelancer-mod == 'vanilla' }}
-    #   with:
-    #     repository: 'darklab8/fl-files-vanilla'
-    #     path: '${{ inputs.freelancer-folder }}'
-    #     ssh-key: ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
+        ID_RSA_FILES_FREELANCER_VANILLA: ${{ inputs.ssh-key-base64-vanilla }}
     - shell: sh
       run: > 
-        GIT_SSH_COMMAND='ssh -i ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out -o IdentitiesOnly=yes'
-        git clone git@github.com:darklab8/fl-files-vanilla.git
+        GIT_SSH_COMMAND='ssh -i ${{ github.workspace }}/id_rsa.out -o IdentitiesOnly=yes'
+        git clone git@github.com:darklab8/fl-files-${{ inputs.freelancer-mod }}.git
