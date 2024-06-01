@@ -3,10 +3,9 @@ package exe_mapped
 import (
 	"testing"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
-	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/fl-configs/configs/tests"
 	"github.com/darklab8/go-utils/goutils/utils"
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +20,7 @@ func TestReader(t *testing.T) {
 }
 
 func TestReader2(t *testing.T) {
-	fileref := filefind.FindConfigs(configs_settings.GetGameLocation()).GetFile("freelancer.ini")
+	fileref := tests.FixtureFileFind().GetFile("freelancer.ini")
 	config := Read(iniload.NewLoader(fileref).Scan())
 	assert.Greater(t, len(config.Dlls), 0)
 

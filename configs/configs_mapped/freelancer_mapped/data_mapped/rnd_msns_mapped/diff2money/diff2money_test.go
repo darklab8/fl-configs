@@ -3,14 +3,13 @@ package diff2money
 import (
 	"testing"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
-	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/fl-configs/configs/tests"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestReader(t *testing.T) {
-	filesystem := filefind.FindConfigs(configs_settings.GetGameLocation())
+	filesystem := tests.FixtureFileFind()
 	fileref := filesystem.GetFile(FILENAME)
 
 	loaded_market_ships := Read(iniload.NewLoader(fileref).Scan())

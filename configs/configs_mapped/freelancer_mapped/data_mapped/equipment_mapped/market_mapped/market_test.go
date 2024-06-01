@@ -1,8 +1,8 @@
 package market_mapped
 
 import (
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
+	"github.com/darklab8/fl-configs/configs/tests"
 
 	"github.com/darklab8/go-utils/goutils/utils"
 	"github.com/darklab8/go-utils/goutils/utils/utils_filepath"
@@ -13,8 +13,7 @@ import (
 )
 
 func TestReader(t *testing.T) {
-	test_directory := utils.GetCurrrentTestFolder()
-	fileref := file.NewFile(utils_filepath.Join(test_directory, FILENAME_SHIPS))
+	fileref := tests.FixtureFileFind().GetFile(FILENAME_SHIPS)
 
 	loaded_market_ships := Read([]*iniload.IniLoader{iniload.NewLoader(fileref).Scan()})
 
@@ -22,8 +21,7 @@ func TestReader(t *testing.T) {
 }
 
 func TestWriter(t *testing.T) {
-	test_directory := utils.GetCurrrentTestFolder()
-	input_file := file.NewFile(utils_filepath.Join(test_directory, FILENAME_SHIPS))
+	input_file := tests.FixtureFileFind().GetFile(FILENAME_SHIPS)
 
 	temp_directory := utils.GetCurrrentTempFolder()
 

@@ -7,16 +7,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
-	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/fl-configs/configs/tests"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestReader(t *testing.T) {
-	fileref := filefind.FindConfigs(configs_settings.GetGameLocation()).GetFile(FILENAME)
+	fileref := tests.FixtureFileFind().GetFile(FILENAME)
 	config := Read(iniload.NewLoader(fileref).Scan())
 
 	assert.Greater(t, len(config.Bases), 0)
@@ -25,7 +24,7 @@ func TestReader(t *testing.T) {
 
 func TestIdentifySystemFiles(t *testing.T) {
 
-	filesystem := filefind.FindConfigs(configs_settings.GetGameLocation())
+	filesystem := tests.FixtureFileFind()
 	logus.Log.Debug("filefind.FindConfigs" + fmt.Sprintf("%v", filesystem))
 
 	universe_fileref := filesystem.GetFile(FILENAME)

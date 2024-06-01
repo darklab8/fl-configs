@@ -12,6 +12,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/fl-configs/configs/tests"
 	"github.com/darklab8/go-utils/goutils/utils/time_measure"
 	"github.com/stretchr/testify/assert"
 )
@@ -57,11 +58,11 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-		filesystem := filefind.FindConfigs(configs_settings.GetGameLocation())
+		filesystem := tests.FixtureFileFind()
 		fileref := filesystem.GetFile(FILENAME_FL_INI)
 		config := Read(iniload.NewLoader(fileref).Scan())
 
-		infocards := GetAllInfocards(filefind.FindConfigs(configs_settings.GetGameLocation()), config.GetDlls())
+		infocards := GetAllInfocards(tests.FixtureFileFind(), config.GetDlls())
 
 		// assert.Greater(t, len(ids), 0)
 
