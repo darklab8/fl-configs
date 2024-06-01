@@ -57,13 +57,11 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-		game_location := configs_settings.GetGameLocation()
-
-		filesystem := filefind.FindConfigs(game_location)
+		filesystem := filefind.FindConfigs(configs_settings.GetGameLocation())
 		fileref := filesystem.GetFile(FILENAME_FL_INI)
 		config := Read(iniload.NewLoader(fileref).Scan())
 
-		infocards := GetAllInfocards(filefind.FindConfigs(game_location), config.GetDlls())
+		infocards := GetAllInfocards(filefind.FindConfigs(configs_settings.GetGameLocation()), config.GetDlls())
 
 		// assert.Greater(t, len(ids), 0)
 
