@@ -23,12 +23,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: actions/checkout@v4
-      with:
-        repository: 'darklab8/${{ matrix.freelancer-mod }}'
-        path: '${{ github.workspace }}/${{ matrix.freelancer-mod }}'
-        token: ${{ secrets.FL_DATA_KEY }}
-
     - uses: darklab8/fl-configs/.github/actions/checkout-freelancer@master
       with:
         freelancer-mod: "${{ matrix.freelancer-mod }}"
