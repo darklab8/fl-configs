@@ -44,5 +44,5 @@ jobs:
     - name: Test
       run: task test -- -v
       env:
-        CONFIGS_LOG_LEVEL: "DEBUG"
+        # CONFIGS_LOG_LEVEL: "DEBUG"
         FREELANCER_FOLDER: ${{ github.workspace }}/${{ matrix.freelancer-mod }}
