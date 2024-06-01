@@ -7,6 +7,9 @@ inputs:
   freelancer-mod:
     description: insert vanilla or discovery
     required: true
+  ssh-key-base64:
+    description: Key to download freelancer repo
+    required: true
 
 runs:
   using: "composite"
@@ -19,8 +22,10 @@ runs:
         import os
         with open("${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out", "wb", 0o600) as file:
           file.write(base64.b64decode(bytes(os.environ["ID_RSA_FILES_FREELANCER_VANILLA"], encoding='utf8')))
-    - shell: sh
-      run: cat ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
+      env:
+        ID_RSA_FILES_FREELANCER_VANILLA: ${{ inputs.ssh-key-base64 }}
+    # - shell: sh
+    #   run: cat ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
     - uses: actions/checkout@v4
       if: ${{ inputs.freelancer-mod == 'vanilla' }}
       with:
