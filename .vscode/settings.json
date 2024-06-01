@@ -1,14 +1,14 @@
 {
     "typescript.validate.enable": false,
     "go.testEnvVars": {
-        "FREELANCER_FOLDER": "/home/naa/windows10shared/Discovery/DiscoveryFreelancer",
-        //"FREELANCER_FOLDER": "/home/naa/windows10shared/Freelancer",
+        "FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-discovery",
+        //"FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-vanilla",
         "FLDARKDATA_LOG_LEVEL": "DEBUG",
         "UTILS_LOG_LEVEL": "DEBUG",
     },
     "terminal.integrated.env.linux": {
-        "FREELANCER_FOLDER": "/home/naa/windows10shared/Discovery/DiscoveryFreelancer",
-        //"FREELANCER_FOLDER": "/home/naa/windows10shared/Freelancer",
+        "FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-discovery",
+        //"FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-vanilla",
         "FLDARKDATA_LOG_LEVEL": "DEBUG",
         "UTILS_LOG_LEVEL": "DEBUG",
     },
