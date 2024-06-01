@@ -28,6 +28,8 @@ runs:
         ID_RSA_FILES_FREELANCER_VANILLA: ${{ inputs.ssh-key-base64 }}
     - shell: sh
       run: cat ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
+    - shell: sh
+      run: stat -c '%a %n' *
     - uses: actions/checkout@v4
       if: ${{ inputs.freelancer-mod == 'vanilla' }}
       with:
