@@ -16,19 +16,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        freelancer-repository:
-          - "fl-data-discovery"
-          - "fl-data-vanilla"
-    name: Test ${{ matrix.freelancer-repository }}
+        freelancer-mod:
+          - "discovery"
+          - "vanilla"
+    name: Test ${{ matrix.freelancer-mod }}
     steps:
     - uses: actions/checkout@v3
 
     - uses: actions/checkout@v4
       with:
-        repository: 'darklab8/${{ matrix.freelancer-repository }}'
-        path: '${{ github.workspace }}/${{ matrix.freelancer-repository }}'
+        repository: 'darklab8/${{ matrix.freelancer-mod }}'
+        path: '${{ github.workspace }}/${{ matrix.freelancer-mod }}'
         token: ${{ secrets.FL_DATA_KEY }}
-    - run: ls ./${{ matrix.freelancer-repository }}
+
+    - uses: darklab8/fl-configs/.github/actions/checkout-freelancer@master
+      with:
+        freelancer-mod: "${{ matrix.freelancer-mod }}"
+        freelancer-folder: '${{ github.workspace }}/${{ matrix.freelancer-mod }}'
+        ssh-key-base64-discovery: ${{ secrets.ID_RSA_FILES_FREELANCER_DISCOVERY }}
+        ssh-key-base64-vanilla: ${{ secrets.ID_RSA_FILES_FREELANCER_VANILLA }}
+
+    - run: ls ./${{ matrix.freelancer-mod }}
 
     - name: Install Task
       run: |
@@ -43,4 +51,4 @@ jobs:
       run: task test -- -v
       env:
         CONFIGS_LOG_LEVEL: "DEBUG"
-        FREELANCER_FOLDER: ${{ github.workspace }}/${{ matrix.freelancer-repository }}
+        FREELANCER_FOLDER: ${{ github.workspace }}/${{ matrix.freelancer-mod }}
