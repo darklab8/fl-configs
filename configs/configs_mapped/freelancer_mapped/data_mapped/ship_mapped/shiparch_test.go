@@ -19,6 +19,6 @@ func TestReader(t *testing.T) {
 	assert.Greater(t, len(config.Ships), 0)
 
 	for _, commodity := range config.Ships {
-		commodity.IdsName.Get()
+		commodity.Nickname.Get()
 	}
 }
