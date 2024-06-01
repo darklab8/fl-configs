@@ -30,9 +30,13 @@ runs:
       run: cat ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
     - shell: sh
       run: stat -c '%a %n' *
-    - uses: actions/checkout@v4
-      if: ${{ inputs.freelancer-mod == 'vanilla' }}
-      with:
-        repository: 'darklab8/fl-files-vanilla'
-        path: '${{ inputs.freelancer-folder }}'
-        ssh-key: ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
+    # - uses: actions/checkout@v4
+    #   if: ${{ inputs.freelancer-mod == 'vanilla' }}
+    #   with:
+    #     repository: 'darklab8/fl-files-vanilla'
+    #     path: '${{ inputs.freelancer-folder }}'
+    #     ssh-key: ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out
+    - shell: sh
+      run: > 
+        GIT_SSH_COMMAND='ssh -i ${{ github.workspace }}/id_rsa.files.freelancer.vanilla.out -o IdentitiesOnly=yes'
+        git clone git@github.com:darklab8/fl-files-vanilla.git
