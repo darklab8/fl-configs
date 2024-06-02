@@ -91,6 +91,10 @@ func FilterToUserfulBases(bases []Base) []Base {
 		if item.Name == "" {
 			continue
 		}
+
+		if item.Name == "Object Unknown" && len(item.MarketGoods) == 0 {
+			continue
+		}
 		useful_bases = append(useful_bases, item)
 	}
 	return useful_bases
