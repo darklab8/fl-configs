@@ -12,3 +12,4 @@ main
 prof.prof
 __debug_bin*
 !.vscode/
+.venv/

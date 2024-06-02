@@ -160,7 +160,7 @@ def parseDLLs(dll_fnames):
         with open(name, 'rb') as fh:
             if fh:
                 fh.tell
-                global_offset = (2 ** 16) * (idx + 1) # the ids_number for index 0 in this file
+                global_offset = (2 ** 16) * (idx) # the ids_number for index 0 in this file
                 parseDLL(fh, out, global_offset)
             else:
                 sys.stderr.write("Could not open {}\n".format(name))
@@ -169,16 +169,20 @@ def parseDLLs(dll_fnames):
 
 from pathlib import Path
 def getAllInfocards():
-    exe_path = Path("/home/naa/repos/pet_projects/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped/testdata")
+    exe_path = Path("/home/naa/windows10shared/fl-files-discovery/EXE")
+    # Number of element i simportant here apperently
+    # as resources.dll is supposed to be always 0 indexed
+    # and the rest should get their index number from freelancer.ini
     dllPaths = [
-        str(exe_path/"infocards.dll"),
-        str(exe_path/"misctext.dll"),
-        str(exe_path/"nameresources.dll"),
-        str(exe_path/"equipresources.dll"),
-        str(exe_path/"offerbriberesources.dll"),
-        str(exe_path/"misctextinfo2.dll"),
-        str(exe_path/"Discovery.dll"),
-        str(exe_path/"DsyAddition.dll"),
+        str(exe_path/"resources.dll"),
+        str(exe_path/"InfoCards.dll"),
+        str(exe_path/"MiscText.dll"),
+        # str(exe_path/"nameresources.dll"),
+        # str(exe_path/"equipresources.dll"),
+        # str(exe_path/"offerbriberesources.dll"),
+        # str(exe_path/"misctextinfo2.dll"),
+        # str(exe_path/"Discovery.dll"),
+        # str(exe_path/"DsyAddition.dll"),
     ]
     ids = parseDLLs(dllPaths)
 #    print("Done reading DLLs!")
@@ -203,5 +207,11 @@ if __name__=="__main__":
 
             if i > 10:
                 break
+        
+        # listed = list(dicty.keys())
+        # print(listed[0])
+        # print(listed[-1])
+
+        # print(base64.b64decode(dicty["33389"]))
 
             

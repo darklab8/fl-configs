@@ -71,6 +71,12 @@ func TestReadInfocardsToHtml(t *testing.T) {
 		// 465640 continuation
 		// infocard tail 500904
 
+		// TradeLaneGaName := infocards.Infonames[33389]
+		// TraceLaneGaInfocard := infocards.Infocards[33390]
+		// _ = TraceLaneGaInfocard
+		// _ = TradeLaneGaName
+		// assert.Contains(t, TradeLaneGaName, "EFL Gate/Lane Parts")
+
 		xml_stuff := infocards.Infocards[501545]
 		if xml_stuff != nil {
 			// Only for Discovery
