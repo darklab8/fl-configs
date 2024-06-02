@@ -14,7 +14,7 @@ type MarketGood struct {
 	RepRequired   float64
 	Infocard      InfocardKey
 
-	IsBuyOnly     bool
+	BaseSells     bool
 	PriceModifier float64
 	PriceBase     int
 	Price         int
@@ -98,7 +98,7 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 				Type:          category,
 				LevelRequired: market_good.LevelRequired.Get(),
 				RepRequired:   market_good.RepRequired.Get(),
-				IsBuyOnly:     market_good.IsBuyOnly.Get(),
+				BaseSells:     market_good.BaseSells.Get() > 0,
 				PriceModifier: market_good.PriceModifier.Get(),
 				PriceBase:     price_base,
 				Price:         int(math.Floor(float64(price_base) * market_good.PriceModifier.Get())),
