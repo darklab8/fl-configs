@@ -11,16 +11,17 @@ import (
 )
 
 type Ship struct {
-	Name             string
-	ProbablyInfoName string
-	Class            int
-	Type             string
-	Price            int
-	Armor            int
-	HoldSize         int
-	Nanobots         int
-	Batteries        int
-	Mass             float64
+	Nickname string
+
+	Name      string
+	Class     int
+	Type      string
+	Price     int
+	Armor     int
+	HoldSize  int
+	Nanobots  int
+	Batteries int
+	Mass      float64
 
 	PowerCapacity     int
 	PowerRechargeRate int
@@ -36,7 +37,6 @@ type Ship struct {
 
 	NudgeForce  float64
 	StrafeForce float64
-	Nickname    string
 	NameID      int
 	InfoID      int
 
@@ -197,13 +197,6 @@ func (e *Exporter) GetShips(ids []Tractor) []Ship {
 		}
 		e.exportInfocards(InfocardKey(ship.Nickname), infocards...)
 		ship.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, ship.Nickname)
-
-		if infocard_lines, ok := e.Infocards[InfocardKey(ship.Nickname)]; ok {
-			if len(infocard_lines) > 0 {
-				potential_info_name := string(infocard_lines[0])
-				ship.ProbablyInfoName = potential_info_name
-			}
-		}
 
 		ships = append(ships, ship)
 	}
