@@ -15,14 +15,15 @@ type DamageBonus struct {
 }
 
 type Gun struct {
-	Name     string
-	Type     string
-	Price    int
-	Class    string
-	Nickname string
-	HpType   string
-	IdsName  int
-	IdsInfo  int
+	Name             string
+	ProbablyInfoName string
+	Type             string
+	Price            int
+	Class            string
+	Nickname         string
+	HpType           string
+	IdsName          int
+	IdsInfo          int
 
 	HitPts       string
 	PowerUsage   float64
@@ -194,6 +195,15 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor) Gun {
 
 	// fmt.Println("CalculateTEchCompat", e.configs.Discovery != nil, gun.Nickname)
 	gun.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, gun.Nickname)
+
+	if infocard_lines, ok := e.Infocards[InfocardKey(gun.Nickname)]; ok {
+		if len(infocard_lines) > 0 {
+			potential_info_name := string(infocard_lines[0])
+			gun.ProbablyInfoName = potential_info_name
+		}
+
+	}
+
 	return gun
 }
 
