@@ -18,6 +18,9 @@ func TestReader(t *testing.T) {
 
 func TestReaderWithBOMFails(t *testing.T) {
 
+	defer func() {
+		InitRegexExpression(&regexSection, regexSectionRegExp)
+	}()
 	InitRegexExpression(&regexSection, `^\[.*\]`)
 
 	fs := filefind.FindConfigs(utils.GetCurrrentTestFolder())
