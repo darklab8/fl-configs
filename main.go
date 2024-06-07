@@ -30,7 +30,7 @@ func main() {
 		time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
 			var configs *configs_mapped.MappedConfigs
 			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
-				freelancer_folder := configs_settings.GetGameLocation()
+				freelancer_folder := configs_settings.Env.FreelancerFolder
 
 				configs = configs_mapped.NewMappedConfigs()
 				logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))

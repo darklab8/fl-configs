@@ -18,7 +18,7 @@ import (
 )
 
 func TestReadInfocards(t *testing.T) {
-	game_location := configs_settings.GetGameLocation()
+	game_location := configs_settings.Env.FreelancerFolder
 	filesystem := filefind.FindConfigs(game_location)
 
 	fileref := filesystem.GetFile(FILENAME_FL_INI)
@@ -94,7 +94,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 }
 
 func TestValidateInfocards(t *testing.T) {
-	game_location := configs_settings.GetGameLocation()
+	game_location := configs_settings.Env.FreelancerFolder
 
 	filesystem := filefind.FindConfigs(game_location)
 	fileref := filesystem.GetFile(FILENAME_FL_INI)

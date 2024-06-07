@@ -13,7 +13,7 @@ import (
 
 // ExampleModifyingData demononstrating how to change configs values
 func Example_modifyingConfigs() {
-	freelancer_folder := configs_settings.GetGameLocation()
+	freelancer_folder := configs_settings.Env.FreelancerFolder
 	configs := configs_mapped.NewMappedConfigs()
 	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 

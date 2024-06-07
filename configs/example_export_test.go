@@ -17,7 +17,7 @@ import (
 
 // ExampleExportingData demonstrating exporting freelancer folder data for comfortable usage
 func Example_exportingData() {
-	freelancer_folder := configs_settings.GetGameLocation()
+	freelancer_folder := configs_settings.Env.FreelancerFolder
 	configs := configs_mapped.NewMappedConfigs()
 	logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 
