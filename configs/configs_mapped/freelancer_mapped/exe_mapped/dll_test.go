@@ -110,15 +110,19 @@ func TestValidateInfocards(t *testing.T) {
 		parsed_text[id] = text
 
 		if logus.Log.CheckWarn(err, "unable convert to text") {
+			if 33813 == id {
+				continue // allow to fail for Discovery
+				// They just have this one corrupted. Not fl-configs fault.
+			}
+
 			failed = append(failed, infocard)
 			fmt.Println("failed=", id, infocard.Lines)
-			// infocard.XmlToText()
+
 		} else {
 			parsed = append(parsed, infocard)
 		}
 	}
 
 	fmt.Println("parsed_count=", len(parsed))
-	// Disco has one failing. lets pass tests anyway
-	assert.LessOrEqual(t, 1, len(failed), "expected no failed")
+	assert.Equal(t, 0, len(failed), "expected no failed")
 }
