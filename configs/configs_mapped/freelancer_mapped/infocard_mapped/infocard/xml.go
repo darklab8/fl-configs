@@ -15,7 +15,7 @@ func XmlToText(raw string) ([]string, error) {
 	prepared := strings.ReplaceAll(string(raw), `<?xml version="1.0" encoding="UTF-16"?>`, "")
 	decoder := xml.NewDecoder(bytes.NewBufferString(prepared))
 
-	lines := make([]string, 0)
+	lines := make([]string, 0, 10)
 	var sb strings.Builder
 	for {
 		token, err := decoder.Token()
