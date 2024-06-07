@@ -6,16 +6,16 @@ import (
 	"github.com/darklab8/go-utils/goutils/utils/utils_types"
 )
 
-type EnvVars struct {
+type ConfEnvVars struct {
 	FallbackInfonamesToNickname bool
 	Strict                      bool
 	FreelancerFolder            utils_types.FilePath
 }
 
-var Env EnvVars
+var Env ConfEnvVars
 
 func init() {
-	Env = EnvVars{
+	Env = ConfEnvVars{
 		FallbackInfonamesToNickname: os.Getenv("CONFIGS_FALLBACK_TO_NICKNAMES") == "true",
 		Strict:                      os.Getenv("CONFIGS_STRICT") != "false",
 		FreelancerFolder:            getGameLocation(),
