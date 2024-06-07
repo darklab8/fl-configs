@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"io"
+	"strings"
 )
 
 func (i *Infocard) XmlToText() ([]string, error) {
@@ -11,7 +12,8 @@ func (i *Infocard) XmlToText() ([]string, error) {
 }
 
 func XmlToText(raw string) ([]string, error) {
-	decoder := xml.NewDecoder(bytes.NewBufferString(raw))
+	prepared := strings.ReplaceAll(string(raw), `<?xml version="1.0" encoding="UTF-16"?>`, "")
+	decoder := xml.NewDecoder(bytes.NewBufferString(prepared))
 
 	lines := make([]string, 0)
 	line := ""
