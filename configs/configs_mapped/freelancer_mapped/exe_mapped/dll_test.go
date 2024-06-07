@@ -112,11 +112,12 @@ func TestValidateInfocards(t *testing.T) {
 		if logus.Log.CheckWarn(err, "unable convert to text") {
 			failed = append(failed, infocard)
 			fmt.Println("failed=", id, infocard.Lines)
+			// infocard.XmlToText()
 		} else {
 			parsed = append(parsed, infocard)
 		}
 	}
 
 	fmt.Println("parsed_count=", len(parsed))
-	assert.Equal(t, len(failed), 0, "expected no failed")
+	assert.Equal(t, 0, len(failed), "expected no failed")
 }
