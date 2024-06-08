@@ -28,7 +28,7 @@ func init() {
 func GetEnvs(envs *enverant.Enverant) ConfEnvVars {
 	Env = ConfEnvVars{
 		UtilsEnvs:                   utils_settings.GetEnvs(envs),
-		FallbackInfonamesToNickname: envs.GetBoolOr("CONFIGS_FALLBACK_TO_NICKNAMES", true),
+		FallbackInfonamesToNickname: envs.GetBoolOr("CONFIGS_FALLBACK_TO_NICKNAMES", false),
 		Strict:                      envs.GetBoolOr("CONFIGS_STRICT", true),
 		FreelancerFolder:            getGameLocation(envs),
 	}
