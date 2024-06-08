@@ -13,7 +13,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/fl-configs/configs/tests"
-	"github.com/darklab8/go-utils/goutils/utils/time_measure"
+	"github.com/darklab8/go-utils/utils/timeit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,7 +57,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	result := time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+	result := timeit.NewTimerF(func(m *timeit.Timer) {
 		filesystem := tests.FixtureFileFind()
 		fileref := filesystem.GetFile(FILENAME_FL_INI)
 		config := Read(iniload.NewLoader(fileref).Scan())
@@ -89,7 +89,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 			fmt.Println(text)
 		}
 
-	}, time_measure.WithMsg("measure time"))
+	}, timeit.WithMsg("measure time"))
 	logus.Log.CheckPanic(result.ResultErr, "non nil exit")
 }
 

@@ -4,8 +4,8 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/tests"
 
-	"github.com/darklab8/go-utils/goutils/utils"
-	"github.com/darklab8/go-utils/goutils/utils/utils_filepath"
+	"github.com/darklab8/go-utils/utils"
+	"github.com/darklab8/go-utils/utils/utils_filepath"
 
 	"testing"
 

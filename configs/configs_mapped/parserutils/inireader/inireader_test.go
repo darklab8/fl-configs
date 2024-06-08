@@ -5,7 +5,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/tests"
-	"github.com/darklab8/go-utils/goutils/utils"
+	"github.com/darklab8/go-utils/utils"
 	"github.com/stretchr/testify/assert"
 )
 

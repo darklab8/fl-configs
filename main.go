@@ -12,8 +12,8 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
-	"github.com/darklab8/go-utils/goutils/utils/time_measure"
-	"github.com/darklab8/go-utils/goutils/utils/utils_logus"
+	"github.com/darklab8/go-utils/utils/timeit"
+	"github.com/darklab8/go-utils/utils/utils_logus"
 )
 
 func main() {
@@ -27,16 +27,16 @@ func main() {
 	defer pprof.StopCPUProfile()
 
 	for i := 0; i < 1; i++ {
-		time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+		timeit.NewTimerF(func(m *timeit.Timer) {
 			var configs *configs_mapped.MappedConfigs
-			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+			timeit.NewTimerF(func(m *timeit.Timer) {
 				freelancer_folder := configs_settings.Env.FreelancerFolder
 
 				configs = configs_mapped.NewMappedConfigs()
 				logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 				configs.Read(freelancer_folder)
-			}, time_measure.WithMsg("read mapping"))
-			time_measure.TimeMeasure(func(m *time_measure.TimeMeasurer) {
+			}, timeit.WithMsg("read mapping"))
+			timeit.NewTimerF(func(m *timeit.Timer) {
 				exported := configs_export.Export(configs)
 
 				// config := exe_mapped.FixtureFLINIConfig()
@@ -45,7 +45,7 @@ func main() {
 				for range exported.Bases {
 					break
 				}
-			}, time_measure.WithMsg("exported time"))
-		}, time_measure.WithMsg("total time"))
+			}, timeit.WithMsg("exported time"))
+		}, timeit.WithMsg("total time"))
 	}
 }
