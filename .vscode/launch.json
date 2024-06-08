@@ -10,12 +10,7 @@
             "host": "127.0.0.1",
             "program": "${workspaceFolder}",
             "args": [],
-            "env": {
-                "FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-discovery",
-                //"FREELANCER_FOLDER": "/home/naa/windows10shared/fl-files-vanilla",
-                "FLDARKDATA_LOG_LEVEL": "DEBUG",
-                "UTILS_LOG_LEVEL": "DEBUG",
-            },
+            "env": {},
             "showLog": true
         }
     ]

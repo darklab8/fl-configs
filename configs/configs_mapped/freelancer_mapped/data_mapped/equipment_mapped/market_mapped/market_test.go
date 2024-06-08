@@ -4,8 +4,8 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/tests"
 
-	"github.com/darklab8/go-utils/utils"
 	"github.com/darklab8/go-utils/utils/utils_filepath"
+	"github.com/darklab8/go-utils/utils/utils_os"
 
 	"testing"
 
@@ -23,7 +23,7 @@ func TestReader(t *testing.T) {
 func TestWriter(t *testing.T) {
 	input_file := tests.FixtureFileFind().GetFile(FILENAME_SHIPS)
 
-	temp_directory := utils.GetCurrrentTempFolder()
+	temp_directory := utils_os.GetCurrrentTempFolder()
 
 	config := Read([]*iniload.IniLoader{iniload.NewLoader(input_file).Scan()})
 	config.Files[0].SetOutputPath(utils_filepath.Join(temp_directory, FILENAME_SHIPS))

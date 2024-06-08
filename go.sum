@@ -14,6 +14,8 @@ github.com/darklab8/go-utils v0.14.1 h1:Y4uGC56MVy+431tR9+dMOjBpsFczX21KecJqoqpY
 github.com/darklab8/go-utils v0.14.1/go.mod h1:zApy0zIFiGCw496OIot7dl8i2cAsQMyPyf3PCMMpS3g=
 github.com/darklab8/go-utils v0.14.2 h1:wI3VzrX7nFqNWPwMFS86rvbXeUgyUN65Q5PZwoZ8Mis=
 github.com/darklab8/go-utils v0.14.2/go.mod h1:zApy0zIFiGCw496OIot7dl8i2cAsQMyPyf3PCMMpS3g=
+github.com/darklab8/go-utils v0.16.0 h1:xgzYrea74ps2EOWZQghnP0ah9TvD+2/iSsFg3jnUGSo=
+github.com/darklab8/go-utils v0.16.0/go.mod h1:zApy0zIFiGCw496OIot7dl8i2cAsQMyPyf3PCMMpS3g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

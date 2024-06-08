@@ -5,7 +5,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/tests"
-	"github.com/darklab8/go-utils/utils"
+	"github.com/darklab8/go-utils/utils/utils_os"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +23,7 @@ func TestReaderWithBOMFails(t *testing.T) {
 	}()
 	InitRegexExpression(&regexSection, `^\[.*\]`)
 
-	fs := filefind.FindConfigs(utils.GetCurrrentTestFolder())
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
 	fileref := fs.GetFile("li05_with_bom.ini")
 
 	var crashed bool = false
@@ -41,7 +41,7 @@ func TestReaderWithBOMFails(t *testing.T) {
 
 func TestReaderWithBOMPasses(t *testing.T) {
 
-	fs := filefind.FindConfigs(utils.GetCurrrentTestFolder())
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
 	fileref := fs.GetFile("li05_with_bom.ini")
 	config := Read(fileref)
 

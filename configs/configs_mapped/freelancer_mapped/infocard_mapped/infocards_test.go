@@ -6,13 +6,13 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/tests"
-	"github.com/darklab8/go-utils/utils"
+	"github.com/darklab8/go-utils/utils/utils_os"
 	"github.com/stretchr/testify/assert"
 )
 
 // Not used any longer?
 func TestReader(t *testing.T) {
-	one_file_filesystem := filefind.FindConfigs(utils.GetCurrrentTestFolder())
+	one_file_filesystem := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
 
 	filesystem := tests.FixtureFileFind()
 
