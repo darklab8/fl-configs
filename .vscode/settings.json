@@ -1,6 +1,11 @@
 {
     "typescript.validate.enable": false,
-    "go.testEnvVars": {},
-    "terminal.integrated.env.linux": {},
+    "go.testEnvVars": {
+        "ENVERANT_ENV_FILE": "${workspaceFolder}/.vscode/enverant.json"
+    },
+    "terminal.integrated.env.linux": {
+        "ENVERANT_ENV_FILE": "${workspaceFolder}/.vscode/enverant.json"
+    },
+    
 }
 
