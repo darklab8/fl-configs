@@ -3,6 +3,7 @@ module github.com/darklab8/fl-configs
 go 1.21.1
 
 require (
+	github.com/darklab8/fl-data-discovery v0.2.1
 	github.com/darklab8/go-typelog v0.5.0
 	github.com/darklab8/go-utils v0.17.5
 	github.com/stretchr/testify v1.8.4
