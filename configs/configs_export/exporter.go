@@ -31,8 +31,7 @@ func (e *Exporter) exportInfocards(nickname InfocardKey, infocard_ids ...int) {
 type Infocards map[InfocardKey]Infocard
 
 type Exporter struct {
-	configs            *configs_mapped.MappedConfigs
-	show_empty_records bool
+	configs *configs_mapped.MappedConfigs
 
 	Bases                []Base
 	useful_bases_by_nick map[string]Base
@@ -55,15 +54,10 @@ type Exporter struct {
 
 type OptExport func(e *Exporter)
 
-func WithEmptyRecords() OptExport {
-	return func(e *Exporter) { e.show_empty_records = true }
-}
-
 func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Exporter {
 	e := &Exporter{
-		configs:            configs,
-		show_empty_records: false,
-		Infocards:          map[InfocardKey]Infocard{},
+		configs:   configs,
+		Infocards: map[InfocardKey]Infocard{},
 	}
 
 	for _, opt := range opts {
