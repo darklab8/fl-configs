@@ -10,16 +10,9 @@ const INF = math.MaxInt32
 
 type VertexTest string
 
-func (f *Floyder) floydWarshall() {
-	for k := 0; k < 4; k++ {
-		for i := 0; i < 4; i++ {
-			for j := 0; j < 4; j++ {
-				f.dist[i][j] = float64(math.Min(float64(f.dist[i][j]), float64(f.dist[i][k]+f.dist[k][j])))
-			}
-		}
-	}
-}
-
+/*
+floydWarshall algirthm in a no matter directional graph
+*/
 type Floyder struct {
 	vertexes          []VertexTest
 	dist              [][]float64
@@ -32,32 +25,39 @@ func NewFloyder(vertexes []VertexTest) *Floyder {
 		index_by_nickname: map[VertexTest]int{},
 		dist:              make([][]float64, len(vertexes)),
 	}
-	// len_vertexes := len(vertexes)
-	// for i := 0; i < len_vertexes; i++ {
-	// 	f.dist[i] = make([]float64, len_vertexes)
-	// 	for j := 0; j < len_vertexes; j++ {
-	// 		f.dist[i][j] = INF
-	// 	}
-	// }
-	return f
-}
 
-func (f *Floyder) Calculate() *Floyder {
 	for index, vertex := range f.vertexes {
 		f.index_by_nickname[vertex] = index
 	}
 
-	graph := [][]float64{
-		{0, 5, INF, 10},
-		{5, 0, 3, INF},
-		{INF, 3, 0, 1},
-		{10, INF, 1, 0},
+	len_vertexes := len(vertexes)
+	for i := 0; i < len_vertexes; i++ {
+		f.dist[i] = make([]float64, len_vertexes)
+		for j := 0; j < len_vertexes; j++ {
+			f.dist[i][j] = INF
+		}
 	}
 
-	f.dist = graph
-	f.floydWarshall()
-
+	for i := 0; i < len_vertexes; i++ {
+		f.dist[i][i] = 0
+	}
 	return f
+}
+
+func (f *Floyder) Calculate() *Floyder {
+	for k := 0; k < 4; k++ {
+		for i := 0; i < 4; i++ {
+			for j := 0; j < 4; j++ {
+				f.dist[i][j] = float64(math.Min(float64(f.dist[i][j]), float64(f.dist[i][k]+f.dist[k][j])))
+			}
+		}
+	}
+	return f
+}
+
+func (f *Floyder) SetEdge(keya string, keyb string, distance float64) {
+	f.dist[f.index_by_nickname[VertexTest(keya)]][f.index_by_nickname[VertexTest(keyb)]] = distance
+	f.dist[f.index_by_nickname[VertexTest(keyb)]][f.index_by_nickname[VertexTest(keya)]] = distance
 }
 
 func (f *Floyder) GetDist(keya string, keyb string) float64 {
@@ -68,7 +68,22 @@ func TestFloyd(t *testing.T) {
 	var vertexes []VertexTest = []VertexTest{"a", "b", "c", "d"}
 
 	floyd := NewFloyder(vertexes)
-	// floyd.SetEdge()
+	floyd.SetEdge("a", "b", 5)
+	floyd.SetEdge("a", "d", 10)
+	floyd.SetEdge("b", "c", 3)
+	floyd.SetEdge("c", "d", 1)
+
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			if floyd.dist[i][j] == INF {
+				fmt.Printf("%7s", "INF")
+			} else {
+				fmt.Printf("%7.0f", floyd.dist[i][j])
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println("-------------")
 
 	floyd.Calculate()
 
