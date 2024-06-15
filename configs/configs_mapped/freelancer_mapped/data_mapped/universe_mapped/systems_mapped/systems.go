@@ -108,12 +108,22 @@ type Base struct {
 	RepNickname *semantic.String
 	Pos         *semantic.Vect
 }
+
+type Jumphole struct {
+	semantic.Model
+	Nickname  *semantic.String
+	GotoHole  *semantic.String
+	Archetype *semantic.String
+	Pos       *semantic.Vect
+}
+
 type System struct {
 	semantic.ConfigModel
 	Nickname     string
 	Bases        []*Base
 	BasesByNick  map[string]*Base
 	BasesByBases map[string][]*Base
+	Jumpholes    []*Jumphole
 
 	MissionZoneVignettes []*MissionVignetteZone
 
@@ -209,6 +219,18 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						system_to_add.BasesByBases[base_to_add.Base.Get()] = append(system_to_add.BasesByBases[base_to_add.Base.Get()], base_to_add)
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 					}
+
+					if _, ok := obj.ParamMap["jump_effect"]; ok {
+						jumphole := &Jumphole{
+							Archetype: semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Nickname:  semantic.NewString(obj, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							GotoHole:  semantic.NewString(obj, "goto", semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Order(1))),
+							Pos:       semantic.NewVector(obj, "pos", semantic.Precision(0)),
+						}
+
+						system_to_add.Jumpholes = append(system_to_add.Jumpholes, jumphole)
+					}
+
 				}
 			}
 
