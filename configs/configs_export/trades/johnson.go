@@ -161,6 +161,11 @@ func remove[T any](slice []T, s int) []T {
 	return append(slice[:s], slice[s+1:]...)
 }
 
+type DijkstraResult struct {
+	source      int
+	dist_result []int
+}
+
 // // Returns null if negative
 // // weight cycle is detected
 func (g *Johnson) johnsons() [][]int {
@@ -211,8 +216,27 @@ func (g *Johnson) johnsons() [][]int {
 
 	var distances [][]int = make([][]int, g.vertices)
 
-	for s := 0; s < g.vertices; s++ {
-		distances[s] = g.dijkstra(s)
+	is_sequential := false
+
+	if is_sequential {
+		for s := 0; s < g.vertices; s++ {
+			distances[s] = g.dijkstra(s)
+		}
+	} else {
+		dijkstra_results := make(chan *DijkstraResult)
+		for s := 0; s < g.vertices; s++ {
+			go func(s int) {
+				dist_result := g.dijkstra(s)
+				dijkstra_results <- &DijkstraResult{
+					source:      s,
+					dist_result: dist_result,
+				}
+			}(s)
+		}
+		for s := 0; s < g.vertices; s++ {
+			result := <-dijkstra_results
+			distances[result.source] = result.dist_result
+		}
 	}
 
 	// Compute the distance in the original graph

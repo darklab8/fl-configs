@@ -49,6 +49,10 @@ func TestTradeRoutesFloyd(t *testing.T) {
 }
 
 func TestTradeRoutesJohnson(t *testing.T) {
+
+	configs := configs_mapped.TestFixtureConfigs()
+	graph := MapConfigsToFloyder(configs)
+
 	// for profiling only stuff.
 	f, err := os.Create("johnson.prof")
 	if err != nil {
@@ -58,9 +62,6 @@ func TestTradeRoutesJohnson(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
-		configs := configs_mapped.TestFixtureConfigs()
-		graph := MapConfigsToFloyder(configs)
-
 		johnson := NewJohnsonFromGraph(graph)
 		var dist [][]int = johnson.johnsons()
 
