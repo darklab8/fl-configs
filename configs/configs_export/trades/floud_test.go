@@ -8,11 +8,15 @@ import (
 
 func TestFloyd(t *testing.T) {
 	fmt.Println(math.MaxFloat32)
-	floyd := NewFloyder()
-	floyd.SetEdge("a", "b", 5)
-	floyd.SetEdge("a", "d", 10)
-	floyd.SetEdge("b", "c", 3)
-	floyd.SetEdge("c", "d", 1)
+
+	graph := NewFreelancerGraph()
+	// floyd := NewFloyder()
+	graph.SetEdge("a", "b", 5)
+	graph.SetEdge("a", "d", 10)
+	graph.SetEdge("b", "c", 3)
+	graph.SetEdge("c", "d", 1)
+
+	floyd := NewFloyder(graph)
 	floyd.Calculate()
 
 	for i := 0; i < 4; i++ {

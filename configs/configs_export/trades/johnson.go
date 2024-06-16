@@ -15,7 +15,7 @@ func NewNeighbour(destination int, weight int) *Neighbour {
 	}
 }
 
-type Graph struct {
+type Johnson struct {
 	vertices      int
 	adjacencyList [][]*Neighbour
 }
@@ -23,8 +23,8 @@ type Graph struct {
 // On using the below constructor,
 // edges must be added manually
 // to the graph using addEdge()
-func NewGraph(vertices int) *Graph {
-	g := &Graph{
+func NewJohnson(vertices int) *Johnson {
+	g := &Johnson{
 		vertices: vertices,
 	}
 
@@ -39,8 +39,8 @@ func NewGraph(vertices int) *Graph {
 // // On using the below constructor,
 // // edges will be added automatically
 // // to the graph using the adjacency matrix
-func NewGraphFromMatrix(vertices int, adjacencyMatrix [][]int) *Graph {
-	g := NewGraph(vertices)
+func NewGraphFromMatrix(vertices int, adjacencyMatrix [][]int) *Johnson {
+	g := NewJohnson(vertices)
 
 	for i := 0; i < vertices; i++ {
 		for j := 0; j < vertices; j++ {
@@ -52,7 +52,7 @@ func NewGraphFromMatrix(vertices int, adjacencyMatrix [][]int) *Graph {
 	return g
 }
 
-func (g *Graph) addEdge(source int, destination int, weight int) {
+func (g *Johnson) addEdge(source int, destination int, weight int) {
 	g.adjacencyList[source] = append(g.adjacencyList[source], NewNeighbour(destination, weight))
 }
 
@@ -64,7 +64,7 @@ func ArraysFill[T any](array []T, value T) {
 
 // // Time complexity of this
 // // implementation of dijkstra is O(V^2).
-func (g *Graph) dijkstra(source int) []int {
+func (g *Johnson) dijkstra(source int) []int {
 	var isVisited []bool = make([]bool, g.vertices)
 	var distance []int = make([]int, g.vertices)
 
@@ -89,7 +89,7 @@ func (g *Graph) dijkstra(source int) []int {
 }
 
 // Method used by `int[] dijkstra(int)`
-func (g *Graph) findMinDistanceVertex(distance []int, isVisited []bool) int {
+func (g *Johnson) findMinDistanceVertex(distance []int, isVisited []bool) int {
 	var minIndex int = -1
 	var minDistance int = math.MaxInt
 
@@ -106,7 +106,7 @@ func (g *Graph) findMinDistanceVertex(distance []int, isVisited []bool) int {
 
 // // Returns null if
 // // negative weight cycle is detected
-func (g *Graph) bellmanford(source int) []int {
+func (g *Johnson) bellmanford(source int) []int {
 	var distance []int = make([]int, g.vertices)
 
 	ArraysFill(distance, math.MaxInt)
@@ -140,7 +140,7 @@ func remove[T any](slice []T, s int) []T {
 
 // // Returns null if negative
 // // weight cycle is detected
-func (g *Graph) johnsons() [][]int {
+func (g *Johnson) johnsons() [][]int {
 	// Add a new vertex q to the original graph,
 	// connected by zero-weight edges to
 	// all the other vertices of the graph

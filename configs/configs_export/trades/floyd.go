@@ -9,16 +9,19 @@ const INF = math.MaxFloat32
 
 type VertexName string
 
-/*
-floydWarshall algirthm in a no matter directional graph
-*/
-type Floyder struct {
+type FreelancerGraph struct {
 	matrix            map[VertexName]map[VertexName]float64
-	dist              [][]float64
 	index_by_nickname map[VertexName]int
 }
 
-func (f *Floyder) SetEdge(keya string, keyb string, distance float64) {
+func NewFreelancerGraph() *FreelancerGraph {
+	return &FreelancerGraph{
+		matrix:            make(map[VertexName]map[VertexName]float64),
+		index_by_nickname: map[VertexName]int{},
+	}
+}
+
+func (f *FreelancerGraph) SetEdge(keya string, keyb string, distance float64) {
 	vertex, vertex_exists := f.matrix[VertexName(keya)]
 	if !vertex_exists {
 		vertex = make(map[VertexName]float64)
@@ -31,17 +34,21 @@ func (f *Floyder) SetEdge(keya string, keyb string, distance float64) {
 	vertex[VertexName(keyb)] = distance
 }
 
+/*
+floydWarshall algirthm in a no matter directional graph
+*/
+type Floyder struct {
+	*FreelancerGraph
+	dist [][]float64
+}
+
 func (f *Floyder) mapMatrixEdgeToFloyd(keya VertexName, keyb VertexName, distance float64) {
 	f.dist[f.index_by_nickname[keya]][f.index_by_nickname[keyb]] = distance
 	f.dist[f.index_by_nickname[keyb]][f.index_by_nickname[keya]] = distance
 }
 
-func NewFloyder() *Floyder {
-	f := &Floyder{
-		matrix:            make(map[VertexName]map[VertexName]float64),
-		index_by_nickname: map[VertexName]int{},
-	}
-
+func NewFloyder(graph *FreelancerGraph) *Floyder {
+	f := &Floyder{FreelancerGraph: graph}
 	return f
 }
 

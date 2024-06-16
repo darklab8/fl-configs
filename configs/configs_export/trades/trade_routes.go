@@ -48,8 +48,8 @@ And on click we show proffits of delivery to some location. With time of deliver
 ====
 Optionally print sum of two best routes that can be started within close range from each other.
 */
-func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
-	floyder := NewFloyder()
+func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *FreelancerGraph {
+	graph := NewFreelancerGraph()
 	for _, system := range configs.Systems.Systems {
 
 		var system_objects []SystemObject = make([]SystemObject, 0, 50)
@@ -62,7 +62,7 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos)
-				floyder.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 			}
 
 			system_objects = append(system_objects, object)
@@ -76,11 +76,11 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos)
-				floyder.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 			}
 
 			jumphole_target_hole := jumphole.GotoHole.Get()
-			floyder.SetEdge(object.nickname, jumphole_target_hole, 0)
+			graph.SetEdge(object.nickname, jumphole_target_hole, 0)
 			system_objects = append(system_objects, object)
 		}
 
@@ -98,17 +98,17 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 
 			if another_tradelane, ok := system.TradelaneByNick[next_tradelane]; ok {
 				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
-				floyder.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+				graph.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
 			}
 			if another_tradelane, ok := system.TradelaneByNick[prev_tradelane]; ok {
 				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
-				floyder.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+				graph.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
 			}
 
 			if !(next_exists && prev_exists) {
 				for _, existing_object := range system_objects {
 					distance := DistanceForVecs(object.pos, existing_object.pos)
-					floyder.SetEdge(object.nickname, existing_object.nickname, distance)
+					graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				}
 
 				system_objects = append(system_objects, object)
@@ -116,5 +116,5 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 		}
 	}
 
-	return floyder
+	return graph
 }
