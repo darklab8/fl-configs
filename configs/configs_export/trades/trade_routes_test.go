@@ -18,9 +18,9 @@ func TestTradeRoutesFloyd(t *testing.T) {
 		floyd.Calculate()
 		dist := floyd.dist
 
-		fmt.Println(`floyder.GetDist("li01_01_base", "li01_to_li02")=`, GetDist(graph, dist, "li01_01_base", "li01_to_li02"))
-		fmt.Println(`floyder.GetDist("li01_to_li02", "li02_to_li01")=`, GetDist(graph, dist, "li01_to_li02", "li02_to_li01"))
-		fmt.Println(`floyder.GetDist("li02_to_li01", "li12_02_base")=`, GetDist(graph, dist, "li02_to_li01", "li12_02_base"))
+		fmt.Println(`GetDist(graph, dist, "li01_01_base", "li01_to_li02")=`, GetDist(graph, dist, "li01_01_base", "li01_to_li02"))
+		fmt.Println(`GetDist(graph, dist, "li01_to_li02", "li02_to_li01")=`, GetDist(graph, dist, "li01_to_li02", "li02_to_li01"))
+		fmt.Println(`GetDist(graph, dist, "li02_to_li01", "li12_02_base")=`, GetDist(graph, dist, "li02_to_li01", "li12_02_base"))
 		dist1 := GetDist(graph, dist, "li01_01_base", "li01_02_base")
 		dist2 := GetDist(graph, dist, "li01_01_base", "br01_01_base")
 		dist3 := GetDist(graph, dist, "li01_01_base", "li12_02_base")
@@ -41,9 +41,9 @@ func TestTradeRoutesJohnson(t *testing.T) {
 		johnson := NewJohnsonFromGraph(graph)
 		var dist [][]int = johnson.johnsons()
 
-		fmt.Println(`floyder.GetDist("li01_01_base", "li01_to_li02")=`, GetDist(graph, dist, "li01_01_base", "li01_to_li02"))
-		fmt.Println(`floyder.GetDist("li01_to_li02", "li02_to_li01")=`, GetDist(graph, dist, "li01_to_li02", "li02_to_li01"))
-		fmt.Println(`floyder.GetDist("li02_to_li01", "li12_02_base")=`, GetDist(graph, dist, "li02_to_li01", "li12_02_base"))
+		fmt.Println(`GetDist(graph, dist, "li01_01_base", "li01_to_li02")=`, GetDist(graph, dist, "li01_01_base", "li01_to_li02"))
+		fmt.Println(`GetDist(graph, dist, "li01_to_li02", "li02_to_li01")=`, GetDist(graph, dist, "li01_to_li02", "li02_to_li01"))
+		fmt.Println(`GetDist(graph, dist, "li02_to_li01", "li12_02_base")=`, GetDist(graph, dist, "li02_to_li01", "li12_02_base"))
 		dist1 := GetDist(graph, dist, "li01_01_base", "li01_02_base")
 		dist2 := GetDist(graph, dist, "li01_01_base", "br01_01_base")
 		dist3 := GetDist(graph, dist, "li01_01_base", "li12_02_base")
