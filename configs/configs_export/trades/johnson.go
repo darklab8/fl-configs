@@ -39,7 +39,7 @@ func NewJohnson(vertices int) *Johnson {
 // // On using the below constructor,
 // // edges will be added automatically
 // // to the graph using the adjacency matrix
-func NewGraphFromMatrix(vertices int, adjacencyMatrix [][]int) *Johnson {
+func NewJohnsonFromMatrix(vertices int, adjacencyMatrix [][]int) *Johnson {
 	g := NewJohnson(vertices)
 
 	for i := 0; i < vertices; i++ {
@@ -52,8 +52,30 @@ func NewGraphFromMatrix(vertices int, adjacencyMatrix [][]int) *Johnson {
 	return g
 }
 
+func NewJohnsonFromGraph(graph *FreelancerGraph) *Johnson {
+	vertices := len(graph.matrix)
+	g := NewJohnson(vertices)
+
+	index := 0
+	for vertex, _ := range graph.matrix {
+		graph.index_by_nickname[vertex] = index
+		index++
+	}
+
+	for vertex_name, vertex := range graph.matrix {
+		for vertex_target, weight := range vertex {
+			i := graph.index_by_nickname[vertex_name]
+			j := graph.index_by_nickname[vertex_target]
+
+			g.addEdge(i, j, int(weight))
+		}
+	}
+	return g
+}
+
 func (g *Johnson) addEdge(source int, destination int, weight int) {
 	g.adjacencyList[source] = append(g.adjacencyList[source], NewNeighbour(destination, weight))
+	g.adjacencyList[destination] = append(g.adjacencyList[destination], NewNeighbour(source, weight))
 }
 
 func ArraysFill[T any](array []T, value T) {

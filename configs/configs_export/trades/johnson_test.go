@@ -17,7 +17,7 @@ func TestJohnson(t *testing.T) {
 	}
 
 	// Initialization
-	var graph *Johnson = NewGraphFromMatrix(vertices, matrix)
+	var graph *Johnson = NewJohnsonFromMatrix(vertices, matrix)
 
 	// Function Call
 	var distances [][]int = graph.johnsons()
@@ -59,19 +59,19 @@ func TestJsonsoner(t *testing.T) {
 	graph.SetEdge("a", "d", 10)
 	graph.SetEdge("b", "c", 3)
 	graph.SetEdge("c", "d", 1)
-	floyd := NewFloyder(graph)
-	floyd.Calculate()
+	johnson := NewJohnsonFromGraph(graph)
+	var dist [][]int = johnson.johnsons()
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			if floyd.dist[i][j] == INF {
+			if dist[i][j] == math.MaxInt {
 				fmt.Printf("%7s", "INF")
 			} else {
-				fmt.Printf("%7.0f", floyd.dist[i][j])
+				fmt.Printf("%7d", dist[i][j])
 			}
 		}
 		fmt.Println()
 	}
 
-	fmt.Println("a", " -> ", "c", " = ", floyd.GetDist("a", "c"))
+	fmt.Println("a", " -> ", "c", " = ", GetDist(graph, dist, "a", "c"))
 }
