@@ -17,20 +17,20 @@ func TestFloyder(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	graph := MapConfigsToFloyder(configs)
 
-	floyder := NewFloyder(graph)
-	floyder.Calculate()
+	floyd := NewFloyder(graph)
+	floyd.Calculate()
 
 	// call floyder.GetDist("li01_01_base", "li01_to_li02")
 	// call floyder.GetDist("li01_to_li02", "li02_to_li01")
 	// call floyder.GetDist("li02_to_li01", "li12_02_base")
 
-	dist1 := floyder.GetDist("li01_01_base", "li01_02_base")
+	dist1 := GetDist(graph, floyd.dist, "li01_01_base", "li01_02_base")
 	assert.Greater(t, dist1, float64(0))
 
-	dist2 := floyder.GetDist("li01_01_base", "br01_01_base")
+	dist2 := GetDist(graph, floyd.dist, "li01_01_base", "br01_01_base")
 	assert.Greater(t, dist2, float64(0))
 
-	dist3 := floyder.GetDist("li01_01_base", "li12_02_base")
+	dist3 := GetDist(graph, floyd.dist, "li01_01_base", "li12_02_base")
 
 	assert.Greater(t, dist3, float64(0))
 }

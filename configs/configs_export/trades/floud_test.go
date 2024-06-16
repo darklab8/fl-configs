@@ -30,5 +30,5 @@ func TestFloyd(t *testing.T) {
 		fmt.Println()
 	}
 
-	fmt.Println("a", " -> ", "c", " = ", floyd.GetDist("a", "c"))
+	fmt.Println("a", " -> ", "c", " = ", GetDist(graph, floyd.dist, "a", "c"))
 }

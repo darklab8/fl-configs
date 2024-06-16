@@ -104,6 +104,6 @@ func (f *Floyder) Calculate() *Floyder {
 	return f
 }
 
-func (f *Floyder) GetDist(keya string, keyb string) float64 {
-	return f.dist[f.index_by_nickname[VertexName(keya)]][f.index_by_nickname[VertexName(keyb)]]
+func GetDist[T any](f *FreelancerGraph, dist [][]T, keya string, keyb string) T {
+	return dist[f.index_by_nickname[VertexName(keya)]][f.index_by_nickname[VertexName(keyb)]]
 }
