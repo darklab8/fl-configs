@@ -1,44 +1,45 @@
 package trades
 
 import (
+	"fmt"
 	"math"
 )
 
-const INF = math.MaxInt32
+const INF = math.MaxFloat32
 
-type VertexTest string
+type VertexName string
 
 /*
 floydWarshall algirthm in a no matter directional graph
 */
 type Floyder struct {
-	matrix            map[VertexTest]map[VertexTest]float64
+	matrix            map[VertexName]map[VertexName]float64
 	dist              [][]float64
-	index_by_nickname map[VertexTest]int
+	index_by_nickname map[VertexName]int
 }
 
 func (f *Floyder) SetEdge(keya string, keyb string, distance float64) {
-	vertex, vertex_exists := f.matrix[VertexTest(keya)]
+	vertex, vertex_exists := f.matrix[VertexName(keya)]
 	if !vertex_exists {
-		vertex = make(map[VertexTest]float64)
-		f.matrix[VertexTest(keya)] = vertex
+		vertex = make(map[VertexName]float64)
+		f.matrix[VertexName(keya)] = vertex
 	}
 
-	if _, vert_target_exists := f.matrix[VertexTest(keyb)]; !vert_target_exists {
-		f.matrix[VertexTest(keyb)] = make(map[VertexTest]float64)
+	if _, vert_target_exists := f.matrix[VertexName(keyb)]; !vert_target_exists {
+		f.matrix[VertexName(keyb)] = make(map[VertexName]float64)
 	}
-	vertex[VertexTest(keyb)] = distance
+	vertex[VertexName(keyb)] = distance
 }
 
-func (f *Floyder) mapMatrixEdgeToFloyd(keya VertexTest, keyb VertexTest, distance float64) {
+func (f *Floyder) mapMatrixEdgeToFloyd(keya VertexName, keyb VertexName, distance float64) {
 	f.dist[f.index_by_nickname[keya]][f.index_by_nickname[keyb]] = distance
 	f.dist[f.index_by_nickname[keyb]][f.index_by_nickname[keya]] = distance
 }
 
 func NewFloyder() *Floyder {
 	f := &Floyder{
-		matrix:            make(map[VertexTest]map[VertexTest]float64),
-		index_by_nickname: map[VertexTest]int{},
+		matrix:            make(map[VertexName]map[VertexName]float64),
+		index_by_nickname: map[VertexName]int{},
 	}
 
 	return f
@@ -85,9 +86,10 @@ func (f *Floyder) Calculate() *Floyder {
 	// }
 	// fmt.Println("-------------")
 
-	for k := 0; k < 4; k++ {
-		for i := 0; i < 4; i++ {
-			for j := 0; j < 4; j++ {
+	for k := 0; k < len_vertexes; k++ {
+		fmt.Println("starting, k=", k)
+		for i := 0; i < len_vertexes; i++ {
+			for j := 0; j < len_vertexes; j++ {
 				f.dist[i][j] = float64(math.Min(float64(f.dist[i][j]), float64(f.dist[i][k]+f.dist[k][j])))
 			}
 		}
@@ -96,5 +98,5 @@ func (f *Floyder) Calculate() *Floyder {
 }
 
 func (f *Floyder) GetDist(keya string, keyb string) float64 {
-	return f.dist[f.index_by_nickname[VertexTest(keya)]][f.index_by_nickname[VertexTest(keyb)]]
+	return f.dist[f.index_by_nickname[VertexName(keya)]][f.index_by_nickname[VertexName(keyb)]]
 }

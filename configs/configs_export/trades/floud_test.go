@@ -2,10 +2,12 @@ package trades
 
 import (
 	"fmt"
+	"math"
 	"testing"
 )
 
 func TestFloyd(t *testing.T) {
+	fmt.Println(math.MaxFloat32)
 	floyd := NewFloyder()
 	floyd.SetEdge("a", "b", 5)
 	floyd.SetEdge("a", "d", 10)

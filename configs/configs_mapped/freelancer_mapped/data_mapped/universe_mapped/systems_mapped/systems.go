@@ -92,6 +92,8 @@ type TradeLaneRing struct {
 	semantic.Model
 	Nickname *semantic.String
 	Pos      *semantic.Vect
+	NextRing *semantic.String
+	PrevRing *semantic.String
 	// has next_ring, then it is tradelane
 	// or if has Trade_Lane_Ring, then trade lane too.
 }
@@ -119,11 +121,13 @@ type Jumphole struct {
 
 type System struct {
 	semantic.ConfigModel
-	Nickname     string
-	Bases        []*Base
-	BasesByNick  map[string]*Base
-	BasesByBases map[string][]*Base
-	Jumpholes    []*Jumphole
+	Nickname        string
+	Bases           []*Base
+	BasesByNick     map[string]*Base
+	BasesByBases    map[string][]*Base
+	Jumpholes       []*Jumphole
+	Tradelanes      []*TradeLaneRing
+	TradelaneByNick map[string]*TradeLaneRing
 
 	MissionZoneVignettes []*MissionVignetteZone
 
@@ -185,6 +189,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 		for system_key, sysiniconf := range system_iniconfigs {
 			system_to_add := &System{
 				MissionsSpawnZonesByFaction: make(map[string][]*MissionPatrolZone),
+				TradelaneByNick:             make(map[string]*TradeLaneRing),
 			}
 			system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
@@ -229,6 +234,20 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						}
 
 						system_to_add.Jumpholes = append(system_to_add.Jumpholes, jumphole)
+					}
+
+					_, is_trade_lane1 := obj.ParamMap["next_ring"]
+					_, is_trade_lane2 := obj.ParamMap["prev_ring"]
+					if is_trade_lane1 || is_trade_lane2 {
+						tradelane := &TradeLaneRing{
+							Nickname: semantic.NewString(obj, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Pos:      semantic.NewVector(obj, "pos", semantic.Precision(0)),
+							NextRing: semantic.NewString(obj, "next_ring", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							PrevRing: semantic.NewString(obj, "prev_ring", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						}
+
+						system_to_add.Tradelanes = append(system_to_add.Tradelanes, tradelane)
+						system_to_add.TradelaneByNick[tradelane.Nickname.Get()] = tradelane
 					}
 
 				}

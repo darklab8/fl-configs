@@ -27,6 +27,27 @@ func DistanceForVecs(Pos1 conftypes.Vector, Pos2 conftypes.Vector) float64 {
 	return distance
 }
 
+/*
+Algorithm should be like this:
+We iterate through list of Systems:
+Adding all bases, jump gates, jump holes, tradelanes as Vertexes.
+We scan in advance nicknames for object on another side of jump gate/hole and add it as vertix
+We calculcate distances between them. Distance between jump connections is 0 (or time to wait measured in distance)
+We calculate distances between trade lanes as shorter than real distance for obvious reasons.
+The matrix built on a fight run will be having connections between vertixes as hashmaps of possible edges? For optimized memory consumption in a sparse matrix.
+
+Then on second run, knowing amount of vertixes
+We build Floyd matrix? With allocating memory in bulk it should be rather rapid may be.
+And run Floud algorithm.
+Thus we have stuff calculated for distances between all possible trading locations. (edited)
+[6:02 PM]
+====
+Then we build table of Bases as starting points.
+And on click we show proffits of delivery to some location. With time of delivery. And profit per time.
+[6:02 PM]
+====
+Optionally print sum of two best routes that can be started within close range from each other.
+*/
 func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 	floyder := NewFloyder()
 	for _, system := range configs.Systems.Systems {
@@ -62,27 +83,38 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *Floyder {
 			floyder.SetEdge(object.nickname, jumphole_target_hole, 0)
 			system_objects = append(system_objects, object)
 		}
+
+		for _, tradelane := range system.Tradelanes {
+			object := SystemObject{
+				nickname: tradelane.Nickname.Get(),
+				pos:      tradelane.Pos.Get(),
+			}
+
+			next_tradelane, next_exists := tradelane.NextRing.GetValue()
+			prev_tradelane, prev_exists := tradelane.PrevRing.GetValue()
+
+			speed := 350
+			tradelane_speed := 2250
+
+			if another_tradelane, ok := system.TradelaneByNick[next_tradelane]; ok {
+				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
+				floyder.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+			}
+			if another_tradelane, ok := system.TradelaneByNick[prev_tradelane]; ok {
+				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
+				floyder.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+			}
+
+			if !(next_exists && prev_exists) {
+				for _, existing_object := range system_objects {
+					distance := DistanceForVecs(object.pos, existing_object.pos)
+					floyder.SetEdge(object.nickname, existing_object.nickname, distance)
+				}
+
+				system_objects = append(system_objects, object)
+			}
+		}
 	}
 
 	return floyder
 }
-
-// Algorithm should be like this:
-// We iterate through list of Systems:
-// Adding all bases, jump gates, jump holes, tradelanes as Vertexes.
-// We scan in advance nicknames for object on another side of jump gate/hole and add it as vertix
-// We calculcate distances between them. Distance between jump connections is 0 (or time to wait measured in distance)
-// We calculate distances between trade lanes as shorter than real distance for obvious reasons.
-// The matrix built on a fight run will be having connections between vertixes as hashmaps of possible edges? For optimized memory consumption in a sparse matrix.
-
-// Then on second run, knowing amount of vertixes
-// We build Floyd matrix? With allocating memory in bulk it should be rather rapid may be.
-// And run Floud algorithm.
-// Thus we have stuff calculated for distances between all possible trading locations. (edited)
-// [6:02 PM]
-// ====
-// Then we build table of Bases as starting points.
-// And on click we show proffits of delivery to some location. With time of delivery. And profit per time.
-// [6:02 PM]
-// ====
-// Optionally print sum of two best routes that can be started within close range from each other.
