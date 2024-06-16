@@ -18,17 +18,20 @@ func TestFloyd(t *testing.T) {
 
 	floyd := NewFloyder(graph)
 	floyd.Calculate()
+	dist := floyd.dist
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			if floyd.dist[i][j] == INF {
+			if dist[i][j] == INF {
 				fmt.Printf("%7s", "INF")
 			} else {
-				fmt.Printf("%7.0f", floyd.dist[i][j])
+				fmt.Printf("%7.0f", dist[i][j])
 			}
 		}
 		fmt.Println()
 	}
 
-	fmt.Println("a", " -> ", "c", " = ", GetDist(graph, floyd.dist, "a", "c"))
+	fmt.Println("a -> c = ", GetDist(graph, dist, "a", "c"))
+	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "b"))
+	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "d"))
 }

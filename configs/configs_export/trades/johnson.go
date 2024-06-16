@@ -1,6 +1,9 @@
 package trades
 
-import "math"
+import (
+	"container/heap"
+	"math"
+)
 
 // Written based on https://www.geeksforgeeks.org/implementation-of-johnsons-algorithm-for-all-pairs-shortest-paths/
 
@@ -90,40 +93,38 @@ func (g *Johnson) dijkstra(source int) []int {
 	var isVisited []bool = make([]bool, g.vertices)
 	var distance []int = make([]int, g.vertices)
 
+	pq := make(PriorityQueue, 0)
+	item := &Item{
+		value:    0,
+		priority: source,
+	}
+	pq.Push(item)
+
 	ArraysFill(distance, math.MaxInt)
 	distance[source] = 0
 
-	for vertex := 0; vertex < g.vertices; vertex++ {
-		var minDistanceVertex int = g.findMinDistanceVertex(distance, isVisited)
-		isVisited[minDistanceVertex] = true
-
-		for _, neighbour := range g.adjacencyList[minDistanceVertex] {
-			var destination int = neighbour.destination
-			var weight int = neighbour.weight
-
-			if !isVisited[destination] && distance[minDistanceVertex]+weight < distance[destination] {
-				distance[destination] = distance[minDistanceVertex] + weight
-			}
+	for pq.Len() > 0 {
+		item := heap.Pop(&pq).(*Item)
+		node := item.priority
+		dist := item.value
+		if isVisited[node] {
+			continue
 		}
+
+		for _, neighbour := range g.adjacencyList[node] {
+			if !isVisited[neighbour.destination] && dist+neighbour.weight < distance[neighbour.destination] {
+				distance[neighbour.destination] = dist + neighbour.weight
+				pq.Push(&Item{
+					value:    distance[neighbour.destination],
+					priority: neighbour.destination,
+				})
+			}
+
+		}
+
 	}
 
 	return distance
-}
-
-// Method used by `int[] dijkstra(int)`
-func (g *Johnson) findMinDistanceVertex(distance []int, isVisited []bool) int {
-	var minIndex int = -1
-	var minDistance int = math.MaxInt
-
-	for vertex := 0; vertex < g.vertices; vertex++ {
-		if !isVisited[vertex] && distance[vertex] <= minDistance {
-
-			minDistance = distance[vertex]
-			minIndex = vertex
-		}
-	}
-
-	return minIndex
 }
 
 // // Returns null if

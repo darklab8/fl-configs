@@ -73,5 +73,7 @@ func TestJsonsoner(t *testing.T) {
 		fmt.Println()
 	}
 
-	fmt.Println("a", " -> ", "c", " = ", GetDist(graph, dist, "a", "c"))
+	fmt.Println("a -> c = ", GetDist(graph, dist, "a", "c"))
+	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "b"))
+	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "d"))
 }

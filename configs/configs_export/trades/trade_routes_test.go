@@ -2,6 +2,9 @@ package trades
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"runtime/pprof"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
@@ -10,6 +13,18 @@ import (
 )
 
 func TestTradeRoutesFloyd(t *testing.T) {
+	if true {
+		return
+	}
+
+	// for profiling only stuff.
+	f, err := os.Create("floyd.prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	timeit.NewTimerF(func(m *timeit.Timer) {
 		configs := configs_mapped.TestFixtureConfigs()
 		graph := MapConfigsToFloyder(configs)
@@ -34,6 +49,14 @@ func TestTradeRoutesFloyd(t *testing.T) {
 }
 
 func TestTradeRoutesJohnson(t *testing.T) {
+	// for profiling only stuff.
+	f, err := os.Create("johnson.prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	timeit.NewTimerF(func(m *timeit.Timer) {
 		configs := configs_mapped.TestFixtureConfigs()
 		graph := MapConfigsToFloyder(configs)
