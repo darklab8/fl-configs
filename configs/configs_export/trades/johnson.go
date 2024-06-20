@@ -168,7 +168,7 @@ type DijkstraResult struct {
 
 // // Returns null if negative
 // // weight cycle is detected
-func (g *Johnson) johnsons() [][]int {
+func (g *Johnson) Johnsons() [][]int {
 	// Add a new vertex q to the original graph,
 	// connected by zero-weight edges to
 	// all the other vertices of the graph

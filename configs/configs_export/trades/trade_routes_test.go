@@ -27,7 +27,7 @@ func TestTradeRoutesFloyd(t *testing.T) {
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
 		configs := configs_mapped.TestFixtureConfigs()
-		graph := MapConfigsToFloyder(configs)
+		graph := MapConfigsToFloyder(configs, WithFreighterPaths(false))
 
 		floyd := NewFloyder(graph)
 		floyd.Calculate()
@@ -51,7 +51,13 @@ func TestTradeRoutesFloyd(t *testing.T) {
 func TestTradeRoutesJohnson(t *testing.T) {
 
 	configs := configs_mapped.TestFixtureConfigs()
-	graph := MapConfigsToFloyder(configs)
+	graph := MapConfigsToFloyder(configs, WithFreighterPaths(false))
+
+	edges_count := 0
+	for _, edges := range graph.matrix {
+		edges_count += len(edges)
+	}
+	fmt.Println("graph.vertixes=", len(graph.matrix), "edges_count=", edges_count)
 
 	// for profiling only stuff.
 	f, err := os.Create("johnson.prof")
@@ -63,7 +69,7 @@ func TestTradeRoutesJohnson(t *testing.T) {
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
 		johnson := NewJohnsonFromGraph(graph)
-		var dist [][]int = johnson.johnsons()
+		var dist [][]int = johnson.Johnsons()
 
 		fmt.Println(`GetDist(graph, dist, "li01_01_base", "li01_to_li02")=`, GetDist(graph, dist, "li01_01_base", "li01_to_li02"))
 		fmt.Println(`GetDist(graph, dist, "li01_to_li02", "li02_to_li01")=`, GetDist(graph, dist, "li01_to_li02", "li02_to_li01"))

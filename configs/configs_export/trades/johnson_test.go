@@ -20,7 +20,7 @@ func TestJohnson(t *testing.T) {
 	var graph *Johnson = NewJohnsonFromMatrix(vertices, matrix)
 
 	// Function Call
-	var distances [][]int = graph.johnsons()
+	var distances [][]int = graph.Johnsons()
 
 	if distances == nil {
 		fmt.Println("Negative weight cycle detected.")
@@ -60,7 +60,7 @@ func TestJsonsoner(t *testing.T) {
 	graph.SetEdge("b", "c", 3)
 	graph.SetEdge("c", "d", 1)
 	johnson := NewJohnsonFromGraph(graph)
-	var dist [][]int = johnson.johnsons()
+	var dist [][]int = johnson.Johnsons()
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {

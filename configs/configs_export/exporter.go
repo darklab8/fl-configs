@@ -2,7 +2,9 @@ package configs_export
 
 import (
 	"fmt"
+	"sync"
 
+	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/conftypes"
@@ -33,12 +35,17 @@ type Infocards map[InfocardKey]Infocard
 type Exporter struct {
 	configs *configs_mapped.MappedConfigs
 
-	Bases                []Base
-	useful_bases_by_nick map[string]Base
+	Bases                []*Base
+	useful_bases_by_nick map[string]*Base
+
+	transport_graph *trades.FreelancerGraph
+	transport_dists [][]int
+	freighter_graph *trades.FreelancerGraph
+	freighter_dists [][]int
 
 	Factions    []Faction
 	Infocards   Infocards
-	Commodities []Commodity
+	Commodities []*Commodity
 	Guns        []Gun
 	Missiles    []Gun
 	Mines       []Mine
@@ -67,9 +74,25 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 }
 
 func (e *Exporter) Export() *Exporter {
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		e.transport_graph = trades.MapConfigsToFloyder(e.configs, trades.WithFreighterPaths(false))
+		johnson := trades.NewJohnsonFromGraph(e.transport_graph)
+		e.transport_dists = johnson.Johnsons()
+		wg.Done()
+	}()
+	wg.Add(1)
+	go func() {
+		e.freighter_graph = trades.MapConfigsToFloyder(e.configs, trades.WithFreighterPaths(true))
+		johnson := trades.NewJohnsonFromGraph(e.freighter_graph)
+		e.freighter_dists = johnson.Johnsons()
+		wg.Done()
+	}()
 	e.Bases = e.GetBases()
 	useful_bases := FilterToUserfulBases(e.Bases)
-	e.useful_bases_by_nick = make(map[string]Base)
+	e.useful_bases_by_nick = make(map[string]*Base)
 	for _, base := range useful_bases {
 		e.useful_bases_by_nick[base.Nickname] = base
 	}
@@ -88,6 +111,8 @@ func (e *Exporter) Export() *Exporter {
 	e.CMs = e.GetCounterMeasures(e.Tractors)
 	e.Scanners = e.GetScanners(e.Tractors)
 	e.Ammos = e.GetAmmo(e.Tractors)
+	wg.Wait()
+	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 	return e
 }
 
@@ -104,7 +129,7 @@ func Empty(phrase string) bool {
 	return true
 }
 
-func (e *Exporter) Buyable(Bases []GoodAtBase) bool {
+func (e *Exporter) Buyable(Bases []*GoodAtBase) bool {
 	for _, base := range Bases {
 
 		if e.useful_bases_by_nick != nil {
@@ -117,7 +142,7 @@ func (e *Exporter) Buyable(Bases []GoodAtBase) bool {
 	return false
 }
 
-func Buyable(Bases []GoodAtBase) bool {
+func Buyable(Bases []*GoodAtBase) bool {
 	return len(Bases) > 0
 }
 

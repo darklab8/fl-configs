@@ -11,7 +11,7 @@ import (
 type FixtureBasesOutput struct {
 	configs *configs_mapped.MappedConfigs
 	expoter *Exporter
-	bases   []Base
+	bases   []*Base
 }
 
 func FixtureBases(t *testing.T) FixtureBasesOutput {

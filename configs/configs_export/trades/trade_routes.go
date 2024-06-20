@@ -2,6 +2,7 @@ package trades
 
 import (
 	"math"
+	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
 	"github.com/darklab8/fl-configs/configs/conftypes"
@@ -27,6 +28,8 @@ func DistanceForVecs(Pos1 conftypes.Vector, Pos2 conftypes.Vector) float64 {
 	return distance
 }
 
+type WithFreighterPaths bool
+
 /*
 Algorithm should be like this:
 We iterate through list of Systems:
@@ -48,7 +51,7 @@ And on click we show proffits of delivery to some location. With time of deliver
 ====
 Optionally print sum of two best routes that can be started within close range from each other.
 */
-func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *FreelancerGraph {
+func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_paths WithFreighterPaths) *FreelancerGraph {
 	graph := NewFreelancerGraph()
 	for _, system := range configs.Systems.Systems {
 
@@ -72,6 +75,17 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs) *FreelancerGraph
 			object := SystemObject{
 				nickname: jumphole.Nickname.Get(),
 				pos:      jumphole.Pos.Get(),
+			}
+
+			jh_archetype := jumphole.Archetype.Get()
+
+			// Condition is taken from FLCompanion
+			// https://github.com/Corran-Raisu/FLCompanion/blob/021159e3b3a1b40188c93064f1db136780424ea9/Datas.cpp#L585
+			// Check Aingar Fork for Disco version if necessary.
+			if strings.Contains(jh_archetype, "_fighter") || strings.Contains(jh_archetype, "_notransport") || jh_archetype == "dsy_comsat_planetdock" {
+				if !with_freighter_paths {
+					continue
+				}
 			}
 
 			for _, existing_object := range system_objects {
