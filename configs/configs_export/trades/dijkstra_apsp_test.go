@@ -7,25 +7,20 @@ import (
 )
 
 // // Driver Code
-func TestJohnson(t *testing.T) {
+func TestDijkstraAPSP(t *testing.T) {
 	var vertices int = 4
 	var matrix [][]int = [][]int{
-		{0, 0, -2, 0},
+		{0, 0, 2, 0},
 		{4, 0, 3, 0},
 		{0, 0, 0, 2},
-		{0, -1, 0, 0},
+		{0, 1, 0, 0},
 	}
 
 	// Initialization
-	var graph *Johnson = NewJohnsonFromMatrix(vertices, matrix)
+	var graph *DijkstraAPSP = NewDijkstraApspFromMatrix(vertices, matrix)
 
 	// Function Call
-	var distances [][]int = graph.Johnsons()
-
-	if distances == nil {
-		fmt.Println("Negative weight cycle detected.")
-		return
-	}
+	var distances [][]int = graph.DijkstraApsp()
 
 	// The code fragment below outputs
 	// an formatted distance matrix.
@@ -52,15 +47,15 @@ func TestJohnson(t *testing.T) {
 	}
 }
 
-func TestJsonsoner(t *testing.T) {
+func TestDijkstraAPSPWithGraph(t *testing.T) {
 	fmt.Println(math.MaxFloat32)
 	graph := NewGameGraph()
 	graph.SetEdge("a", "b", 5)
 	graph.SetEdge("a", "d", 10)
 	graph.SetEdge("b", "c", 3)
 	graph.SetEdge("c", "d", 1)
-	johnson := NewJohnsonFromGraph(graph)
-	var dist [][]int = johnson.Johnsons()
+	johnson := NewDijkstraApspFromGraph(graph)
+	var dist [][]int = johnson.DijkstraApsp()
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {

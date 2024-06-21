@@ -32,8 +32,8 @@ func TestTradeRoutesJohnson(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
-		johnson := NewJohnsonFromGraph(graph)
-		var dist [][]int = johnson.Johnsons()
+		johnson := NewDijkstraApspFromGraph(graph)
+		var dist [][]int = johnson.DijkstraApsp()
 
 		// This version lf algorithm can provide you with distances only originating from space bases (and not proxy bases)
 		// The rest of starting points were excluded for performance reasons
