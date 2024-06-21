@@ -20,8 +20,8 @@ type TradeRoute struct {
 	FreighterProffitPerTime float64
 }
 
-func (t TradeRoute) GetProffit() int {
-	return t.SellingGood.PriceBaseBuysFor - t.BuyingGood.PriceBaseSellsFor
+func (t TradeRoute) GetProffitPerV() float64 {
+	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
 }
 
 func (e *Exporter) GetTransportRouteDist(t *TradeRoute) int {
@@ -35,11 +35,11 @@ func (e *Exporter) GetFreighterRouteDist(t *TradeRoute) int {
 const TransportSpeed = 350
 
 func (e *Exporter) GetTrProffitPerTime(t *TradeRoute) float64 {
-	return float64(t.GetProffit()) / (float64(e.GetTransportRouteDist(t)) / float64(TransportSpeed))
+	return t.GetProffitPerV() / (float64(e.GetTransportRouteDist(t)) / float64(TransportSpeed))
 }
 
 func (e *Exporter) GetFrProffitPerTime(t *TradeRoute) float64 {
-	return float64(t.GetProffit()) / (float64(e.GetFreighterRouteDist(t)) / float64(TransportSpeed))
+	return t.GetProffitPerV() / (float64(e.GetFreighterRouteDist(t)) / float64(TransportSpeed))
 }
 
 func (e *Exporter) TradePaths(
@@ -83,7 +83,7 @@ func (e *Exporter) TradePaths(
 				}
 				trade_route.SellingGood = selling_good_at_base
 
-				if trade_route.GetProffit() <= 0 {
+				if trade_route.GetProffitPerV() <= 0 {
 					continue
 				}
 
