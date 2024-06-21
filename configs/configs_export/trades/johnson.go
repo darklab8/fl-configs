@@ -19,8 +19,9 @@ func NewNeighbour(destination int, weight int) *Neighbour {
 }
 
 type Johnson struct {
-	vertices      int
-	adjacencyList [][]*Neighbour
+	vertices         int
+	adjacencyList    [][]*Neighbour
+	allowed_base_ids map[int]bool
 }
 
 // On using the below constructor,
@@ -28,7 +29,8 @@ type Johnson struct {
 // to the graph using addEdge()
 func NewJohnson(vertices int) *Johnson {
 	g := &Johnson{
-		vertices: vertices,
+		vertices:         vertices,
+		allowed_base_ids: make(map[int]bool),
 	}
 
 	g.adjacencyList = make([][]*Neighbour, vertices)
@@ -63,6 +65,10 @@ func NewJohnsonFromGraph(graph *GameGraph) *Johnson {
 	for vertex, _ := range graph.matrix {
 		graph.index_by_nickname[vertex] = index
 		index++
+	}
+
+	for base_nick, _ := range graph.vertex_to_calculate_paths_for {
+		g.allowed_base_ids[graph.index_by_nickname[base_nick]] = true
 	}
 
 	for vertex_name, vertex := range graph.matrix {
@@ -218,13 +224,43 @@ func (g *Johnson) Johnsons() [][]int {
 
 	is_sequential := false
 
+	// Performance optimization of the algorithm
+	// By skipping heaviest calculations for all shortest paths
+	// originiating from vertexes not needed.
+	// As those vertex are important only as intermediate travel point.
+	skip_not_allowed_vertex := func(source int) ([]int, bool) {
+		if len(g.allowed_base_ids) > 0 {
+			_, is_base := g.allowed_base_ids[source]
+			if !is_base {
+				dist := make([]int, g.vertices)
+				ArraysFill(dist, math.MaxInt)
+				dist[source] = 0
+				return dist, true
+			}
+		}
+		return nil, false
+	}
+
 	if is_sequential {
 		for s := 0; s < g.vertices; s++ {
+			if dist_result, is_skipped := skip_not_allowed_vertex(s); is_skipped {
+				distances[s] = dist_result
+				continue
+			}
+
 			distances[s] = g.dijkstra(s)
 		}
 	} else {
 		dijkstra_results := make(chan *DijkstraResult)
+		awaited := 0
 		for s := 0; s < g.vertices; s++ {
+
+			if dist_result, is_skipped := skip_not_allowed_vertex(s); is_skipped {
+				distances[s] = dist_result
+				continue
+			}
+
+			awaited += 1
 			go func(s int) {
 				dist_result := g.dijkstra(s)
 				dijkstra_results <- &DijkstraResult{
@@ -233,7 +269,7 @@ func (g *Johnson) Johnsons() [][]int {
 				}
 			}(s)
 		}
-		for s := 0; s < g.vertices; s++ {
+		for s := 0; s < awaited; s++ {
 			result := <-dijkstra_results
 			distances[result.source] = result.dist_result
 		}

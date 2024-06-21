@@ -10,14 +10,16 @@ const INF = math.MaxFloat32
 type VertexName string
 
 type GameGraph struct {
-	matrix            map[VertexName]map[VertexName]float64
-	index_by_nickname map[VertexName]int
+	matrix                        map[VertexName]map[VertexName]float64
+	index_by_nickname             map[VertexName]int
+	vertex_to_calculate_paths_for map[VertexName]bool
 }
 
 func NewGameGraph() *GameGraph {
 	return &GameGraph{
-		matrix:            make(map[VertexName]map[VertexName]float64),
-		index_by_nickname: map[VertexName]int{},
+		matrix:                        make(map[VertexName]map[VertexName]float64),
+		index_by_nickname:             map[VertexName]int{},
+		vertex_to_calculate_paths_for: make(map[VertexName]bool),
 	}
 }
 

@@ -68,6 +68,10 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_p
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 			}
 
+			if !strings.Contains(object.nickname, "proxy_") {
+				graph.vertex_to_calculate_paths_for[VertexName(object.nickname)] = true
+			}
+
 			system_objects = append(system_objects, object)
 		}
 
