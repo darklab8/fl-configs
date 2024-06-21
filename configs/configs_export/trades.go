@@ -1,8 +1,6 @@
 package configs_export
 
 import (
-	"fmt"
-
 	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 )
 
@@ -84,10 +82,6 @@ func (e *Exporter) TradePaths(
 					Commodity:  commodity,
 				}
 				trade_route.SellingGood = selling_good_at_base
-
-				if trade_route == nil || trade_route.BuyingGood == nil || trade_route.SellingGood == nil {
-					fmt.Println()
-				}
 
 				if trade_route.GetProffit() <= 0 {
 					continue
