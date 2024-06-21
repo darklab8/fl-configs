@@ -51,8 +51,8 @@ And on click we show proffits of delivery to some location. With time of deliver
 ====
 Optionally print sum of two best routes that can be started within close range from each other.
 */
-func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_paths WithFreighterPaths) *FreelancerGraph {
-	graph := NewFreelancerGraph()
+func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_paths WithFreighterPaths) *GameGraph {
+	graph := NewGameGraph()
 	for _, system := range configs.Systems.Systems {
 
 		var system_objects []SystemObject = make([]SystemObject, 0, 50)

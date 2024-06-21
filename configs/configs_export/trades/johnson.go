@@ -55,7 +55,7 @@ func NewJohnsonFromMatrix(vertices int, adjacencyMatrix [][]int) *Johnson {
 	return g
 }
 
-func NewJohnsonFromGraph(graph *FreelancerGraph) *Johnson {
+func NewJohnsonFromGraph(graph *GameGraph) *Johnson {
 	vertices := len(graph.matrix)
 	g := NewJohnson(vertices)
 

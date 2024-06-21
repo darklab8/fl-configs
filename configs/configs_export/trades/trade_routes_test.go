@@ -42,9 +42,9 @@ func TestTradeRoutesFloyd(t *testing.T) {
 		fmt.Println(`GetDist(graph, dist, "li01_01_base", "li01_02_base")`, dist1)
 		fmt.Println(`GetDist(graph, dist, "li01_01_base", "br01_01_base")`, dist2)
 		fmt.Println(`GetDist(graph, dist, "li01_01_base", "li12_02_base")`, dist3)
-		assert.Greater(t, dist1, 0.0)
-		assert.Greater(t, dist2, 0.0)
-		assert.Greater(t, dist3, 0.0)
+		assert.Greater(t, dist1, int32(0))
+		assert.Greater(t, dist2, int32(0))
+		assert.Greater(t, dist3, int32(0))
 	}, timeit.WithMsg("trade routes calculated"))
 }
 

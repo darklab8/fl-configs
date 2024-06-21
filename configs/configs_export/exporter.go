@@ -38,9 +38,9 @@ type Exporter struct {
 	Bases                []*Base
 	useful_bases_by_nick map[string]*Base
 
-	transport_graph *trades.FreelancerGraph
+	transport_graph *trades.GameGraph
 	transport_dists [][]int
-	freighter_graph *trades.FreelancerGraph
+	freighter_graph *trades.GameGraph
 	freighter_dists [][]int
 
 	Factions    []Faction

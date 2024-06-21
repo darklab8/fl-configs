@@ -9,19 +9,19 @@ const INF = math.MaxFloat32
 
 type VertexName string
 
-type FreelancerGraph struct {
+type GameGraph struct {
 	matrix            map[VertexName]map[VertexName]float64
 	index_by_nickname map[VertexName]int
 }
 
-func NewFreelancerGraph() *FreelancerGraph {
-	return &FreelancerGraph{
+func NewGameGraph() *GameGraph {
+	return &GameGraph{
 		matrix:            make(map[VertexName]map[VertexName]float64),
 		index_by_nickname: map[VertexName]int{},
 	}
 }
 
-func (f *FreelancerGraph) SetEdge(keya string, keyb string, distance float64) {
+func (f *GameGraph) SetEdge(keya string, keyb string, distance float64) {
 	vertex, vertex_exists := f.matrix[VertexName(keya)]
 	if !vertex_exists {
 		vertex = make(map[VertexName]float64)
@@ -38,17 +38,19 @@ func (f *FreelancerGraph) SetEdge(keya string, keyb string, distance float64) {
 floydWarshall algirthm in a no matter directional graph
 */
 type Floyder struct {
-	*FreelancerGraph
-	dist [][]float64
+	*GameGraph
+	dist [][]int
 }
 
-func (f *Floyder) mapMatrixEdgeToFloyd(keya VertexName, keyb VertexName, distance float64) {
+var FloydMax = int(math.MaxInt / 2)
+
+func (f *Floyder) mapMatrixEdgeToFloyd(keya VertexName, keyb VertexName, distance int) {
 	f.dist[f.index_by_nickname[keya]][f.index_by_nickname[keyb]] = distance
 	f.dist[f.index_by_nickname[keyb]][f.index_by_nickname[keya]] = distance
 }
 
-func NewFloyder(graph *FreelancerGraph) *Floyder {
-	f := &Floyder{FreelancerGraph: graph}
+func NewFloyder(graph *GameGraph) *Floyder {
+	f := &Floyder{GameGraph: graph}
 	return f
 }
 
@@ -56,12 +58,12 @@ func (f *Floyder) Calculate() *Floyder {
 
 	len_vertexes := len(f.matrix)
 
-	f.dist = make([][]float64, len_vertexes)
+	f.dist = make([][]int, len_vertexes)
 
 	for i := 0; i < len_vertexes; i++ {
-		f.dist[i] = make([]float64, len_vertexes)
+		f.dist[i] = make([]int, len_vertexes)
 		for j := 0; j < len_vertexes; j++ {
-			f.dist[i][j] = INF
+			f.dist[i][j] = FloydMax
 		}
 	}
 	for i := 0; i < len_vertexes; i++ {
@@ -76,34 +78,25 @@ func (f *Floyder) Calculate() *Floyder {
 
 	for vertex_source, vertex_targets := range f.matrix {
 		for vertex_target_name, vertex_target_dist := range vertex_targets {
-			f.mapMatrixEdgeToFloyd(vertex_source, vertex_target_name, vertex_target_dist)
+			f.mapMatrixEdgeToFloyd(vertex_source, vertex_target_name, int(vertex_target_dist))
 		}
 	}
 
-	// optionally print for debugging
-	// for i := 0; i < 4; i++ {
-	// 	for j := 0; j < 4; j++ {
-	// 		if floyd.dist[i][j] == INF {
-	// 			fmt.Printf("%7s", "INF")
-	// 		} else {
-	// 			fmt.Printf("%7.0f", floyd.dist[i][j])
-	// 		}
-	// 	}
-	// 	fmt.Println()
-	// }
-	// fmt.Println("-------------")
-
 	for k := 0; k < len_vertexes; k++ {
-		fmt.Println("starting, k=", k)
+		if k%100 == 0 {
+			fmt.Println("starting, k=", k)
+		}
 		for i := 0; i < len_vertexes; i++ {
 			for j := 0; j < len_vertexes; j++ {
-				f.dist[i][j] = float64(math.Min(float64(f.dist[i][j]), float64(f.dist[i][k]+f.dist[k][j])))
+				if f.dist[i][k]+f.dist[k][j] < f.dist[i][j] {
+					f.dist[i][j] = f.dist[i][k] + f.dist[k][j]
+				}
 			}
 		}
 	}
 	return f
 }
 
-func GetDist[T any](f *FreelancerGraph, dist [][]T, keya string, keyb string) T {
+func GetDist[T any](f *GameGraph, dist [][]T, keya string, keyb string) T {
 	return dist[f.index_by_nickname[VertexName(keya)]][f.index_by_nickname[VertexName(keyb)]]
 }

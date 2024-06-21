@@ -54,7 +54,7 @@ func TestJohnson(t *testing.T) {
 
 func TestJsonsoner(t *testing.T) {
 	fmt.Println(math.MaxFloat32)
-	graph := NewFreelancerGraph()
+	graph := NewGameGraph()
 	graph.SetEdge("a", "b", 5)
 	graph.SetEdge("a", "d", 10)
 	graph.SetEdge("b", "c", 3)
