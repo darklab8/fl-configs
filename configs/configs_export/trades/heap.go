@@ -1,5 +1,9 @@
 package trades
 
+/*
+Content of this file is copy pasting somewhere from https://pkg.go.dev/container/heap
+*/
+
 import (
 	"container/heap"
 )

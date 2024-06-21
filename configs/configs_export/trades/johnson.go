@@ -222,8 +222,6 @@ func (g *Johnson) Johnsons() [][]int {
 
 	var distances [][]int = make([][]int, g.vertices)
 
-	is_sequential := false
-
 	// Performance optimization of the algorithm
 	// By skipping heaviest calculations for all shortest paths
 	// originiating from vertexes not needed.
@@ -240,6 +238,9 @@ func (g *Johnson) Johnsons() [][]int {
 		}
 		return nil, false
 	}
+
+	// it is nice to keep sanity by keeping optional switch removing parallelism
+	is_sequential := false
 
 	if is_sequential {
 		for s := 0; s < g.vertices; s++ {
