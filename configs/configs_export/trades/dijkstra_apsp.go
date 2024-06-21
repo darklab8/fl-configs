@@ -6,6 +6,8 @@ import (
 )
 
 // Written based on https://www.geeksforgeeks.org/implementation-of-johnsons-algorithm-for-all-pairs-shortest-paths/
+// And then rewritten in a way that there is nothing left from Johnson almost.
+// It is now DijkstraAPSP https://en.wikipedia.org/wiki/Parallel_all-pairs_shortest_path_algorithm
 
 type Neighbour struct {
 	destination int
