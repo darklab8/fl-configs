@@ -9,7 +9,7 @@ version.txt
 go.work*
 parsed.json
 main
-prof.prof
+*.prof
 __debug_bin*
 !.vscode/
 .venv/
