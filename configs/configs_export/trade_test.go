@@ -17,12 +17,12 @@ func TestGetTrades(t *testing.T) {
 
 	wg.Add(1)
 	go func() {
-		e.transport = NewGraphResults(e.configs, trades.WithFreighterPaths(false))
+		e.transport = NewGraphResults(e, trades.WithFreighterPaths(false))
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.freighter = NewGraphResults(e.configs, trades.WithFreighterPaths(true))
+		e.freighter = NewGraphResults(e, trades.WithFreighterPaths(true))
 		wg.Done()
 	}()
 	e.Bases = e.GetBases()

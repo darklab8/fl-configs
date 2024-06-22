@@ -38,8 +38,8 @@ type Exporter struct {
 	Bases                []*Base
 	useful_bases_by_nick map[string]*Base
 
-	transport GraphResults
-	freighter GraphResults
+	transport *GraphResults
+	freighter *GraphResults
 
 	Factions    []Faction
 	Infocards   Infocards
@@ -72,17 +72,19 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 }
 
 type GraphResults struct {
+	e       *Exporter
 	graph   *trades.GameGraph
 	dists   [][]int
 	parents [][]int
 }
 
-func NewGraphResults(configs *configs_mapped.MappedConfigs, bool trades.WithFreighterPaths) GraphResults {
-	graph := trades.MapConfigsToFGraph(configs, trades.WithFreighterPaths(false))
+func NewGraphResults(e *Exporter, with_writer_paths trades.WithFreighterPaths) *GraphResults {
+	graph := trades.MapConfigsToFGraph(e.configs, with_writer_paths)
 	dijkstra_apsp := trades.NewDijkstraApspFromGraph(graph)
 	dists, parents := dijkstra_apsp.DijkstraApsp()
 
-	return GraphResults{
+	return &GraphResults{
+		e:       e,
 		graph:   graph,
 		dists:   dists,
 		parents: parents,
@@ -94,12 +96,12 @@ func (e *Exporter) Export() *Exporter {
 
 	wg.Add(1)
 	go func() {
-		e.transport = NewGraphResults(e.configs, trades.WithFreighterPaths(false))
+		e.transport = NewGraphResults(e, trades.WithFreighterPaths(false))
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.freighter = NewGraphResults(e.configs, trades.WithFreighterPaths(true))
+		e.freighter = NewGraphResults(e, trades.WithFreighterPaths(true))
 		wg.Done()
 	}()
 	e.Bases = e.GetBases()

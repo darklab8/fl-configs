@@ -3,7 +3,6 @@ package trades
 import (
 	"fmt"
 	"math"
-	"reflect"
 	"testing"
 )
 
@@ -73,32 +72,4 @@ func TestDijkstraAPSPWithGraph(t *testing.T) {
 	fmt.Println("a -> c = ", GetDist(graph, dist, "a", "c"), "path=", GetPath(graph, parents, "a", "c"))
 	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "b"), "path=", GetPath(graph, parents, "a", "b"))
 	fmt.Println("a -> d = ", GetDist(graph, dist, "a", "d"), "path=", GetPath(graph, parents, "a", "d"))
-}
-
-func GetPath(graph *GameGraph, parents [][]int, source_key string, target_key string) []string {
-	S := []string{}
-	u := graph.index_by_nickname[VertexName(target_key)] // target
-	source := graph.index_by_nickname[VertexName(source_key)]
-
-	if parents[source][u] != NO_PARENT || u == source {
-		for {
-			nickname := graph.nickname_by_index[u]
-			S = append(S, string(nickname))
-			u = parents[source][u]
-			if u == NO_PARENT {
-				break
-			}
-		}
-	}
-	ReverseSlice(S)
-	return S
-}
-
-// panic if s is not a slice
-func ReverseSlice(s interface{}) {
-	size := reflect.ValueOf(s).Len()
-	swap := reflect.Swapper(s)
-	for i, j := 0, size-1; i < j; i, j = i+1, j-1 {
-		swap(i, j)
-	}
 }

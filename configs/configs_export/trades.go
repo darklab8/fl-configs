@@ -5,39 +5,50 @@ import (
 )
 
 type Trades struct {
-	TradeRoutes        []*TradeRoute
+	TradeRoutes        []*ComboTradeRoute
 	BestTransportRoute *TradeRoute
 	BestFreighterRoute *TradeRoute
 }
 
 type TradeRoute struct {
-	Commodity               *Commodity
-	BuyingGood              *GoodAtBase
-	SellingGood             *GoodAtBase
-	TransportDistance       int
-	FreighterDistance       int
-	TransportProffitPerTime float64
-	FreighterProffitPerTime float64
+	g           *GraphResults
+	Commodity   *Commodity
+	BuyingGood  *GoodAtBase
+	SellingGood *GoodAtBase
 }
 
-func (t TradeRoute) GetProffitPerV() float64 {
+type ComboTradeRoute struct {
+	Transport *TradeRoute
+	Freighter *TradeRoute
+}
+
+func NewTradeRoute(g *GraphResults, buying_good *GoodAtBase, selling_good *GoodAtBase, commodity *Commodity) *TradeRoute {
+	return &TradeRoute{
+		g:           g,
+		BuyingGood:  buying_good,
+		SellingGood: selling_good,
+		Commodity:   commodity,
+	}
+}
+
+func (t *TradeRoute) GetProffitPerV() float64 {
 	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
 }
 
-func (e *Exporter) GetTransportRouteDist(t *TradeRoute) int {
-	return trades.GetDist(e.transport.graph, e.transport.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+func (t *TradeRoute) GetPaths() []string {
+	return trades.GetPath(t.g.graph, t.g.parents, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
-func (e *Exporter) GetFreighterRouteDist(t *TradeRoute) int {
-	return trades.GetDist(e.freighter.graph, e.freighter.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+func (t *TradeRoute) GetDist() int {
+	return trades.GetDist(t.g.graph, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
-func (e *Exporter) GetTrProffitPerTime(t *TradeRoute) float64 {
-	return t.GetProffitPerV() / (float64(e.GetTransportRouteDist(t)) / float64(trades.AvgCruiseSpeed))
+func (t *TradeRoute) GetProffitPerTime() float64 {
+	return t.GetProffitPerV() / t.GetTime()
 }
 
-func (e *Exporter) GetFrProffitPerTime(t *TradeRoute) float64 {
-	return t.GetProffitPerV() / (float64(e.GetFreighterRouteDist(t)) / float64(trades.AvgCruiseSpeed))
+func (t *TradeRoute) GetTime() float64 {
+	return float64(t.GetDist()) / float64(trades.AvgCruiseSpeed)
 }
 
 func (e *Exporter) TradePaths(
@@ -75,22 +86,19 @@ func (e *Exporter) TradePaths(
 			}
 
 			for _, selling_good_at_base := range commodity.Bases {
-				trade_route := &TradeRoute{
-					BuyingGood: buying_good,
-					Commodity:  commodity,
+				trade_route := &ComboTradeRoute{
+					Transport: NewTradeRoute(e.transport, buying_good, selling_good_at_base, commodity),
+					Freighter: NewTradeRoute(e.freighter, buying_good, selling_good_at_base, commodity),
 				}
-				trade_route.SellingGood = selling_good_at_base
 
-				if trade_route.GetProffitPerV() <= 0 {
+				if trade_route.Transport.GetProffitPerV() <= 0 {
 					continue
 				}
 
+				// path := trade_route.Transport.GetPaths()
+				// _ = path
+				// count tradelanes. count jumpholes. Add jumpholes
 				// trades.GetPath(graph, parents, "li01_01_base", "br01_01_base")
-
-				trade_route.TransportDistance = e.GetTransportRouteDist(trade_route)
-				trade_route.FreighterDistance = e.GetFreighterRouteDist(trade_route)
-				trade_route.TransportProffitPerTime = e.GetTrProffitPerTime(trade_route)
-				trade_route.FreighterProffitPerTime = e.GetFrProffitPerTime(trade_route)
 
 				base.TradeRoutes = append(base.TradeRoutes, trade_route)
 				commodity.TradeRoutes = append(commodity.TradeRoutes, trade_route)
@@ -102,16 +110,15 @@ func (e *Exporter) TradePaths(
 	for _, commodity := range commodities {
 		for _, trade_route := range commodity.TradeRoutes {
 			if commodity.BestTransportRoute == nil {
-				commodity.BestTransportRoute = trade_route
-				commodity.BestTransportRoute = trade_route
-			} else if trade_route.TransportProffitPerTime > commodity.BestTransportRoute.TransportProffitPerTime {
-				commodity.BestTransportRoute = trade_route
+				commodity.BestTransportRoute = trade_route.Transport
+			} else if trade_route.Transport.GetProffitPerTime() > commodity.BestTransportRoute.GetProffitPerTime() {
+				commodity.BestTransportRoute = trade_route.Transport
 			}
 
 			if commodity.BestFreighterRoute == nil {
-				commodity.BestFreighterRoute = trade_route
-			} else if trade_route.FreighterProffitPerTime > commodity.BestFreighterRoute.FreighterProffitPerTime {
-				commodity.BestFreighterRoute = trade_route
+				commodity.BestFreighterRoute = trade_route.Freighter
+			} else if trade_route.Freighter.GetProffitPerTime() > commodity.BestFreighterRoute.GetProffitPerTime() {
+				commodity.BestFreighterRoute = trade_route.Freighter
 			}
 		}
 	}
@@ -119,16 +126,15 @@ func (e *Exporter) TradePaths(
 	for _, base := range bases {
 		for _, trade_route := range base.TradeRoutes {
 			if base.BestTransportRoute == nil {
-				base.BestTransportRoute = trade_route
-				base.BestTransportRoute = trade_route
-			} else if trade_route.TransportProffitPerTime > base.BestTransportRoute.TransportProffitPerTime {
-				base.BestTransportRoute = trade_route
+				base.BestTransportRoute = trade_route.Transport
+			} else if trade_route.Transport.GetProffitPerTime() > base.BestTransportRoute.GetProffitPerTime() {
+				base.BestTransportRoute = trade_route.Transport
 			}
 
 			if base.BestFreighterRoute == nil {
-				base.BestFreighterRoute = trade_route
-			} else if trade_route.FreighterProffitPerTime > base.BestFreighterRoute.FreighterProffitPerTime {
-				base.BestFreighterRoute = trade_route
+				base.BestFreighterRoute = trade_route.Freighter
+			} else if trade_route.Freighter.GetProffitPerTime() > base.BestFreighterRoute.GetProffitPerTime() {
+				base.BestFreighterRoute = trade_route.Freighter
 			}
 		}
 	}
