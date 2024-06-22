@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/conftypes"
 )
 
@@ -51,7 +52,7 @@ And on click we show proffits of delivery to some location. With time of deliver
 ====
 Optionally print sum of two best routes that can be started within close range from each other.
 */
-func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_paths WithFreighterPaths) *GameGraph {
+func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_paths WithFreighterPaths) *GameGraph {
 	graph := NewGameGraph()
 	for _, system := range configs.Systems.Systems {
 
@@ -116,23 +117,49 @@ func MapConfigsToFloyder(configs *configs_mapped.MappedConfigs, with_freighter_p
 			speed := 350
 			tradelane_speed := 2250
 
-			if another_tradelane, ok := system.TradelaneByNick[next_tradelane]; ok {
-				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
-				graph.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
-			}
-			if another_tradelane, ok := system.TradelaneByNick[prev_tradelane]; ok {
-				distance := DistanceForVecs(object.pos, another_tradelane.Pos.Get())
-				graph.SetEdge(object.nickname, another_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+			if next_exists && prev_exists {
+				continue
 			}
 
-			if !(next_exists && prev_exists) {
-				for _, existing_object := range system_objects {
-					distance := DistanceForVecs(object.pos, existing_object.pos)
-					graph.SetEdge(object.nickname, existing_object.nickname, distance)
+			// next or previous tradelane
+			chained_tradelane := ""
+			if next_exists {
+				chained_tradelane = next_tradelane
+			} else {
+				chained_tradelane = prev_tradelane
+			}
+			var last_tradelane *systems_mapped.TradeLaneRing
+			// iterate to last in a chain
+			for {
+				another_tradelane, ok := system.TradelaneByNick[chained_tradelane]
+				if !ok {
+					break
 				}
+				last_tradelane = another_tradelane
 
-				system_objects = append(system_objects, object)
+				if next_exists {
+					chained_tradelane, _ = another_tradelane.NextRing.GetValue()
+				} else {
+					chained_tradelane, _ = another_tradelane.PrevRing.GetValue()
+				}
+				if chained_tradelane == "" {
+					break
+				}
 			}
+
+			if last_tradelane == nil {
+				continue
+			}
+
+			distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
+			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+
+			for _, existing_object := range system_objects {
+				distance := DistanceForVecs(object.pos, existing_object.pos)
+				graph.SetEdge(object.nickname, existing_object.nickname, distance)
+			}
+
+			system_objects = append(system_objects, object)
 		}
 	}
 	return graph

@@ -29,7 +29,7 @@ type DijkstraAPSP struct {
 // On using the below constructor,
 // edges must be added manually
 // to the graph using addEdge()
-func NewJohnson(vertices int) *DijkstraAPSP {
+func NewDijkstraApsp(vertices int) *DijkstraAPSP {
 	g := &DijkstraAPSP{
 		vertices:         vertices,
 		allowed_base_ids: make(map[int]bool),
@@ -47,7 +47,7 @@ func NewJohnson(vertices int) *DijkstraAPSP {
 // // edges will be added automatically
 // // to the graph using the adjacency matrix
 func NewDijkstraApspFromMatrix(vertices int, adjacencyMatrix [][]int) *DijkstraAPSP {
-	g := NewJohnson(vertices)
+	g := NewDijkstraApsp(vertices)
 
 	for i := 0; i < vertices; i++ {
 		for j := 0; j < vertices; j++ {
@@ -61,7 +61,7 @@ func NewDijkstraApspFromMatrix(vertices int, adjacencyMatrix [][]int) *DijkstraA
 
 func NewDijkstraApspFromGraph(graph *GameGraph) *DijkstraAPSP {
 	vertices := len(graph.matrix)
-	g := NewJohnson(vertices)
+	g := NewDijkstraApsp(vertices)
 
 	index := 0
 	for vertex, _ := range graph.matrix {

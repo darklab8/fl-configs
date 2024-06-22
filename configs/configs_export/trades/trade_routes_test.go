@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTradeRoutesJohnson(t *testing.T) {
+func TestTradeRoutes(t *testing.T) {
 
 	configs := configs_mapped.TestFixtureConfigs()
-	graph := MapConfigsToFloyder(configs, WithFreighterPaths(false))
+	graph := MapConfigsToFGraph(configs, WithFreighterPaths(false))
 
 	edges_count := 0
 	for _, edges := range graph.matrix {
@@ -24,7 +24,7 @@ func TestTradeRoutesJohnson(t *testing.T) {
 	fmt.Println("graph.vertixes=", len(graph.matrix), "edges_count=", edges_count)
 
 	// for profiling only stuff.
-	f, err := os.Create("johnson.prof")
+	f, err := os.Create("dijkstra_apsp.prof")
 	if err != nil {
 		log.Fatal(err)
 	}

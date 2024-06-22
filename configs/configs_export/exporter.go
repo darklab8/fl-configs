@@ -78,14 +78,14 @@ func (e *Exporter) Export() *Exporter {
 
 	wg.Add(1)
 	go func() {
-		e.transport_graph = trades.MapConfigsToFloyder(e.configs, trades.WithFreighterPaths(false))
+		e.transport_graph = trades.MapConfigsToFGraph(e.configs, trades.WithFreighterPaths(false))
 		johnson := trades.NewDijkstraApspFromGraph(e.transport_graph)
 		e.transport_dists = johnson.DijkstraApsp()
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.freighter_graph = trades.MapConfigsToFloyder(e.configs, trades.WithFreighterPaths(true))
+		e.freighter_graph = trades.MapConfigsToFGraph(e.configs, trades.WithFreighterPaths(true))
 		johnson := trades.NewDijkstraApspFromGraph(e.freighter_graph)
 		e.freighter_dists = johnson.DijkstraApsp()
 		wg.Done()
