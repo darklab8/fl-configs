@@ -98,8 +98,17 @@ func ArraysFill[T any](array []T, value T) {
 // // Time complexity of this
 // // implementation of dijkstra is O(V^2).
 func (g *DijkstraAPSP) dijkstra(source int) []int {
-	var isVisited []bool = make([]bool, g.vertices)
+	// var isVisited []bool = make([]bool, g.vertices)
 	var distance []int = make([]int, g.vertices)
+
+	// // Parent array to store shortest
+	// // path tree
+	// var parents []int = make([]int, g.vertices)
+	// // The starting vertex does not
+	// // have a parent
+	// for s := 0; s < g.vertices; s++ {
+	// 	parents[source] = NO_PARENT
+	// }
 
 	pq := make(PriorityQueue, 0)
 	item := &Item{
@@ -115,12 +124,22 @@ func (g *DijkstraAPSP) dijkstra(source int) []int {
 		item := heap.Pop(&pq).(*Item)
 		node := item.priority
 		dist := item.value
-		if isVisited[node] {
-			continue
-		}
+
+		// // Pick the minimum distance vertex
+		// // from the set of vertices not yet
+		// // processed. nearestVertex is
+		// // always equal to startNode in
+		// // first iteration.
+		// var nearestVertex = -1
+
+		// if isVisited[node] {
+		// 	continue
+		// }
 
 		for _, neighbour := range g.adjacencyList[node] {
-			if !isVisited[neighbour.destination] && dist+neighbour.weight < distance[neighbour.destination] {
+			// !isVisited[neighbour.destination] &&
+			if dist+neighbour.weight < distance[neighbour.destination] {
+				// parents[neighbour.destination] = nearestVertex
 				distance[neighbour.destination] = dist + neighbour.weight
 				pq.Push(&Item{
 					value:    distance[neighbour.destination],
@@ -132,6 +151,8 @@ func (g *DijkstraAPSP) dijkstra(source int) []int {
 
 	}
 
+	// fmt.Println(source, distance, parents)
+
 	return distance
 }
 
@@ -139,6 +160,8 @@ type DijkstraResult struct {
 	source      int
 	dist_result []int
 }
+
+const NO_PARENT = -1
 
 func (g *DijkstraAPSP) DijkstraApsp() [][]int {
 	var distances [][]int = make([][]int, g.vertices)
