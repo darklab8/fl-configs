@@ -50,6 +50,10 @@ func TestTradeRoutes(t *testing.T) {
 		assert.Greater(t, dist2, 0)
 		assert.Greater(t, dist3, 0)
 
+		fmt.Println("li01_01_base->br01_01_base")
+		dist_ := GetDist(graph, dist, "li01_01_base", "br01_01_base")
+		fmt.Println("dist=", dist_)
+		fmt.Println("rough time=", float64(dist_)/float64(AvgCruiseSpeed))
 		fmt.Println("li01_01_base->br01_01_base path:", GetPath(graph, parents, "li01_01_base", "br01_01_base"))
 	}, timeit.WithMsg("trade routes calculated"))
 }

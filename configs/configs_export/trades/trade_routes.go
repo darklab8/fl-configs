@@ -31,6 +31,20 @@ func DistanceForVecs(Pos1 conftypes.Vector, Pos2 conftypes.Vector) float64 {
 
 type WithFreighterPaths bool
 
+const (
+	// already accounted for
+	AvgCruiseSpeed = 280
+	// already accounted for
+	AvgTradeLaneSpeed = 1900
+
+	// Add for every pair of jumphole in path
+	JumpHoleDelaySec = 15 // and jump gate
+	// add for every tradelane vertex pair in path
+	TradeLaneDockingDelaySec = 10
+	// add just once
+	BaseDockingDelay = 20
+)
+
 /*
 Algorithm should be like this:
 We iterate through list of Systems:
@@ -114,9 +128,6 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 			next_tradelane, next_exists := tradelane.NextRing.GetValue()
 			prev_tradelane, prev_exists := tradelane.PrevRing.GetValue()
 
-			speed := 350
-			tradelane_speed := 2250
-
 			if next_exists && prev_exists {
 				continue
 			}
@@ -152,7 +163,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 			}
 
 			distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(speed)/float64(tradelane_speed))
+			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(AvgCruiseSpeed)/float64(AvgTradeLaneSpeed))
 
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos)

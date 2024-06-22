@@ -25,21 +25,19 @@ func (t TradeRoute) GetProffitPerV() float64 {
 }
 
 func (e *Exporter) GetTransportRouteDist(t *TradeRoute) int {
-	return trades.GetDist(e.transport_graph, e.transport_dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+	return trades.GetDist(e.transport.graph, e.transport.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
 func (e *Exporter) GetFreighterRouteDist(t *TradeRoute) int {
-	return trades.GetDist(e.freighter_graph, e.freighter_dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+	return trades.GetDist(e.freighter.graph, e.freighter.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
-const TransportSpeed = 350
-
 func (e *Exporter) GetTrProffitPerTime(t *TradeRoute) float64 {
-	return t.GetProffitPerV() / (float64(e.GetTransportRouteDist(t)) / float64(TransportSpeed))
+	return t.GetProffitPerV() / (float64(e.GetTransportRouteDist(t)) / float64(trades.AvgCruiseSpeed))
 }
 
 func (e *Exporter) GetFrProffitPerTime(t *TradeRoute) float64 {
-	return t.GetProffitPerV() / (float64(e.GetFreighterRouteDist(t)) / float64(TransportSpeed))
+	return t.GetProffitPerV() / (float64(e.GetFreighterRouteDist(t)) / float64(trades.AvgCruiseSpeed))
 }
 
 func (e *Exporter) TradePaths(
@@ -86,6 +84,8 @@ func (e *Exporter) TradePaths(
 				if trade_route.GetProffitPerV() <= 0 {
 					continue
 				}
+
+				// trades.GetPath(graph, parents, "li01_01_base", "br01_01_base")
 
 				trade_route.TransportDistance = e.GetTransportRouteDist(trade_route)
 				trade_route.FreighterDistance = e.GetFreighterRouteDist(trade_route)
