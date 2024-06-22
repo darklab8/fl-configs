@@ -66,6 +66,7 @@ func NewDijkstraApspFromGraph(graph *GameGraph) *DijkstraAPSP {
 	index := 0
 	for vertex, _ := range graph.matrix {
 		graph.index_by_nickname[vertex] = index
+		graph.nickname_by_index[index] = vertex
 		index++
 	}
 
@@ -97,23 +98,24 @@ func ArraysFill[T any](array []T, value T) {
 
 // // Time complexity of this
 // // implementation of dijkstra is O(V^2).
-func (g *DijkstraAPSP) dijkstra(source int) []int {
-	// var isVisited []bool = make([]bool, g.vertices)
+func (g *DijkstraAPSP) dijkstra(source int) ([]int, []int) {
 	var distance []int = make([]int, g.vertices)
 
-	// // Parent array to store shortest
-	// // path tree
-	// var parents []int = make([]int, g.vertices)
-	// // The starting vertex does not
-	// // have a parent
-	// for s := 0; s < g.vertices; s++ {
-	// 	parents[source] = NO_PARENT
-	// }
+	// this page https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+	// helped to modify algorithm so it would return reconstructed paths.
+	// Parent array to store shortest
+	// path tree
+	var parents []int = make([]int, g.vertices)
+	// The starting vertex does not
+	// have a parent
+	for s := 0; s < g.vertices; s++ {
+		parents[source] = NO_PARENT
+	}
 
 	pq := make(PriorityQueue, 0)
 	item := &Item{
-		value:    0,
-		priority: source,
+		value_weight: 0,
+		priority:     source,
 	}
 	pq.Push(item)
 
@@ -123,27 +125,15 @@ func (g *DijkstraAPSP) dijkstra(source int) []int {
 	for pq.Len() > 0 {
 		item := heap.Pop(&pq).(*Item)
 		node := item.priority
-		dist := item.value
-
-		// // Pick the minimum distance vertex
-		// // from the set of vertices not yet
-		// // processed. nearestVertex is
-		// // always equal to startNode in
-		// // first iteration.
-		// var nearestVertex = -1
-
-		// if isVisited[node] {
-		// 	continue
-		// }
+		dist := item.value_weight
 
 		for _, neighbour := range g.adjacencyList[node] {
-			// !isVisited[neighbour.destination] &&
 			if dist+neighbour.weight < distance[neighbour.destination] {
-				// parents[neighbour.destination] = nearestVertex
+				parents[neighbour.destination] = node
 				distance[neighbour.destination] = dist + neighbour.weight
 				pq.Push(&Item{
-					value:    distance[neighbour.destination],
-					priority: neighbour.destination,
+					value_weight: distance[neighbour.destination],
+					priority:     neighbour.destination,
 				})
 			}
 
@@ -151,20 +141,20 @@ func (g *DijkstraAPSP) dijkstra(source int) []int {
 
 	}
 
-	// fmt.Println(source, distance, parents)
-
-	return distance
+	return distance, parents
 }
 
 type DijkstraResult struct {
-	source      int
-	dist_result []int
+	source         int
+	dist_result    []int
+	parents_result []int
 }
 
 const NO_PARENT = -1
 
-func (g *DijkstraAPSP) DijkstraApsp() [][]int {
+func (g *DijkstraAPSP) DijkstraApsp() ([][]int, [][]int) {
 	var distances [][]int = make([][]int, g.vertices)
+	var parents [][]int = make([][]int, g.vertices)
 
 	// Performance optimization of the algorithm
 	// By skipping heaviest calculations for all shortest paths
@@ -192,8 +182,10 @@ func (g *DijkstraAPSP) DijkstraApsp() [][]int {
 				distances[s] = dist_result
 				continue
 			}
+			dist_result, parents_result := g.dijkstra(s)
 
-			distances[s] = g.dijkstra(s)
+			distances[s] = dist_result
+			parents[s] = parents_result
 		}
 	} else {
 		dijkstra_results := make(chan *DijkstraResult)
@@ -207,17 +199,19 @@ func (g *DijkstraAPSP) DijkstraApsp() [][]int {
 
 			awaited += 1
 			go func(s int) {
-				dist_result := g.dijkstra(s)
+				dist_result, parents_result := g.dijkstra(s)
 				dijkstra_results <- &DijkstraResult{
-					source:      s,
-					dist_result: dist_result,
+					source:         s,
+					dist_result:    dist_result,
+					parents_result: parents_result,
 				}
 			}(s)
 		}
 		for s := 0; s < awaited; s++ {
 			result := <-dijkstra_results
 			distances[result.source] = result.dist_result
+			parents[result.source] = result.parents_result
 		}
 	}
-	return distances
+	return distances, parents
 }

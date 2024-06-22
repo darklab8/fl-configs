@@ -3,6 +3,7 @@ package trades
 import (
 	"fmt"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -20,7 +21,8 @@ func TestDijkstraAPSP(t *testing.T) {
 	var graph *DijkstraAPSP = NewDijkstraApspFromMatrix(vertices, matrix)
 
 	// Function Call
-	var distances [][]int = graph.DijkstraApsp()
+	distances, parents := graph.DijkstraApsp()
+	_ = parents
 
 	// The code fragment below outputs
 	// an formatted distance matrix.
@@ -55,7 +57,7 @@ func TestDijkstraAPSPWithGraph(t *testing.T) {
 	graph.SetEdge("b", "c", 3)
 	graph.SetEdge("c", "d", 1)
 	johnson := NewDijkstraApspFromGraph(graph)
-	var dist [][]int = johnson.DijkstraApsp()
+	dist, parents := johnson.DijkstraApsp()
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
@@ -68,7 +70,35 @@ func TestDijkstraAPSPWithGraph(t *testing.T) {
 		fmt.Println()
 	}
 
-	fmt.Println("a -> c = ", GetDist(graph, dist, "a", "c"))
-	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "b"))
-	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "d"))
+	fmt.Println("a -> c = ", GetDist(graph, dist, "a", "c"), "path=", GetPath(graph, parents, "a", "c"))
+	fmt.Println("a -> b = ", GetDist(graph, dist, "a", "b"), "path=", GetPath(graph, parents, "a", "b"))
+	fmt.Println("a -> d = ", GetDist(graph, dist, "a", "d"), "path=", GetPath(graph, parents, "a", "d"))
+}
+
+func GetPath(graph *GameGraph, parents [][]int, source_key string, target_key string) []string {
+	S := []string{}
+	u := graph.index_by_nickname[VertexName(target_key)] // target
+	source := graph.index_by_nickname[VertexName(source_key)]
+
+	if parents[source][u] != NO_PARENT || u == source {
+		for {
+			nickname := graph.nickname_by_index[u]
+			S = append(S, string(nickname))
+			u = parents[source][u]
+			if u == NO_PARENT {
+				break
+			}
+		}
+	}
+	ReverseSlice(S)
+	return S
+}
+
+// panic if s is not a slice
+func ReverseSlice(s interface{}) {
+	size := reflect.ValueOf(s).Len()
+	swap := reflect.Swapper(s)
+	for i, j := 0, size-1; i < j; i, j = i+1, j-1 {
+		swap(i, j)
+	}
 }

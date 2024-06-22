@@ -24,9 +24,9 @@ func TestHeap(t *testing.T) {
 	i := 0
 	for value, priority := range items {
 		pq[i] = &Item{
-			value:    value,
-			priority: priority,
-			index:    i,
+			value_weight: value,
+			priority:     priority,
+			index:        i,
 		}
 		i++
 	}
@@ -34,15 +34,15 @@ func TestHeap(t *testing.T) {
 
 	// Insert a new item and then modify its priority.
 	item := &Item{
-		value:    5,
-		priority: 1,
+		value_weight: 5,
+		priority:     1,
 	}
 	heap.Push(&pq, item)
-	pq.update(item, item.value, 5)
+	pq.update(item, item.value_weight, 5)
 
 	// Take the items out; they arrive in decreasing priority order.
 	for pq.Len() > 0 {
 		item := heap.Pop(&pq).(*Item)
-		fmt.Printf("%.2d:%d ", item.priority, item.value)
+		fmt.Printf("%.2d:%d ", item.priority, item.value_weight)
 	}
 }

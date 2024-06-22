@@ -33,7 +33,7 @@ func TestTradeRoutes(t *testing.T) {
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
 		johnson := NewDijkstraApspFromGraph(graph)
-		var dist [][]int = johnson.DijkstraApsp()
+		dist, parents := johnson.DijkstraApsp()
 
 		// This version lf algorithm can provide you with distances only originating from space bases (and not proxy bases)
 		// The rest of starting points were excluded for performance reasons
@@ -49,5 +49,7 @@ func TestTradeRoutes(t *testing.T) {
 		assert.Greater(t, dist1, 0)
 		assert.Greater(t, dist2, 0)
 		assert.Greater(t, dist3, 0)
+
+		fmt.Println("li01_01_base->br01_01_base path:", GetPath(graph, parents, "li01_01_base", "br01_01_base"))
 	}, timeit.WithMsg("trade routes calculated"))
 }

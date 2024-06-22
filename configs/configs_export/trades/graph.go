@@ -13,6 +13,7 @@ type VertexName string
 type GameGraph struct {
 	matrix                        map[VertexName]map[VertexName]float64
 	index_by_nickname             map[VertexName]int
+	nickname_by_index             map[int]VertexName
 	vertex_to_calculate_paths_for map[VertexName]bool
 }
 
@@ -20,6 +21,7 @@ func NewGameGraph() *GameGraph {
 	return &GameGraph{
 		matrix:                        make(map[VertexName]map[VertexName]float64),
 		index_by_nickname:             map[VertexName]int{},
+		nickname_by_index:             make(map[int]VertexName),
 		vertex_to_calculate_paths_for: make(map[VertexName]bool),
 	}
 }
