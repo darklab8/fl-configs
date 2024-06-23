@@ -56,15 +56,14 @@ func TestTradeRoutes(t *testing.T) {
 		// paths := graph.GetPaths(parents, dist, "hi02_01_base", "ga01_02_base")
 		// paths := graph.GetPaths(parents, dist, "bw11_02_base", "ew12_02_base")
 
-		source := "hi02_01_base"
-		target := "li01_01_base"
+		// source := "hi02_01_base"
+		// target := "li01_01_base"
 
 		// source := "hi02_01_base"
 		// target := "br01_01_base"
 
-		// TODO FIX BUG_ID: ghost_broken_path_out_of_bounds
-		// source := "hi02_01_base"
-		// target := "ga01_02_base" // New London Atmosphere/Landing Site
+		source := "hi02_01_base"
+		target := "ga01_02_base" // New London Atmosphere/Landing Site
 
 		dist_ := GetDist(graph, dist, source, target)
 		fmt.Println("dist=", dist_)

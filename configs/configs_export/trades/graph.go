@@ -60,8 +60,14 @@ func (f *GameGraph) SetIstRadelane(keya string) {
 	f.IsTradelane[VertexName(keya)] = true
 }
 
-func GetDist[T any](f *GameGraph, dist [][]T, keya string, keyb string) T {
-	return dist[f.IndexByNick[VertexName(keya)]][f.IndexByNick[VertexName(keyb)]]
+func GetDist(f *GameGraph, dist [][]int, keya string, keyb string) int {
+	sourse_index, source_found := f.IndexByNick[VertexName(keya)]
+	target_index, target_found := f.IndexByNick[VertexName(keyb)]
+	_ = source_found
+	if !source_found || !target_found {
+		return INF
+	}
+	return dist[sourse_index][target_index]
 }
 
 type Path struct {
@@ -73,7 +79,11 @@ type Path struct {
 func GetPath(graph *GameGraph, parents [][]int, dist [][]int, source_key string, target_key string) []Path {
 	// fmt.Println("get_path", source_key, target_key)
 	S := []Path{}
-	u := graph.IndexByNick[VertexName(target_key)] // target
+	u, found_u := graph.IndexByNick[VertexName(target_key)] // target
+	if !found_u {
+		return []Path{}
+	}
+	_ = found_u
 	source := graph.IndexByNick[VertexName(source_key)]
 
 	add_node := func(u int) {
