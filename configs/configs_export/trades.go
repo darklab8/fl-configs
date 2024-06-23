@@ -35,8 +35,8 @@ func (t *TradeRoute) GetProffitPerV() float64 {
 	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
 }
 
-func (t *TradeRoute) GetPaths() []string {
-	return trades.GetPath(t.g.graph, t.g.parents, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+func (t *TradeRoute) GetPaths() []trades.Path {
+	return trades.GetPath(t.g.graph, t.g.parents, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
 func (t *TradeRoute) GetDist() int {
@@ -48,7 +48,7 @@ func (t *TradeRoute) GetProffitPerTime() float64 {
 }
 
 func (t *TradeRoute) GetTime() float64 {
-	return float64(t.GetDist()) / float64(trades.AvgCruiseSpeed)
+	return float64(t.GetDist())/float64(trades.AvgCruiseSpeed) + float64(trades.BaseDockingDelay)
 }
 
 func (e *Exporter) TradePaths(
@@ -95,16 +95,15 @@ func (e *Exporter) TradePaths(
 					continue
 				}
 
-				// path := trade_route.Transport.GetPaths()
-				// _ = path
-				// count tradelanes. count jumpholes. Add jumpholes
-				// trades.GetPath(graph, parents, "li01_01_base", "br01_01_base")
+				// RAM explosion if activating :/
+				// trade_route.Transport.GetPaths()
+				// trade_route.Transport.GetDescribedPaths()
+				// trade_route.Freighter.GetPaths()
 
 				base.TradeRoutes = append(base.TradeRoutes, trade_route)
 				commodity.TradeRoutes = append(commodity.TradeRoutes, trade_route)
 			}
 		}
-		// bases[base_i]
 	}
 
 	for _, commodity := range commodities {

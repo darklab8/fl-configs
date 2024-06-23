@@ -5,17 +5,15 @@ Game graph simplifies for us conversion of data from Freelancer space simulator 
 */
 
 import (
-	"math"
 	"reflect"
+	"strings"
 )
-
-const INF = math.MaxFloat32
 
 type VertexName string
 
 type GameGraph struct {
 	matrix                        map[VertexName]map[VertexName]float64
-	index_by_nickname             map[VertexName]int
+	Index_by_nickname             map[VertexName]int
 	nickname_by_index             map[int]VertexName
 	vertex_to_calculate_paths_for map[VertexName]bool
 }
@@ -23,7 +21,7 @@ type GameGraph struct {
 func NewGameGraph() *GameGraph {
 	return &GameGraph{
 		matrix:                        make(map[VertexName]map[VertexName]float64),
-		index_by_nickname:             map[VertexName]int{},
+		Index_by_nickname:             map[VertexName]int{},
 		nickname_by_index:             make(map[int]VertexName),
 		vertex_to_calculate_paths_for: make(map[VertexName]bool),
 	}
@@ -43,20 +41,48 @@ func (f *GameGraph) SetEdge(keya string, keyb string, distance float64) {
 }
 
 func GetDist[T any](f *GameGraph, dist [][]T, keya string, keyb string) T {
-	return dist[f.index_by_nickname[VertexName(keya)]][f.index_by_nickname[VertexName(keyb)]]
+	return dist[f.Index_by_nickname[VertexName(keya)]][f.Index_by_nickname[VertexName(keyb)]]
 }
 
-func GetPath(graph *GameGraph, parents [][]int, source_key string, target_key string) []string {
+type Path struct {
+	Node     int
+	NextNode int
+	Dist     int
+}
+
+func GetPath(graph *GameGraph, parents [][]int, dist [][]int, source_key string, target_key string) []Path {
 	// fmt.Println("get_path", source_key, target_key)
-	S := []string{}
-	u := graph.index_by_nickname[VertexName(target_key)] // target
-	source := graph.index_by_nickname[VertexName(source_key)]
+	S := []Path{}
+	u := graph.Index_by_nickname[VertexName(target_key)] // target
+	source := graph.Index_by_nickname[VertexName(source_key)]
+
+	add_node := func(u int) {
+		path_to_add := Path{
+			Node: u,
+		}
+		if len(S) > 0 {
+			path_to_add.NextNode = S[len(S)-1].Node
+		} else {
+			path_to_add.NextNode = NO_PARENT
+		}
+		if path_to_add.Node != NO_PARENT && path_to_add.NextNode != NO_PARENT {
+			path_to_add.Dist = dist[path_to_add.Node][path_to_add.NextNode]
+		}
+		S = append(S, path_to_add)
+	}
+	add_node(u)
 
 	if parents[source][u] != NO_PARENT || u == source {
 		for {
-			nickname := graph.nickname_by_index[u]
-			S = append(S, string(nickname))
 			u = parents[source][u]
+
+			nickname := graph.nickname_by_index[u]
+			if strings.Contains(string(nickname), "trade_lane") {
+				continue
+			}
+
+			add_node(u)
+
 			if u == NO_PARENT {
 				break
 			}

@@ -3,6 +3,7 @@ package trades
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"runtime/pprof"
 	"testing"
@@ -32,8 +33,8 @@ func TestTradeRoutes(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
-		johnson := NewDijkstraApspFromGraph(graph)
-		dist, parents := johnson.DijkstraApsp()
+		dijkstra := NewDijkstraApspFromGraph(graph, WithPathDistsForAllNodes())
+		dist, parents := dijkstra.DijkstraApsp()
 
 		// This version lf algorithm can provide you with distances only originating from space bases (and not proxy bases)
 		// The rest of starting points were excluded for performance reasons
@@ -53,7 +54,24 @@ func TestTradeRoutes(t *testing.T) {
 		fmt.Println("li01_01_base->br01_01_base")
 		dist_ := GetDist(graph, dist, "li01_01_base", "br01_01_base")
 		fmt.Println("dist=", dist_)
-		fmt.Println("rough time=", float64(dist_)/float64(AvgCruiseSpeed))
-		fmt.Println("li01_01_base->br01_01_base path:", GetPath(graph, parents, "li01_01_base", "br01_01_base"))
+		fmt.Println("time_total=", GetTimeForDist(float64(dist_)))
+		min := math.Floor(float64(GetTimeForDist(float64(dist_))) / 60)
+		fmt.Println("time_min=", min)
+		fmt.Println("time_sec=", float64(GetTimeForDist(float64(dist_)))-min*60)
+		fmt.Println("li01_01_base->br01_01_base path:")
+		paths := GetPath(graph, parents, dist, "li01_01_base", "br01_01_base")
+		// paths := GetPath(graph, parents, dist, "hi02_01_base", "li01_01_base")
+		for _, path := range paths {
+			minutes := math.Floor(float64(GetTimeForDist(float64(path.Dist))) / 60)
+			fmt.Println(
+				"prev=", graph.nickname_by_index[path.Node],
+				"next=", graph.nickname_by_index[path.NextNode],
+				"node=", path.Node,
+				"next_node=", path.NextNode,
+				"dist=", path.Dist,
+				"min=", fmt.Sprintf("%.0f", minutes),
+				"sec=", fmt.Sprintf("%.0f", float64(GetTimeForDist(float64(path.Dist)))-minutes*60),
+			)
+		}
 	}, timeit.WithMsg("trade routes calculated"))
 }

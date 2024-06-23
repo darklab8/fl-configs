@@ -26,6 +26,8 @@ type DijkstraAPSP struct {
 	allowed_base_ids map[int]bool
 }
 
+const INF = math.MaxInt
+
 // On using the below constructor,
 // edges must be added manually
 // to the graph using addEdge()
@@ -59,29 +61,43 @@ func NewDijkstraApspFromMatrix(vertices int, adjacencyMatrix [][]int) *DijkstraA
 	return g
 }
 
-func NewDijkstraApspFromGraph(graph *GameGraph) *DijkstraAPSP {
+type DijkstraOption func(graph *DijkstraAPSP)
+
+func WithPathDistsForAllNodes() DijkstraOption {
+	return func(graph *DijkstraAPSP) {
+		graph.allowed_base_ids = make(map[int]bool)
+	}
+}
+
+func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *DijkstraAPSP {
 	vertices := len(graph.matrix)
 	g := NewDijkstraApsp(vertices)
 
 	index := 0
 	for vertex, _ := range graph.matrix {
-		graph.index_by_nickname[vertex] = index
+		graph.Index_by_nickname[vertex] = index
 		graph.nickname_by_index[index] = vertex
 		index++
 	}
 
+	// We need calculating for everything if we wish detailed path
 	for base_nick, _ := range graph.vertex_to_calculate_paths_for {
-		g.allowed_base_ids[graph.index_by_nickname[base_nick]] = true
+		g.allowed_base_ids[graph.Index_by_nickname[base_nick]] = true
 	}
 
 	for vertex_name, vertex := range graph.matrix {
 		for vertex_target, weight := range vertex {
-			i := graph.index_by_nickname[vertex_name]
-			j := graph.index_by_nickname[vertex_target]
+			i := graph.Index_by_nickname[vertex_name]
+			j := graph.Index_by_nickname[vertex_target]
 
 			g.addEdge(i, j, int(weight))
 		}
 	}
+
+	for _, opt := range opts {
+		opt(g)
+	}
+
 	return g
 }
 
@@ -119,7 +135,7 @@ func (g *DijkstraAPSP) dijkstra(source int) ([]int, []int) {
 	}
 	pq.Push(item)
 
-	ArraysFill(distance, math.MaxInt)
+	ArraysFill(distance, INF)
 	distance[source] = 0
 
 	for pq.Len() > 0 {
@@ -165,7 +181,7 @@ func (g *DijkstraAPSP) DijkstraApsp() ([][]int, [][]int) {
 			_, is_base := g.allowed_base_ids[source]
 			if !is_base {
 				dist := make([]int, g.vertices)
-				ArraysFill(dist, math.MaxInt)
+				ArraysFill(dist, INF)
 				dist[source] = 0
 				return dist, true
 			}

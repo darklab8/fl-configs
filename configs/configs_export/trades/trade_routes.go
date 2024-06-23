@@ -33,7 +33,7 @@ type WithFreighterPaths bool
 
 const (
 	// already accounted for
-	AvgCruiseSpeed = 280
+	AvgCruiseSpeed = 350
 	// already accounted for
 	AvgTradeLaneSpeed = 1900
 
@@ -80,7 +80,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos)
-				graph.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(object.nickname, existing_object.nickname, distance+GetDistForTime(BaseDockingDelay))
 			}
 
 			if strings.Contains(object.nickname, "proxy_") {
@@ -115,7 +115,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 			}
 
 			jumphole_target_hole := jumphole.GotoHole.Get()
-			graph.SetEdge(object.nickname, jumphole_target_hole, 0)
+			graph.SetEdge(object.nickname, jumphole_target_hole, GetDistForTime(JumpHoleDelaySec))
 			system_objects = append(system_objects, object)
 		}
 
@@ -163,7 +163,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 			}
 
 			distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(AvgCruiseSpeed)/float64(AvgTradeLaneSpeed))
+			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(AvgCruiseSpeed)/float64(AvgTradeLaneSpeed)+GetDistForTime(TradeLaneDockingDelaySec))
 
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos)
@@ -174,4 +174,12 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, with_freighter_pa
 		}
 	}
 	return graph
+}
+
+func GetDistForTime(time int) float64 {
+	return float64(time * AvgCruiseSpeed)
+}
+
+func GetTimeForDist(dist float64) int {
+	return int(dist / float64(AvgCruiseSpeed))
 }
