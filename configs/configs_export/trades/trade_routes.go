@@ -102,16 +102,17 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 			}
 			graph.SetIdsName(object.nickname, jumphole.IdsName.Get())
 
-			// if strings.Contains(object.nickname, strings.ToLower("Rh02_to_Iw02_hole")) {
-			// 	fmt.Println()
-			// }
-
 			jh_archetype := jumphole.Archetype.Get()
 
-			// TODO Check Solar if this is Dockable
-			if jh_archetype == "jumphole_noentry" { // hardcoded for now
-				continue
+			// Check Solar if this is Dockable
+			if solar, ok := configs.Solararch.SolarsByNick[jh_archetype]; ok {
+				_, dockable := solar.DockingSphere.GetValue()
+
+				if !dockable {
+					continue
+				}
 			}
+
 			// TODO Check locked_gate if it is enterable.
 
 			// Condition is taken from FLCompanion
