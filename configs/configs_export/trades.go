@@ -48,7 +48,7 @@ func (t *TradeRoute) GetProffitPerTime() float64 {
 }
 
 func (t *TradeRoute) GetTime() float64 {
-	return float64(t.GetDist())/float64(trades.AvgCruiseSpeed) + float64(trades.BaseDockingDelay)
+	return float64(t.GetDist())/float64(t.g.graph.AvgCruiseSpeed) + float64(trades.BaseDockingDelay)
 }
 
 func (e *Exporter) TradePaths(
@@ -95,10 +95,10 @@ func (e *Exporter) TradePaths(
 					continue
 				}
 
-				// RAM explosion if activating :/
-				// trade_route.Transport.GetPaths()
-				// trade_route.Transport.GetDescribedPaths()
-				// trade_route.Freighter.GetPaths()
+				// output
+				trade_route.Transport.GetPaths()
+				// fmt.Println("path for", trade_route.Transport.BuyingGood.BaseNickname, trade_route.Transport.SellingGood.BaseNickname)
+				// fmt.Println("trade_route.Transport.GetPaths().length", len(trade_route.Transport.GetPaths()))
 
 				base.TradeRoutes = append(base.TradeRoutes, trade_route)
 				commodity.TradeRoutes = append(commodity.TradeRoutes, trade_route)

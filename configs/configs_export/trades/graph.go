@@ -16,14 +16,16 @@ type GameGraph struct {
 	Index_by_nickname             map[VertexName]int
 	nickname_by_index             map[int]VertexName
 	vertex_to_calculate_paths_for map[VertexName]bool
+	AvgCruiseSpeed                int
 }
 
-func NewGameGraph() *GameGraph {
+func NewGameGraph(avgCruiseSpeed int) *GameGraph {
 	return &GameGraph{
 		matrix:                        make(map[VertexName]map[VertexName]float64),
 		Index_by_nickname:             map[VertexName]int{},
 		nickname_by_index:             make(map[int]VertexName),
 		vertex_to_calculate_paths_for: make(map[VertexName]bool),
+		AvgCruiseSpeed:                avgCruiseSpeed,
 	}
 }
 

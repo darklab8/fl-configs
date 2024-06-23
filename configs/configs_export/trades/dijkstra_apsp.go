@@ -125,7 +125,7 @@ func (g *DijkstraAPSP) dijkstra(source int) ([]int, []int) {
 	// The starting vertex does not
 	// have a parent
 	for s := 0; s < g.vertices; s++ {
-		parents[source] = NO_PARENT
+		parents[s] = NO_PARENT
 	}
 
 	pq := make(PriorityQueue, 0)
