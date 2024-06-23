@@ -75,8 +75,8 @@ func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *Dijkstr
 
 	index := 0
 	for vertex, _ := range graph.matrix {
-		graph.Index_by_nickname[vertex] = index
-		graph.nickname_by_index[index] = vertex
+		graph.IndexByNick[vertex] = index
+		graph.NicknameByIndex[index] = vertex
 		index++
 	}
 
@@ -88,8 +88,8 @@ func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *Dijkstr
 
 	for vertex_name, vertex := range graph.matrix {
 		for vertex_target, weight := range vertex {
-			i := graph.Index_by_nickname[vertex_name]
-			j := graph.Index_by_nickname[vertex_target]
+			i := graph.IndexByNick[vertex_name]
+			j := graph.IndexByNick[vertex_target]
 
 			g.addEdge(i, j, int(weight))
 		}
@@ -104,7 +104,6 @@ func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *Dijkstr
 
 func (g *DijkstraAPSP) addEdge(source int, destination int, weight int) {
 	g.adjacencyList[source] = append(g.adjacencyList[source], NewNeighbour(destination, weight))
-	g.adjacencyList[destination] = append(g.adjacencyList[destination], NewNeighbour(source, weight))
 }
 
 func ArraysFill[T any](array []T, value T) {

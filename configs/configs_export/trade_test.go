@@ -30,5 +30,11 @@ func TestGetTrades(t *testing.T) {
 	wg.Wait()
 	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 
+	for _, base := range e.Bases {
+		for _, trade_route := range base.TradeRoutes {
+			trade_route.Transport.GetPaths()
+		}
+	}
+
 	fmt.Println()
 }

@@ -78,17 +78,19 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 				nickname: system_obj.Base.Get(),
 				pos:      system_obj.Pos.Get(),
 			}
-
-			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos)
-				graph.SetEdge(object.nickname, existing_object.nickname, distance+graph.GetDistForTime(BaseDockingDelay))
-			}
+			graph.SetIdsName(object.nickname, system_obj.IdsName.Get())
 
 			if strings.Contains(object.nickname, "proxy_") {
 				continue
 			}
 
-			graph.vertex_to_calculate_paths_for[VertexName(object.nickname)] = true
+			for _, existing_object := range system_objects {
+				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(BaseDockingDelay)
+				graph.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(existing_object.nickname, object.nickname, distance)
+			}
+
+			graph.AllowedVertixesForCalcs[VertexName(object.nickname)] = true
 
 			system_objects = append(system_objects, object)
 		}
@@ -98,25 +100,40 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 				nickname: jumphole.Nickname.Get(),
 				pos:      jumphole.Pos.Get(),
 			}
+			graph.SetIdsName(object.nickname, jumphole.IdsName.Get())
+
+			// if strings.Contains(object.nickname, strings.ToLower("Rh02_to_Iw02_hole")) {
+			// 	fmt.Println()
+			// }
 
 			jh_archetype := jumphole.Archetype.Get()
+
+			// TODO Check Solar if this is Dockable
+			if jh_archetype == "jumphole_noentry" { // hardcoded for now
+				continue
+			}
+			// TODO Check locked_gate if it is enterable.
 
 			// Condition is taken from FLCompanion
 			// https://github.com/Corran-Raisu/FLCompanion/blob/021159e3b3a1b40188c93064f1db136780424ea9/Datas.cpp#L585
 			// Check Aingar Fork for Disco version if necessary.
-			if strings.Contains(jh_archetype, "_fighter") || strings.Contains(jh_archetype, "_notransport") || jh_archetype == "dsy_comsat_planetdock" {
+			if strings.Contains(jh_archetype, "_fighter") ||
+				strings.Contains(jh_archetype, "_notransport") ||
+				jh_archetype == "dsy_comsat_planetdock" ||
+				jh_archetype == "dsy_hypergate_all" {
 				if !with_freighter_paths {
 					continue
 				}
 			}
 
 			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos)
+				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(JumpHoleDelaySec)
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
 
 			jumphole_target_hole := jumphole.GotoHole.Get()
-			graph.SetEdge(object.nickname, jumphole_target_hole, graph.GetDistForTime(JumpHoleDelaySec))
+			graph.SetEdge(object.nickname, jumphole_target_hole, 0)
 			system_objects = append(system_objects, object)
 		}
 
@@ -128,7 +145,6 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 
 			next_tradelane, next_exists := tradelane.NextRing.GetValue()
 			prev_tradelane, prev_exists := tradelane.PrevRing.GetValue()
-
 			if next_exists && prev_exists {
 				continue
 			}
@@ -164,11 +180,13 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 			}
 
 			distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance*float64(graph.AvgCruiseSpeed)/float64(AvgTradeLaneSpeed)+graph.GetDistForTime(TradeLaneDockingDelaySec))
+			distance_inside_tradelane := distance * float64(graph.AvgCruiseSpeed) / float64(AvgTradeLaneSpeed)
+			graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 
 			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos)
+				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(TradeLaneDockingDelaySec)
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
+				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
 
 			system_objects = append(system_objects, object)

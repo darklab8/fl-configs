@@ -33,7 +33,7 @@ func TestTradeRoutes(t *testing.T) {
 	defer pprof.StopCPUProfile()
 
 	timeit.NewTimerF(func(m *timeit.Timer) {
-		dijkstra := NewDijkstraApspFromGraph(graph, WithPathDistsForAllNodes())
+		dijkstra := NewDijkstraApspFromGraph(graph)
 		dist, parents := dijkstra.DijkstraApsp()
 
 		// This version lf algorithm can provide you with distances only originating from space bases (and not proxy bases)
@@ -51,27 +51,47 @@ func TestTradeRoutes(t *testing.T) {
 		assert.Greater(t, dist2, 0)
 		assert.Greater(t, dist3, 0)
 
-		fmt.Println("bw11_02_base->ew12_02_base")
-		dist_ := GetDist(graph, dist, "bw11_02_base", "ew12_02_base")
+		fmt.Println("detailed_path")
+		// paths := graph.GetPaths(parents, dist, "li01_01_base", "br01_01_base")
+		// paths := graph.GetPaths(parents, dist, "hi02_01_base", "ga01_02_base")
+		// paths := graph.GetPaths(parents, dist, "bw11_02_base", "ew12_02_base")
+
+		// source := "hi02_01_base"
+		// target := "li01_01_base"
+
+		// source := "hi02_01_base"
+		// target := "br01_01_base"
+
+		// TODO FIX BUG_ID: ghost_broken_path_out_of_bounds
+		source := "hi02_01_base"
+		target := "ga01_02_base" // New London Atmosphere/Landing Site
+
+		dist_ := GetDist(graph, dist, source, target)
 		fmt.Println("dist=", dist_)
 		fmt.Println("time_total=", graph.GetTimeForDist(float64(dist_)))
 		min := math.Floor(float64(graph.GetTimeForDist(float64(dist_))) / 60)
 		fmt.Println("time_min=", min)
 		fmt.Println("time_sec=", float64(graph.GetTimeForDist(float64(dist_)))-min*60)
-		fmt.Println("bw11_02_base->ew12_02_base path:")
-		//paths := graph.GetPaths(parents, dist, "li01_01_base", "br01_01_base")
-		paths := graph.GetPaths(parents, dist, "hi02_01_base", "li01_01_base")
-		// paths := graph.GetPaths(parents, dist, "bw11_02_base", "ew12_02_base")
-		for _, path := range paths {
+		fmt.Println(source, "->", target, " path:")
+
+		paths := graph.GetPaths(parents, dist, source, target)
+
+		for index, path := range paths {
+			if path.Dist == 0 && (index != 0 || index != len(paths)-1) {
+				continue
+			}
 			fmt.Println(
-				"prev=", path.PrevName,
-				"next=", path.NextName,
-				"node=", path.PrevNode,
-				"next_node=", path.NextNode,
+				fmt.Sprintf("prev= %20s", path.PrevName),
+				fmt.Sprintf("next= %20s", path.NextName),
+				fmt.Sprintf("prev_node= %5d", path.PrevNode),
+				fmt.Sprintf("next_node= %5d", path.NextNode),
+				fmt.Sprintf("prev= %25s", configs.Infocards.Infonames[path.PrevIdsName]),
+				fmt.Sprintf("next= %25s", configs.Infocards.Infonames[path.NextIdsName]),
 				"dist=", path.Dist,
 				"min=", path.TimeMinutes,
 				"sec=", path.TimeSeconds,
 			)
 		}
 	}, timeit.WithMsg("trade routes calculated"))
+	fmt.Println()
 }
