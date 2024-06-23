@@ -49,7 +49,6 @@ func TestDijkstraAPSP(t *testing.T) {
 }
 
 func TestDijkstraAPSPWithGraph(t *testing.T) {
-	fmt.Println(math.MaxFloat32)
 	graph := NewGameGraph(AvgTransportCruiseSpeed)
 	graph.SetEdge("a", "b", 5)
 	graph.SetEdge("a", "d", 10)

@@ -99,12 +99,6 @@ func GetPath(graph *GameGraph, parents [][]int, dist [][]int, source_key string,
 			path_to_add.Dist = dist[path_to_add.Node][path_to_add.NextNode]
 		}
 
-		// Merge JumpHoles dist to previous one
-		// Works buggy
-		// if path_to_add.Dist == int(graph.GetDistForTime(JumpHoleDelaySec)) {
-		// 	return
-		// }
-
 		S = append(S, path_to_add)
 	}
 	add_node(u)
