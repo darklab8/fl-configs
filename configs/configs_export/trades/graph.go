@@ -5,6 +5,7 @@ Game graph simplifies for us conversion of data from Freelancer space simulator 
 */
 
 import (
+	"math"
 	"reflect"
 	"strings"
 )
@@ -101,4 +102,36 @@ func ReverseSlice(s interface{}) {
 	for i, j := 0, size-1; i < j; i, j = i+1, j-1 {
 		swap(i, j)
 	}
+}
+
+type DetailedPath struct {
+	PrevName    string
+	NextName    string
+	PrevNode    int
+	NextNode    int
+	Dist        int
+	TimeMinutes int
+	TimeSeconds int
+}
+
+func (graph *GameGraph) GetPaths(parents [][]int, dist [][]int, source_key string, target_key string) []DetailedPath {
+	var detailed_paths []DetailedPath
+
+	paths := GetPath(graph, parents, dist, source_key, target_key)
+	for _, path := range paths {
+		minutes := int(math.Floor(float64(graph.GetTimeForDist(float64(path.Dist))) / 60))
+		detailed_path := DetailedPath{
+			PrevName:    string(graph.nickname_by_index[path.Node]),
+			NextName:    string(graph.nickname_by_index[path.NextNode]),
+			PrevNode:    path.Node,
+			NextNode:    path.NextNode,
+			Dist:        path.Dist,
+			TimeMinutes: int(minutes),
+			TimeSeconds: graph.GetTimeForDist(float64(path.Dist)) - minutes*60,
+		}
+
+		detailed_paths = append(detailed_paths, detailed_path)
+	}
+
+	return detailed_paths
 }

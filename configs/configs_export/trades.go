@@ -22,6 +22,10 @@ type ComboTradeRoute struct {
 	Freighter *TradeRoute
 }
 
+func (c *ComboTradeRoute) GetID() string {
+	return c.Transport.Commodity.Nickname + c.Transport.BuyingGood.BaseNickname + c.Transport.SellingGood.BaseNickname
+}
+
 func NewTradeRoute(g *GraphResults, buying_good *GoodAtBase, selling_good *GoodAtBase, commodity *Commodity) *TradeRoute {
 	return &TradeRoute{
 		g:           g,
