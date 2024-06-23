@@ -59,8 +59,8 @@ func TestTradeRoutes(t *testing.T) {
 		fmt.Println("time_min=", min)
 		fmt.Println("time_sec=", float64(graph.GetTimeForDist(float64(dist_)))-min*60)
 		fmt.Println("bw11_02_base->ew12_02_base path:")
-		paths := graph.GetPaths(parents, dist, "li01_01_base", "br01_01_base")
-		// paths := graph.GetPaths(parents, dist, "hi02_01_base", "li01_01_base")
+		//paths := graph.GetPaths(parents, dist, "li01_01_base", "br01_01_base")
+		paths := graph.GetPaths(parents, dist, "hi02_01_base", "li01_01_base")
 		// paths := graph.GetPaths(parents, dist, "bw11_02_base", "ew12_02_base")
 		for _, path := range paths {
 			fmt.Println(

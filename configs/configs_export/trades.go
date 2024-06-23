@@ -39,8 +39,8 @@ func (t *TradeRoute) GetProffitPerV() float64 {
 	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
 }
 
-func (t *TradeRoute) GetPaths() []trades.Path {
-	return trades.GetPath(t.g.graph, t.g.parents, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
+func (t *TradeRoute) GetPaths() []trades.DetailedPath {
+	return t.g.graph.GetPaths(t.g.parents, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
 }
 
 func (t *TradeRoute) GetDist() int {

@@ -81,9 +81,10 @@ func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *Dijkstr
 	}
 
 	// We need calculating for everything if we wish detailed path
-	for base_nick, _ := range graph.vertex_to_calculate_paths_for {
-		g.allowed_base_ids[graph.Index_by_nickname[base_nick]] = true
-	}
+	// regretfully disabling potentially for forever. TODO delete if not in use
+	// for base_nick, _ := range graph.vertex_to_calculate_paths_for {
+	// 	g.allowed_base_ids[graph.Index_by_nickname[base_nick]] = true
+	// }
 
 	for vertex_name, vertex := range graph.matrix {
 		for vertex_target, weight := range vertex {

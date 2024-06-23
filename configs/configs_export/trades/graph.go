@@ -71,6 +71,12 @@ func GetPath(graph *GameGraph, parents [][]int, dist [][]int, source_key string,
 		if path_to_add.Node != NO_PARENT && path_to_add.NextNode != NO_PARENT {
 			path_to_add.Dist = dist[path_to_add.Node][path_to_add.NextNode]
 		}
+
+		if path_to_add.Dist == int(graph.GetDistForTime(JumpHoleDelaySec)) {
+			S[len(S)-1].Dist += path_to_add.Dist
+			return
+		}
+
 		S = append(S, path_to_add)
 	}
 	add_node(u)
