@@ -1,5 +1,10 @@
 package filesave
 
+// Provided by marko_oktabyr (discord) at https://gist.github.com/dwmunster/fec794a4a938967d25ebdd4c29091350
+// Originally was hooked to https://github.com/dwmunster/ini lib
+// with import "github.com/dwmunster/ini"
+// But looks like it was merged to main repo https://github.com/go-ini/ini/issues/284
+
 import (
 	"fmt"
 	"log"
