@@ -142,6 +142,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 				nickname: tradelane.Nickname.Get(),
 				pos:      tradelane.Pos.Get(),
 			}
+			graph.SetIstRadelane(object.nickname)
 
 			next_tradelane, next_exists := tradelane.NextRing.GetValue()
 			prev_tradelane, prev_exists := tradelane.PrevRing.GetValue()

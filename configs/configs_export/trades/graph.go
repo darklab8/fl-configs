@@ -7,7 +7,6 @@ Game graph simplifies for us conversion of data from Freelancer space simulator 
 import (
 	"math"
 	"reflect"
-	"strings"
 )
 
 type VertexName string
@@ -19,6 +18,7 @@ type GameGraph struct {
 	AllowedVertixesForCalcs map[VertexName]bool // Consider deleting this
 	AvgCruiseSpeed          int
 	idsNamesByNick          map[VertexName]int
+	IsTradelane             map[VertexName]bool
 }
 
 func NewGameGraph(avgCruiseSpeed int) *GameGraph {
@@ -29,6 +29,7 @@ func NewGameGraph(avgCruiseSpeed int) *GameGraph {
 		AllowedVertixesForCalcs: make(map[VertexName]bool),
 		AvgCruiseSpeed:          avgCruiseSpeed,
 		idsNamesByNick:          make(map[VertexName]int),
+		IsTradelane:             make(map[VertexName]bool),
 	}
 }
 
@@ -53,6 +54,10 @@ func (f *GameGraph) SetEdge(keya string, keyb string, distance float64) {
 
 func (f *GameGraph) SetIdsName(keya string, ids_name int) {
 	f.idsNamesByNick[VertexName(keya)] = ids_name
+}
+
+func (f *GameGraph) SetIstRadelane(keya string) {
+	f.IsTradelane[VertexName(keya)] = true
 }
 
 func GetDist[T any](f *GameGraph, dist [][]T, keya string, keyb string) T {
@@ -99,7 +104,7 @@ func GetPath(graph *GameGraph, parents [][]int, dist [][]int, source_key string,
 			u = parents[source][u]
 
 			nickname := graph.NicknameByIndex[u]
-			if strings.Contains(string(nickname), "trade_lane") {
+			if _, ok := graph.IsTradelane[nickname]; ok {
 				continue
 			}
 
