@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/conftypes"
 )
@@ -113,7 +114,11 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 				}
 			}
 
-			// TODO Check locked_gate if it is enterable.
+			// Check locked_gate if it is enterable.
+			hash_id := flhash.HashNickname(object.nickname)
+			if _, ok := configs.InitialWorld.LockedGates[hash_id]; ok {
+				continue
+			}
 
 			// Condition is taken from FLCompanion
 			// https://github.com/Corran-Raisu/FLCompanion/blob/021159e3b3a1b40188c93064f1db136780424ea9/Datas.cpp#L585
