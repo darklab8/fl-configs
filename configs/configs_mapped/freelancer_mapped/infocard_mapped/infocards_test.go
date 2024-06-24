@@ -1,6 +1,8 @@
 package infocard_mapped
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
@@ -20,4 +22,12 @@ func TestReader(t *testing.T) {
 	config, _ := Read(filesystem, freelancer_ini, one_file_filesystem.GetFile("temp.disco.infocards.txt"))
 
 	assert.Greater(t, len(config.Infocards), 0)
+
+	fmt.Println(len(config.Infocards))
+	for index, infocard := range config.Infocards {
+		if strings.Contains(infocard.GetContent(), "TAU BORDER WORLDS") {
+			lines, _ := infocard.XmlToText()
+			fmt.Println("index=", index, " ", lines)
+		}
+	}
 }
