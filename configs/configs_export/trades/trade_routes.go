@@ -81,7 +81,7 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 			}
 			graph.SetIdsName(object.nickname, system_obj.IdsName.Get())
 
-			if strings.Contains(object.nickname, "proxy_") {
+			if system_obj.Archetype.Get() == systems_mapped.BaseArchetypeInvisible {
 				continue
 			}
 
@@ -91,10 +91,6 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 			}
 
 			if len(goods.MarketGoods) == 0 {
-				continue
-			}
-
-			if system_obj.Archetype.Get() == systems_mapped.BaseArchetypeInvisible {
 				continue
 			}
 
