@@ -85,6 +85,19 @@ func MapConfigsToFGraph(configs *configs_mapped.MappedConfigs, avgCruiseSpeed in
 				continue
 			}
 
+			goods, goods_defined := configs.Market.GoodsPerBase[object.nickname]
+			if !goods_defined {
+				continue
+			}
+
+			if len(goods.MarketGoods) == 0 {
+				continue
+			}
+
+			if system_obj.Archetype.Get() == systems_mapped.BaseArchetypeInvisible {
+				continue
+			}
+
 			for _, existing_object := range system_objects {
 				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(BaseDockingDelay)
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
