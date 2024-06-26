@@ -35,9 +35,9 @@ type WithFreighterPaths bool
 
 const (
 	// already accounted for
-	AvgTransportCruiseSpeed = 350
-	AvgFrigateCruiseSpeed   = 500
-	AvgFreighterCruiseSpeed = 500
+	AvgTransportCruiseSpeed = 350 // TODO You should grab those speeds from some ship example
+	AvgFrigateCruiseSpeed   = 500 // TODO You should grab those speeds from some ship example
+	AvgFreighterCruiseSpeed = 500 // TODO You should grab those speeds from some ship example
 	// already accounted for
 	AvgTradeLaneSpeed = 2250
 
