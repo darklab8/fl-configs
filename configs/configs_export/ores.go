@@ -8,6 +8,12 @@ import (
 	"github.com/darklab8/go-utils/utils/ptr"
 )
 
+type MiningInfo struct {
+	DynamicLootMin        int
+	DynamicLootMax        int
+	DynamicLootDifficulty int
+}
+
 func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 	var bases []*Base
 
@@ -39,8 +45,12 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 			location := zone.Pos.Get()
 
 			base := &Base{
-				Pos: location,
+				Pos:        location,
+				MiningInfo: MiningInfo{},
 			}
+			base.DynamicLootMin, _ = asteroids.LootableZone.DynamicLootMin.GetValue()
+			base.DynamicLootMax, _ = asteroids.LootableZone.DynamicLootMax.GetValue()
+			base.DynamicLootDifficulty, _ = asteroids.LootableZone.DynamicLootDifficulty.GetValue()
 
 			base.Nickname, _ = zone.Nickname.GetValue()
 			base.InfocardID, _ = zone.IDsInfo.GetValue()
@@ -93,11 +103,10 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			var sb []string
 			sb = append(sb, base.Name)
-			sb = append(sb, `This is is not a real base.
-It is a mining operation representing the base,
-for the purpose of showing trading routes number in Trades tab.`)
+			sb = append(sb, `This is is not a base.
+It is a mining field with droppable ores`)
 			sb = append(sb, "")
-			sb = append(sb, "It is not accounting time it takes to mine those ores.")
+			sb = append(sb, "Trade routes shown do not account for a time it takes to mine those ores.")
 
 			if e.configs.Discovery != nil {
 				sb = append(sb, "")
