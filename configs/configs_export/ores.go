@@ -72,7 +72,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 			if equipment, ok := e.configs.Equip.CommoditiesMap[commodity]; ok {
 				market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 			}
-			base.Name = fmt.Sprintf("Mining Zone - %s", market_good.Name)
+			base.Name = market_good.Name
 			base.MarketGoods = append(base.MarketGoods, market_good)
 
 			if commodity, ok := comm_by_nick[market_good.Nickname]; ok {
