@@ -49,7 +49,7 @@ func TestDijkstraAPSP(t *testing.T) {
 }
 
 func TestDijkstraAPSPWithGraph(t *testing.T) {
-	graph := NewGameGraph(AvgTransportCruiseSpeed, WithFreighterPaths(true))
+	graph := NewGameGraph(DiscoverySpeeds.AvgTransportCruiseSpeed, WithFreighterPaths(true))
 	graph.SetEdge("a", "b", 5)
 	graph.SetEdge("a", "d", 10)
 	graph.SetEdge("b", "c", 3)

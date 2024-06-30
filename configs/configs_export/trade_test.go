@@ -13,20 +13,36 @@ func TestGetTrades(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	e := NewExporter(configs)
 
+	e.Commodities = e.GetCommodities()
+
+	mining_bases := e.GetOres(e.Commodities)
+	mining_bases_by_system := make(map[string]trades.ExtraBase)
+	for _, base := range mining_bases {
+		mining_bases_by_system[base.SystemNickname] = trades.ExtraBase{
+			Pos:      base.Pos,
+			Nickname: base.Nickname,
+		}
+	}
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
-		e.transport = NewGraphResults(e, trades.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false))
+		e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.freighter = NewGraphResults(e, trades.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true))
+		e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
+		wg.Done()
+	}()
+	wg.Add(1)
+	go func() {
+		e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system)
 		wg.Done()
 	}()
 	e.Bases = e.GetBases()
-	e.Commodities = e.GetCommodities()
+	e.Bases = append(e.Bases, mining_bases...)
 	wg.Wait()
 	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 
