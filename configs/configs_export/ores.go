@@ -105,9 +105,6 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 				commodity.Bases = append(commodity.Bases, good_at_base)
 			}
 
-			if market_good.Nickname == "commodity_gold_ore" {
-				fmt.Println()
-			}
 			if e.configs.Discovery != nil {
 
 				if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerConsumed[market_good.Nickname]; ok {
@@ -140,6 +137,9 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 									PriceToBuy:    0,
 									PriceToSell:   ptr.Ptr(0),
 									Type:          "commodity",
+								}
+								if equipment, ok := e.configs.Equip.CommoditiesMap[commodity]; ok {
+									market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 								}
 								base.MarketGoods = append(base.MarketGoods, market_good)
 
@@ -186,7 +186,11 @@ for Freelancer Discovery we also add possible sub products of refinery at player
 			sb = append(sb, "")
 			sb = append(sb, "commodities:")
 			for _, good := range base.MarketGoods {
-				sb = append(sb, fmt.Sprintf("%s (%s)", good.Name, good.Nickname))
+				if good.Nickname == base.MinedGood.Nickname {
+					sb = append(sb, fmt.Sprintf("Minable: %s (%s)", good.Name, good.Nickname))
+				} else {
+					sb = append(sb, fmt.Sprintf("Refined at POB: %s (%s)", good.Name, good.Nickname))
+				}
 			}
 
 			e.Infocards[InfocardKey(base.Nickname)] = sb
