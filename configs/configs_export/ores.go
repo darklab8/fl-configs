@@ -98,8 +98,12 @@ It is a mining operation representing the base,
 for the purpose of showing trading routes number in Trades tab.`)
 			sb = append(sb, "")
 			sb = append(sb, "It is not accounting time it takes to mine those ores.")
-			sb = append(sb, "")
-			sb = append(sb, `<a href="https://discoverygc.com/wiki2/Mining">Check mining tutorial</a> to see how they can be mined`)
+
+			if e.configs.Discovery != nil {
+				sb = append(sb, "")
+				sb = append(sb, `<a href="https://discoverygc.com/wiki2/Mining">Check mining tutorial</a> to see how they can be mined`)
+			}
+
 			sb = append(sb, "")
 			sb = append(sb, "commodities:")
 			for _, good := range base.MarketGoods {
