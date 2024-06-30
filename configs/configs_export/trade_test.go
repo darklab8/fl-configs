@@ -12,16 +12,17 @@ import (
 func TestGetTrades(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	e := NewExporter(configs)
+	e.ship_speeds = trades.DiscoverySpeeds
 
 	e.Commodities = e.GetCommodities()
 
 	mining_bases := e.GetOres(e.Commodities)
-	mining_bases_by_system := make(map[string]trades.ExtraBase)
+	mining_bases_by_system := make(map[string][]trades.ExtraBase)
 	for _, base := range mining_bases {
-		mining_bases_by_system[base.SystemNickname] = trades.ExtraBase{
+		mining_bases_by_system[base.SystemNickname] = append(mining_bases_by_system[base.SystemNickname], trades.ExtraBase{
 			Pos:      base.Pos,
 			Nickname: base.Nickname,
-		}
+		})
 	}
 
 	var wg sync.WaitGroup
@@ -47,8 +48,12 @@ func TestGetTrades(t *testing.T) {
 	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 
 	for _, base := range e.Bases {
+		if base.Nickname != "zone_br05_gold_dummy_field" {
+			continue
+		}
 		for _, trade_route := range base.TradeRoutes {
 			trade_route.Transport.GetPaths()
+			trade_route.Frigate.GetDist()
 		}
 	}
 

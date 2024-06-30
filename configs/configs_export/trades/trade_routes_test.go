@@ -16,7 +16,7 @@ import (
 func TestTradeRoutes(t *testing.T) {
 
 	configs := configs_mapped.TestFixtureConfigs()
-	graph := MapConfigsToFGraph(configs, DiscoverySpeeds.AvgTransportCruiseSpeed, WithFreighterPaths(false), make(map[string]ExtraBase))
+	graph := MapConfigsToFGraph(configs, DiscoverySpeeds.AvgTransportCruiseSpeed, WithFreighterPaths(false), make(map[string][]ExtraBase))
 
 	edges_count := 0
 	for _, edges := range graph.matrix {
