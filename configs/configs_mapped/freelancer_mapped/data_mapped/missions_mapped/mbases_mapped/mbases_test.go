@@ -20,7 +20,7 @@ func TestGetRepHacks(t *testing.T) {
 	// exporter := configs_export.NewExporter(configs)
 	// bases := exporter.GetBases(configs_export.NoNameIncluded(true))
 
-	faction_rephacks := FactionRephacks(config)
+	faction_rephacks := FactionBribes(config)
 
 	fmt.Println("printing for br_p_grp")
 	chances := make([]BaseChance, 0, len(faction_rephacks["br_p_grp"]))
