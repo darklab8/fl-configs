@@ -12,7 +12,9 @@ func TestGetGuns(t *testing.T) {
 	exporter := NewExporter(configs)
 
 	ids := exporter.GetTractors()
-	guns := exporter.GetGuns(ids)
+	shields := exporter.GetShields(ids)
+	buyable_shield_tech := exporter.GetBuyableShields(shields)
+	guns := exporter.GetGuns(ids, buyable_shield_tech)
 	assert.Greater(t, len(guns), 0)
 	// exporter.infocards_parser.Get()
 }
