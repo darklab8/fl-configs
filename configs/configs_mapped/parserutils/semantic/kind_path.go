@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
 	"github.com/darklab8/go-utils/utils/utils_types"
 )
 
@@ -71,6 +73,22 @@ func (s *Path) Get() utils_types.FilePath {
 		value = strings.ToLower(value)
 	}
 	return utils_types.FilePath(value)
+}
+
+func (s *Path) GetValue() (utils_types.FilePath, bool) {
+	var value utils_types.FilePath
+	var ok bool = true
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logus.Log.Debug("Recovered from int GetValue Error:\n", typelog.Any("recover", r))
+				ok = false
+			}
+		}()
+		value = s.Get()
+	}()
+
+	return value, ok
 }
 
 func (s *Path) Set(value utils_types.FilePath) {
