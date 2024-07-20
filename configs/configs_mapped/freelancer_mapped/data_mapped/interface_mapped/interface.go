@@ -12,7 +12,7 @@ import (
 
 const (
 	FILENAME_FL_INI                                     = "infocardmap.ini"
-	RESOURCE_HEADER_MAP_TABLE inireader_types.IniHeader = "[InfocardMapTable]"
+	RESOURCE_HEADER_MAP_TABLE inireader_types.IniHeader = "[infocardmaptable]"
 	RESOURCE_KEY_MAP                                    = "map"
 )
 

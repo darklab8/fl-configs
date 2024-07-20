@@ -97,7 +97,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 	for i := 0; i < len(input_file.Sections); i++ {
 
-		if input_file.Sections[i].Type == "[MBase]" {
+		if input_file.Sections[i].Type == "[mbase]" {
 
 			mbase_section := input_file.Sections[i]
 			base := &Base{
@@ -110,17 +110,17 @@ func Read(input_file *iniload.IniLoader) *Config {
 			frelconfig.Bases = append(frelconfig.Bases, base)
 			frelconfig.BaseMap[base.Nickname.Get()] = base
 
-			for j := i + 1; j < len(input_file.Sections) && input_file.Sections[j].Type != "[MBase]"; j++ {
+			for j := i + 1; j < len(input_file.Sections) && input_file.Sections[j].Type != "[mbase]"; j++ {
 				section := input_file.Sections[j]
 
 				switch section.Type {
-				case "[MVendor]":
+				case "[mvendor]":
 					vendor := &MVendor{
 						MinOffers: semantic.NewInt(section, "num_offers", semantic.Order(0)),
 						MaxOffers: semantic.NewInt(section, "num_offers", semantic.Order(1)),
 					}
 					base.MVendor = vendor
-				case "[BaseFaction]":
+				case "[basefaction]":
 					faction := &BaseFaction{
 						Faction: semantic.NewString(section, "faction", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						Weight:  semantic.NewInt(section, "weight"),
@@ -141,7 +141,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 					}
 					base.BaseFactions = append(base.BaseFactions, faction)
 					base.BaseFactionsMap[faction.Faction.Get()] = faction
-				case "[MRoom]":
+				case "[mroom]":
 					mroom := &Mroom{
 						Nickname:         semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						CharacterDensity: semantic.NewInt(section, "character_density"),
@@ -151,7 +151,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 					if mroom.Nickname.Get() == "bar" {
 						base.Bar = mroom
 					}
-				case "[GF_NPC]":
+				case "[gf_npc]":
 					npc := &NPC{
 						Nickname:    semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 						Room:        semantic.NewString(section, "room", semantic.OptsS(semantic.Optional())),

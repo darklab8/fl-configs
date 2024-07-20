@@ -64,7 +64,7 @@ func Read(files []*iniload.IniLoader) *Config {
 
 	for _, Iniconfig := range files {
 
-		for _, section := range Iniconfig.SectionMap["[Ship]"] {
+		for _, section := range Iniconfig.SectionMap["[ship]"] {
 			ship := &Ship{
 				Nickname:    semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 				Type:        semantic.NewString(section, "type"),

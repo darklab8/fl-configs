@@ -32,7 +32,7 @@ type Config struct {
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{IniLoader: input_file}
 
-	if resources, ok := input_file.SectionMap["[Resources]"]; ok {
+	if resources, ok := input_file.SectionMap["[resources]"]; ok {
 
 		for dll_index, _ := range resources[0].Params {
 			frelconfig.Dlls = append(frelconfig.Dlls,
@@ -41,7 +41,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		}
 	}
 
-	if resources, ok := input_file.SectionMap["[Data]"]; ok {
+	if resources, ok := input_file.SectionMap["[data]"]; ok {
 		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
 			frelconfig.Equips = append(frelconfig.Equips,
 				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),

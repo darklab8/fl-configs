@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	KEY_OBJECT   = "[Object]"
+	KEY_OBJECT   = "[object]"
 	KEY_NICKNAME = "nickname"
 	KEY_BASE     = "base"
 )
@@ -276,7 +276,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 			frelconfig.SystemsMap[system_key] = system_to_add
 			frelconfig.Systems = append(frelconfig.Systems, system_to_add)
 
-			if asteroids, ok := sysiniconf.SectionMap["[Asteroids]"]; ok {
+			if asteroids, ok := sysiniconf.SectionMap["[asteroids]"]; ok {
 				for _, obj := range asteroids {
 					asteroids_to_add := &Asteroids{
 						File: semantic.NewPath(obj, "file"),
@@ -298,7 +298,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						}
 						config := inireader.Read(file_to_read)
 
-						if lootable_zones, ok := config.SectionMap["[LootableZone]"]; ok {
+						if lootable_zones, ok := config.SectionMap["[lootablezone]"]; ok {
 							obj := lootable_zones[0]
 							lootable_zone := &LootableZone{
 								AsteroidLootCommodity: semantic.NewString(obj, "asteroid_loot_commodity", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),

@@ -61,7 +61,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		}
 	}
 
-	if groups, ok := config.SectionMap["[Group]"]; ok {
+	if groups, ok := config.SectionMap["[group]"]; ok {
 
 		for _, group_res := range groups {
 			group := &Group{}

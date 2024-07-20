@@ -21,7 +21,7 @@ var KEY_BASE_TERRAINS = [...]string{"terrain_tiny", "terrain_sml", "terrain_mdm"
 
 const (
 	FILENAME      = "universe.ini"
-	KEY_BASE_TAG  = "[Base]"
+	KEY_BASE_TAG  = "[base]"
 	KEY_NICKNAME  = "nickname"
 	KEY_STRIDNAME = "strid_name"
 	KEY_SYSTEM    = "system"
@@ -36,7 +36,7 @@ const (
 	KEY_SYSTEM_NAVMAPSCALE   = "NavMapScale"
 	KEY_SYSTEM_POS           = "pos"
 
-	KEY_TIME_TAG     = "[Time]"
+	KEY_TIME_TAG     = "[time]"
 	KEY_TIME_SECONDS = "seconds_per_day"
 )
 

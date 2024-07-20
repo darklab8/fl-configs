@@ -29,7 +29,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		GoodsPerBase: make(map[string][]*Price),
 	}
 
-	for _, price_info := range input_file.SectionMap["[Price]"] {
+	for _, price_info := range input_file.SectionMap["[price]"] {
 
 		for mg_index, _ := range price_info.ParamMap["marketgood"] {
 			market_good := &Price{}

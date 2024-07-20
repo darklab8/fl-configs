@@ -25,7 +25,7 @@ const (
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{IniLoader: input_file}
 
-	for _, section := range input_file.SectionMap["[RankAndFormationSizeToDifficulty]"] {
+	for _, section := range input_file.SectionMap["[rankandformationsizetodifficulty]"] {
 
 		for index, values := range section.ParamMap["npcrank"] {
 			npc_rank_to_diff := &NPCRankToDifficulty{

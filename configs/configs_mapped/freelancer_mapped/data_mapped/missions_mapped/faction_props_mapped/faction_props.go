@@ -28,7 +28,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		IniLoader:                input_file,
 		FactionPropMapByNickname: make(map[string]*FactionProp),
 	}
-	if sections, ok := frelconfig.SectionMap["[FactionProps]"]; ok {
+	if sections, ok := frelconfig.SectionMap["[factionprops]"]; ok {
 		for _, section := range sections {
 			faction_prop := &FactionProp{}
 			faction_prop.Map(section)

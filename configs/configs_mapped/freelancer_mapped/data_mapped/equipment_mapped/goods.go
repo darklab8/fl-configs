@@ -90,7 +90,7 @@ func Read(configs []*iniload.IniLoader) *Config {
 	frelconfig.ShipsMapByHull = make(map[string]*Ship)
 
 	for _, config := range configs {
-		for _, section := range config.SectionMap["[Good]"] {
+		for _, section := range config.SectionMap["[good]"] {
 			good := &Good{}
 			good.Map(section)
 			good.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())

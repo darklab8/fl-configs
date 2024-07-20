@@ -29,7 +29,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		IniLoader:          input_file,
 		NpcShipsByNickname: make(map[string]*NPCShipArch),
 	}
-	if sections, ok := frelconfig.SectionMap["[NPCShipArch]"]; ok {
+	if sections, ok := frelconfig.SectionMap["[npcshiparch]"]; ok {
 		for _, section := range sections {
 			npc_ship_arch := &NPCShipArch{}
 			npc_ship_arch.Map(section)

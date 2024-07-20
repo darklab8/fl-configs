@@ -25,9 +25,6 @@ type INIFile struct {
 
 	// denormalization
 	SectionMap map[inireader_types.IniHeader][]*Section
-
-	// Enforce unique keys
-	ConstraintUniqueSectionType map[string]inireader_types.IniHeader
 }
 
 func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Section) {
@@ -41,24 +38,6 @@ func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Sectio
 		config.SectionMap[key] = make([]*Section, 0)
 	}
 	config.SectionMap[key] = append(config.SectionMap[key], section)
-
-	// Enforcing same case sensetivity for section type key
-	if config.ConstraintUniqueSectionType == nil {
-		config.ConstraintUniqueSectionType = make(map[string]inireader_types.IniHeader)
-	}
-
-	if val, ok := config.ConstraintUniqueSectionType[strings.ToLower(string(key))]; ok {
-		if val != key {
-			logus.Log.Fatal("not uniform case sensetivity for config",
-				utils_logus.FilePath(config.File.GetFilepath()),
-				typelog.Any("key", key),
-				typelog.Any("section", section),
-				typelog.Any("all_keys", config.ConstraintUniqueSectionType[strings.ToLower(string(key))]),
-			)
-		}
-	} else {
-		config.ConstraintUniqueSectionType[strings.ToLower(string(key))] = key
-	}
 }
 
 /*
@@ -66,8 +45,9 @@ func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Sectio
 abc = 123 // this is Param going into list and hashmap
 */
 type Section struct {
-	Type   inireader_types.IniHeader
-	Params []*Param
+	OriginalType inireader_types.IniHeader // with preserved case sesntivity
+	Type         inireader_types.IniHeader // to lower case
+	Params       []*Param
 	// denormialization of Param list due to being more comfortable
 	ParamMap map[string][]*Param
 }
@@ -354,8 +334,9 @@ func Read(fileref *file.File) *INIFile {
 			cur_section.AddParam(key, &param)
 		} else if len(section_match) > 0 {
 			cur_section = &Section{} // create new
-			cur_section.Type = inireader_types.IniHeader(section_match[0])
-			config.AddSection(inireader_types.IniHeader(section_match[0]), cur_section)
+			cur_section.OriginalType = inireader_types.IniHeader(section_match[0])
+			cur_section.Type = inireader_types.IniHeader(strings.ToLower(string(cur_section.OriginalType)))
+			config.AddSection(cur_section.Type, cur_section)
 		} else if len(comment_match) > 0 {
 			if cur_section == nil {
 				config.Comments = append(config.Comments, comment_match[1])
@@ -384,7 +365,7 @@ func (config INIFile) Write(fileref *file.File) *file.File {
 
 	section_length := config.Sections
 	for index, section := range config.Sections {
-		fileref.ScheduleToWrite(string(section.Type))
+		fileref.ScheduleToWrite(string(section.OriginalType))
 
 		for _, param := range section.Params {
 			fileref.ScheduleToWrite(param.ToString())

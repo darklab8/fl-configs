@@ -34,7 +34,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		IniLoader:      input_file,
 		WeaponTypesMap: make(map[string]*WeaponType),
 	}
-	if sections, ok := frelconfig.SectionMap["[WeaponType]"]; ok {
+	if sections, ok := frelconfig.SectionMap["[weapontype]"]; ok {
 		for _, section := range sections {
 			weapon_type := &WeaponType{}
 			weapon_type.Map(section)

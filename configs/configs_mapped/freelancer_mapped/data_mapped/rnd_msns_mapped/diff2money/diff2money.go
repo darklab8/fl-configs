@@ -25,7 +25,7 @@ const (
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{IniLoader: input_file}
 
-	for _, section := range input_file.SectionMap["[Diff2Money]"] {
+	for _, section := range input_file.SectionMap["[diff2money]"] {
 
 		for index, _ := range section.ParamMap["diff2money"] {
 			diff_to_money := &DiffToMoney{

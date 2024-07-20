@@ -44,7 +44,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig.RepChangeEffects = make([]*RepChangeEffects, 0, 20)
 	frelconfig.RepoChangeMap = make(map[string]*RepChangeEffects)
 
-	for _, section := range input_file.SectionMap["[RepChangeEffects]"] {
+	for _, section := range input_file.SectionMap["[repchangeeffects]"] {
 		repo_changes := &RepChangeEffects{}
 		repo_changes.Map(section)
 		repo_changes.Group = semantic.NewString(section, "group", semantic.WithLowercaseS(), semantic.WithoutSpacesS())

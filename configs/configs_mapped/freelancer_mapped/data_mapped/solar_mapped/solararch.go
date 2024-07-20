@@ -29,7 +29,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		SolarsByNick: make(map[string]*Solar),
 	}
 
-	for _, section := range input_file.SectionMap["[Solar]"] {
+	for _, section := range input_file.SectionMap["[solar]"] {
 
 		solar := &Solar{
 			Nickname:      semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),

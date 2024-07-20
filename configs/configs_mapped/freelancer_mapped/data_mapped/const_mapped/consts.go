@@ -31,14 +31,14 @@ func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
 		IniLoader: input_file,
 	}
-	if groups, ok := frelconfig.SectionMap["[ShieldEquipConsts]"]; ok {
+	if groups, ok := frelconfig.SectionMap["[shieldequipconsts]"]; ok {
 		shield_consts := &ShieldEquipConsts{}
 		shield_consts.Map(groups[0])
 		shield_consts.HULL_DAMAGE_FACTOR = semantic.NewFloat(groups[0], "hull_damage_factor", semantic.Precision(2))
 
 		frelconfig.ShieldEquipConsts = shield_consts
 	}
-	if groups, ok := frelconfig.SectionMap["[EngineEquipConsts]"]; ok {
+	if groups, ok := frelconfig.SectionMap["[engineequipconsts]"]; ok {
 		const_group := &EngineEquipConsts{}
 		const_group.Map(groups[0])
 		const_group.CRUISING_SPEED = semantic.NewInt(groups[0], "cruising_speed")
