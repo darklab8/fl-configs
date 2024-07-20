@@ -53,6 +53,7 @@ func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Sectio
 				utils_logus.FilePath(config.File.GetFilepath()),
 				typelog.Any("key", key),
 				typelog.Any("section", section),
+				typelog.Any("all_keys", config.ConstraintUniqueSectionType[strings.ToLower(string(key))]),
 			)
 		}
 	} else {
