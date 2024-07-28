@@ -32,7 +32,7 @@ func TestTradeRoutes(t *testing.T) {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		dijkstra := NewDijkstraApspFromGraph(graph)
 		dist, parents := dijkstra.DijkstraApsp()
 

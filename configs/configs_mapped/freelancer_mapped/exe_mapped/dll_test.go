@@ -57,7 +57,7 @@ func TestReadInfocardsToHtml(t *testing.T) {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	result := timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		filesystem := tests.FixtureFileFind()
 		fileref := filesystem.GetFile(FILENAME_FL_INI)
 		config := Read(iniload.NewLoader(fileref).Scan())
@@ -90,7 +90,6 @@ func TestReadInfocardsToHtml(t *testing.T) {
 		}
 
 	}, timeit.WithMsg("measure time"))
-	logus.Log.CheckPanic(result.ResultErr, "non nil exit")
 }
 
 func TestValidateInfocards(t *testing.T) {

@@ -171,7 +171,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		infocards_override = file.NewWebFile("https://discoverygc.com/gameconfigpublic/infocard_overrides.cfg")
 	}
 
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		var wg sync.WaitGroup
 		wg.Add(len(all_files))
 		for _, file := range all_files {
@@ -183,12 +183,12 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		wg.Wait()
 	}, timeit.WithMsg("Scanned ini loaders"))
 
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		var wg sync.WaitGroup
 
 		wg.Add(1)
 		go func() {
-			timeit.NewTimerF(func(m *timeit.Timer) {
+			timeit.NewTimerF(func() {
 				p.Universe_config = universe_mapped.Read(file_universe)
 				p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
 			}, timeit.WithMsg("map systems"))

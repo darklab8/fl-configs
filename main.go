@@ -27,16 +27,16 @@ func main() {
 	defer pprof.StopCPUProfile()
 
 	for i := 0; i < 1; i++ {
-		timeit.NewTimerF(func(m *timeit.Timer) {
+		timeit.NewTimerF(func() {
 			var configs *configs_mapped.MappedConfigs
-			timeit.NewTimerF(func(m *timeit.Timer) {
+			timeit.NewTimerF(func() {
 				freelancer_folder := configs_settings.Env.FreelancerFolder
 
 				configs = configs_mapped.NewMappedConfigs()
 				logus.Log.Debug("scanning freelancer folder", utils_logus.FilePath(freelancer_folder))
 				configs.Read(freelancer_folder)
 			}, timeit.WithMsg("read mapping"))
-			timeit.NewTimerF(func(m *timeit.Timer) {
+			timeit.NewTimerF(func() {
 				exported := configs_export.Export(configs)
 
 				// config := exe_mapped.FixtureFLINIConfig()

@@ -7,7 +7,7 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		configs := TestFixtureConfigs()
 		configs.Write(IsDruRun(true))
 	})

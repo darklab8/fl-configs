@@ -225,7 +225,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 	var system_files map[string]*file.File = make(map[string]*file.File)
 
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		for _, base := range universe_config.Bases {
 			base_system := base.System.Get()
 			universe_system := universe_config.SystemMap[universe_mapped.SystemNickname(base_system)]
@@ -238,7 +238,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 	var system_iniconfigs map[string]*inireader.INIFile = make(map[string]*inireader.INIFile)
 
 	func() {
-		timeit.NewTimerF(func(m *timeit.Timer) {
+		timeit.NewTimerF(func() {
 			// Read system files with parallelism ^_^
 			iniconfigs_channel := make(chan *FileRead)
 			read_file := func(data *FileRead) {
@@ -258,7 +258,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 		}, timeit.WithMsg("Read system files with parallelism ^_^"))
 	}()
 
-	timeit.NewTimerF(func(m *timeit.Timer) {
+	timeit.NewTimerF(func() {
 		frelconfig.SystemsMap = make(map[string]*System)
 		frelconfig.Systems = make([]*System, 0)
 		for system_key, sysiniconf := range system_iniconfigs {
