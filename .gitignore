@@ -12,5 +12,5 @@ main
 __debug_bin*
 !.vscode/
 .venv/
-# go.work*
+go.work*
 

@@ -44,20 +44,21 @@ type Exporter struct {
 	freighter   *GraphResults
 	frigate     *GraphResults
 
-	Factions    []Faction
-	Infocards   Infocards
-	Commodities []*Commodity
-	Guns        []Gun
-	Missiles    []Gun
-	Mines       []Mine
-	Shields     []Shield
-	Thrusters   []Thruster
-	Ships       []Ship
-	Tractors    []Tractor
-	Engines     []Engine
-	CMs         []CounterMeasure
-	Scanners    []Scanner
-	Ammos       []Ammo
+	Factions     []Faction
+	Infocards    Infocards
+	Commodities  []*Commodity
+	Guns         []Gun
+	Missiles     []Gun
+	Mines        []Mine
+	Shields      []Shield
+	Thrusters    []Thruster
+	Ships        []Ship
+	Tractors     []Tractor
+	TractorsByID map[cfgtype.TractorID]Tractor
+	Engines      []Engine
+	CMs          []CounterMeasure
+	Scanners     []Scanner
+	Ammos        []Ammo
 }
 
 type OptExport func(e *Exporter)
@@ -142,6 +143,10 @@ func (e *Exporter) Export() *Exporter {
 	}
 
 	e.Tractors = e.GetTractors()
+	e.TractorsByID = make(map[cfgtype.TractorID]Tractor)
+	for _, tractor := range e.Tractors {
+		e.TractorsByID[tractor.Nickname] = tractor
+	}
 	e.Factions = e.GetFactions(e.Bases)
 	e.Bases = e.GetMissions(e.Bases, e.Factions)
 
@@ -152,7 +157,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Mines = e.GetMines(e.Tractors)
 
 	e.Thrusters = e.GetThrusters(e.Tractors)
-	e.Ships = e.GetShips(e.Tractors)
+	e.Ships = e.GetShips(e.Tractors, e.TractorsByID)
 	e.Engines = e.GetEngines(e.Tractors)
 	e.CMs = e.GetCounterMeasures(e.Tractors)
 	e.Scanners = e.GetScanners(e.Tractors)

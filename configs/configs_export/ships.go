@@ -45,10 +45,9 @@ type Ship struct {
 	BiggestHardpoint []string
 
 	*DiscoveryTechCompat
-	DiscoIDsCompatsOrdered []CompatibleIDsForTractor
 }
 
-func (e *Exporter) GetShips(ids []Tractor) []Ship {
+func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tractor) []Ship {
 	var ships []Ship
 
 	for _, ship_info := range e.configs.Shiparch.Ships {
@@ -197,36 +196,34 @@ func (e *Exporter) GetShips(ids []Tractor) []Ship {
 		ships = append(ships, ship)
 	}
 
-	if e.configs.Discovery != nil {
-		var TractorsByID map[cfgtype.TractorID]Tractor = make(map[cfgtype.TractorID]Tractor)
-		for _, tractor := range ids {
-			TractorsByID[tractor.Nickname] = tractor
-		}
+	return ships
+}
 
-		for ship_index, ship := range ships {
-			for tractor_id, tech_tecompability := range ship.DiscoveryTechCompat.TechcompatByID {
-				if tech_tecompability < 11.0/100.0 {
-					continue
-				}
+func GetOrederedTechCompat(TractorsByID map[cfgtype.TractorID]Tractor, DiscoveryTechCompat *DiscoveryTechCompat) []CompatibleIDsForTractor {
+	var DiscoIDsCompatsOrdered []CompatibleIDsForTractor
 
-				if tractor, ok := TractorsByID[tractor_id]; ok {
-					ship.DiscoIDsCompatsOrdered = append(ship.DiscoIDsCompatsOrdered, CompatibleIDsForTractor{
-						TechCompat: tech_tecompability,
-						Tractor:    tractor,
-					})
-				}
-			}
-
-			sort.Slice(ship.DiscoIDsCompatsOrdered, func(i, j int) bool {
-				return ship.DiscoIDsCompatsOrdered[i].TechCompat < ship.DiscoIDsCompatsOrdered[j].TechCompat
-			})
-
-			ships[ship_index] = ship
-		}
-
+	if DiscoveryTechCompat == nil {
+		return DiscoIDsCompatsOrdered
 	}
 
-	return ships
+	for tractor_id, tech_tecompability := range DiscoveryTechCompat.TechcompatByID {
+		if tech_tecompability < 11.0/100.0 {
+			continue
+		}
+
+		if tractor, ok := TractorsByID[tractor_id]; ok {
+			DiscoIDsCompatsOrdered = append(DiscoIDsCompatsOrdered, CompatibleIDsForTractor{
+				TechCompat: tech_tecompability,
+				Tractor:    tractor,
+			})
+		}
+	}
+
+	sort.Slice(DiscoIDsCompatsOrdered, func(i, j int) bool {
+		return DiscoIDsCompatsOrdered[i].TechCompat < DiscoIDsCompatsOrdered[j].TechCompat
+	})
+
+	return DiscoIDsCompatsOrdered
 }
 
 type EquipmentSlot struct {

@@ -1,8 +1,0 @@
-go 1.22.5
-
-use (
-	.
-	// ../go-utils
-	// ../go-typelog
-	./docs/filesave
-)
