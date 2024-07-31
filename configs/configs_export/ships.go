@@ -220,7 +220,7 @@ func GetOrederedTechCompat(TractorsByID map[cfgtype.TractorID]Tractor, Discovery
 	}
 
 	sort.Slice(DiscoIDsCompatsOrdered, func(i, j int) bool {
-		return DiscoIDsCompatsOrdered[i].TechCompat < DiscoIDsCompatsOrdered[j].TechCompat
+		return DiscoIDsCompatsOrdered[i].Tractor.Name < DiscoIDsCompatsOrdered[j].Tractor.Name
 	})
 
 	return DiscoIDsCompatsOrdered
