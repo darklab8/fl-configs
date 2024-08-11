@@ -45,21 +45,23 @@ type Gun struct {
 	// AmmoBases     []*GoodAtBase
 	// AmmoName      string
 	HullDamage      int
-	EnergyDamange   int
+	EnergyDamage    int
 	ShieldDamage    int
 	AvgShieldDamage int
 	DamageType      string
 	LifeTime        float64
 	Speed           float64
 
-	HullDamagePerSec      float64
-	AvgShieldDamagePerSec float64
-	PowerUsagePerSec      float64
-	AvgEfficiency         float64
-	HullEfficiency        float64
-	ShieldEfficiency      float64
-	Value                 float64
-	Rating                float64
+	HullDamagePerSec       float64
+	AvgShieldDamagePerSec  float64
+	EnergyDamagePerSec     float64
+	PowerUsagePerSec       float64
+	AvgEfficiency          float64
+	HullEfficiency         float64
+	ShieldEfficiency       float64
+	EnergyDamageEfficiency float64
+	Value                  float64
+	Rating                 float64
 
 	Bases         []*GoodAtBase
 	DamageBonuses []DamageBonus
@@ -121,14 +123,14 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	if hull_damange, ok := munition.HullDamage.GetValue(); ok {
 		// regular gun or turret
 		gun.HullDamage = hull_damange
-		gun.EnergyDamange = munition.EnergyDamange.Get()
+		gun.EnergyDamage = munition.EnergyDamange.Get()
 	} else {
 
 		if explosion_arch, ok := munition.ExplosionArch.GetValue(); ok {
 			// rocket launcher
 			explosion := e.configs.Equip.ExplosionMap[explosion_arch]
 			gun.HullDamage = explosion.HullDamage.Get()
-			gun.EnergyDamange = explosion.EnergyDamange.Get()
+			gun.EnergyDamage = explosion.EnergyDamange.Get()
 		} else {
 			// healing gun
 			gun.HullDamage = -1
@@ -182,7 +184,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 	e.exportInfocards(InfocardKey(gun.Nickname), gun.IdsInfo)
 
-	gun.ShieldDamage = int(float64(gun.HullDamage)*float64(e.configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(gun.EnergyDamange))
+	gun.ShieldDamage = int(float64(gun.HullDamage)*float64(e.configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(gun.EnergyDamage))
 
 	avg_shield_modifier := 0.0
 	shield_modifier_count := 0
@@ -202,11 +204,13 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.AvgShieldDamage = int(float64(gun.ShieldDamage) * avgShieldModifier)
 
 	gun.HullDamagePerSec = float64(gun.HullDamage) * gun.Refire
+	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire
 	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire
 	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire
 	gun.AvgEfficiency = (float64(gun.HullDamage) + float64(gun.AvgShieldDamage)) / (gun.PowerUsage * 2)
 	gun.HullEfficiency = float64(gun.HullDamage) / gun.PowerUsage
 	gun.ShieldEfficiency = float64(gun.AvgShieldDamage) / gun.PowerUsage
+	gun.EnergyDamageEfficiency = float64(gun.EnergyDamage) / gun.PowerUsage
 	gun.Value = math.Max(float64(gun.HullDamagePerSec), float64(gun.AvgShieldDamagePerSec)) / float64(gun.Price) * 1000
 	gun.Rating = gun.AvgEfficiency * gun.Value
 
