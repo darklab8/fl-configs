@@ -20,12 +20,14 @@ type Scanner struct {
 func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 	var scanners []Scanner
 
-	for _, cm_info := range e.configs.Equip.Scanners {
+	for _, scanner_info := range e.configs.Equip.Scanners {
 		item := Scanner{}
-		item.Nickname = cm_info.Nickname.Get()
-		item.Lootable = cm_info.Lootable.Get()
-		item.NameID = cm_info.IdsName.Get()
-		item.InfoID = cm_info.IdsInfo.Get()
+		item.Nickname = scanner_info.Nickname.Get()
+		item.Lootable = scanner_info.Lootable.Get()
+		item.NameID = scanner_info.IdsName.Get()
+		item.InfoID = scanner_info.IdsInfo.Get()
+		item.Range = scanner_info.Range.Get()
+		item.CargoScanRange = scanner_info.CargoScanRange.Get()
 
 		if good_info, ok := e.configs.Goods.GoodsMap[item.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
