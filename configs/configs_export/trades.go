@@ -164,6 +164,11 @@ func (e *Exporter) TradePaths(
 					continue
 				}
 
+				// If u need to limit to specific min distance
+				// if trade_route.Transport.GetDist() < 60*10*350 {
+				// 	continue
+				// }
+
 				// fmt.Println("path for", trade_route.Transport.BuyingGood.BaseNickname, trade_route.Transport.SellingGood.BaseNickname)
 				// fmt.Println("trade_route.Transport.GetPaths().length", len(trade_route.Transport.GetPaths()))
 

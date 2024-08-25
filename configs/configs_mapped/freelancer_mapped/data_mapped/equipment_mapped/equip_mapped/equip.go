@@ -41,20 +41,24 @@ type Munition struct {
 	EnergyDamange      *semantic.Int
 	HealintAmount      *semantic.Int
 	WeaponType         *semantic.String
-	LifeTime           *semantic.Float
 	Mass               *semantic.Int
 	Motor              *semantic.String
 	MaxAngularVelocity *semantic.Float
 
 	HitPts    *semantic.Int
 	AmmoLimit *semantic.Int
-	Volume    *semantic.Int
+	Volume    *semantic.Float
 
 	IdsName *semantic.Int
 	IdsInfo *semantic.Int
 
 	ConstEffect       *semantic.String
 	MunitionHitEffect *semantic.String
+
+	LifeTime     *semantic.Float
+	SeekerType   *semantic.String
+	SeekerRange  *semantic.Int
+	SeekerFovDeg *semantic.Int
 }
 
 type Explosion struct {
@@ -80,6 +84,8 @@ type Gun struct {
 	ProjectileArchetype *semantic.String
 	HPGunType           *semantic.String
 	Lootable            *semantic.Bool
+	DispersionAngle     *semantic.Float
+	Volume              *semantic.Float
 
 	FlashParticleName *semantic.String
 }
@@ -314,6 +320,8 @@ func Read(files []*iniload.IniLoader) *Config {
 			case "[gun]":
 				gun := &Gun{
 					FlashParticleName: semantic.NewString(section, "flash_particle_name", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					DispersionAngle:   semantic.NewFloat(section, "dispersion_angle", semantic.Precision(2)),
+					Volume:            semantic.NewFloat(section, "volume", semantic.Precision(2)),
 				}
 				gun.Map(section)
 
@@ -336,6 +344,10 @@ func Read(files []*iniload.IniLoader) *Config {
 				munition := &Munition{
 					ConstEffect:       semantic.NewString(section, "const_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					MunitionHitEffect: semantic.NewString(section, "munition_hit_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+
+					SeekerType:   semantic.NewString(section, "seeker"),
+					SeekerRange:  semantic.NewInt(section, "seeker_range"),
+					SeekerFovDeg: semantic.NewInt(section, "seeker_fov_deg"),
 				}
 				munition.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				munition.IdsName = semantic.NewInt(section, "ids_name")
@@ -353,7 +365,7 @@ func Read(files []*iniload.IniLoader) *Config {
 
 				munition.HitPts = semantic.NewInt(section, "hit_pts")
 				munition.AmmoLimit = semantic.NewInt(section, "ammo_limit")
-				munition.Volume = semantic.NewInt(section, "volume")
+				munition.Volume = semantic.NewFloat(section, "volume", semantic.Precision(4))
 
 				frelconfig.Munitions = append(frelconfig.Munitions, munition)
 				frelconfig.MunitionMap[munition.Nickname.Get()] = munition

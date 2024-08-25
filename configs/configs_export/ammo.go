@@ -4,13 +4,17 @@ type Ammo struct {
 	Name  string
 	Price int
 
-	HitPts    int
-	AmmoLimit int
-	Volume    int
+	HitPts           int
+	AmmoLimit        int
+	Volume           float64
+	MunitionLifetime float64
 
-	Nickname string
-	NameID   int
-	InfoID   int
+	Nickname     string
+	NameID       int
+	InfoID       int
+	SeekerType   string
+	SeekerRange  int
+	SeekerFovDeg int
 
 	Bases []*GoodAtBase
 
@@ -29,6 +33,12 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		munition.HitPts, _ = munition_info.HitPts.GetValue()
 		munition.AmmoLimit, _ = munition_info.AmmoLimit.GetValue()
 		munition.Volume, _ = munition_info.Volume.GetValue()
+		munition.SeekerRange, _ = munition_info.SeekerRange.GetValue()
+		munition.SeekerType, _ = munition_info.SeekerType.GetValue()
+
+		munition.MunitionLifetime, _ = munition_info.LifeTime.GetValue()
+
+		munition.SeekerFovDeg, _ = munition_info.SeekerFovDeg.GetValue()
 
 		if ammo_ids_name, ok := munition_info.IdsName.GetValue(); ok {
 			munition.Name = e.GetInfocardName(ammo_ids_name, munition.Nickname)

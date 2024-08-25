@@ -2,7 +2,6 @@ package configs_export
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 
@@ -29,6 +28,7 @@ type Gun struct {
 	HpType   string
 	IdsName  int
 	IdsInfo  int
+	Volume   float64
 
 	HitPts       string
 	PowerUsage   float64
@@ -37,7 +37,6 @@ type Gun struct {
 	Range        float64
 	Toughness    float64
 	IsAutoTurret bool
-	TurnRate     float64
 	Lootable     bool
 
 	RequiredAmmo bool
@@ -51,6 +50,8 @@ type Gun struct {
 	DamageType      string
 	LifeTime        float64
 	Speed           float64
+	GunTurnRate     float64
+	DispersionAngle float64
 
 	HullDamagePerSec       float64
 	AvgShieldDamagePerSec  float64
@@ -60,8 +61,6 @@ type Gun struct {
 	HullEfficiency         float64
 	ShieldEfficiency       float64
 	EnergyDamageEfficiency float64
-	Value                  float64
-	Rating                 float64
 
 	Bases         []*GoodAtBase
 	DamageBonuses []DamageBonus
@@ -105,11 +104,11 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		Refire:     float64(1 / gun_info.RefireDelay.Get()),
 		Speed:      gun_info.MuzzleVelosity.Get(),
 		Toughness:  gun_info.Toughness.Get(),
-		TurnRate:   gun_info.TurnRate.Get(),
 		Lootable:   gun_info.Lootable.Get(),
 	}
 
 	gun.IsAutoTurret, _ = gun_info.IsAutoTurret.GetValue()
+	gun.Volume, _ = gun_info.Volume.GetValue()
 
 	gun.HpType, _ = gun_info.HPGunType.GetValue()
 
@@ -211,8 +210,8 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.HullEfficiency = float64(gun.HullDamage) / gun.PowerUsage
 	gun.ShieldEfficiency = float64(gun.AvgShieldDamage) / gun.PowerUsage
 	gun.EnergyDamageEfficiency = float64(gun.EnergyDamage) / gun.PowerUsage
-	gun.Value = math.Max(float64(gun.HullDamagePerSec), float64(gun.AvgShieldDamagePerSec)) / float64(gun.Price) * 1000
-	gun.Rating = gun.AvgEfficiency * gun.Value
+	gun.GunTurnRate, _ = gun_info.TurnRate.GetValue()
+	gun.DispersionAngle, _ = gun_info.DispersionAngle.GetValue()
 
 	if gun.IsAutoTurret {
 		gun.Type = "turret"
