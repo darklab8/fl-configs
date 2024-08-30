@@ -54,17 +54,14 @@ func (e *Exporter) GetBases() []*Base {
 		var archetypes []string
 		if system, ok := e.configs.Systems.SystemsMap[base.System.Get()]; ok {
 			for _, system_base := range system.Bases {
-				if system_base.IdsName.Get() == base.StridName.Get() {
+				if system_base.Base.Get() == base.Nickname.Get() {
 					infocard_id = system_base.IDsInfo.Get()
 					reputation_nickname = system_base.RepNickname.Get()
 					pos, _ = system_base.Pos.GetValue()
 					archetype, _ := system_base.Archetype.GetValue()
 					archetypes = append(archetypes, archetype)
-
 				}
-
 			}
-
 		}
 
 		var infocard_ids []int = make([]int, 0)
