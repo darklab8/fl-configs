@@ -9,3 +9,7 @@ type Vector struct {
 type TractorID string
 
 type FactionNick string
+
+type Milliseconds = float64
+
+type Seconds = float64

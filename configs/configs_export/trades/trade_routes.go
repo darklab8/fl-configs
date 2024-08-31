@@ -33,6 +33,14 @@ func DistanceForVecs(Pos1 cfgtype.Vector, Pos2 cfgtype.Vector) float64 {
 
 type WithFreighterPaths bool
 
+type RouteShipType int64
+
+const (
+	RouteTransport RouteShipType = iota
+	RouteFrigate
+	RouteFreighter
+)
+
 type ShipSpeeds struct {
 	AvgTransportCruiseSpeed int
 	AvgFrigateCruiseSpeed   int
@@ -282,16 +290,16 @@ func MapConfigsToFGraph(
 // 	return float64(time * graph.AvgCruiseSpeed)
 // }
 
-func (graph *GameGraph) DistanceToTime(distance float64) float64 {
+func (graph *GameGraph) DistanceToTime(distance float64) cfgtype.Milliseconds {
 	// we assume graph.AvgCruiseSpeed is above zero smth. Not going to check correctness
 	// lets try in milliseconds
-	return distance * PrecisionMultipiler / float64(graph.AvgCruiseSpeed)
+	return distance * float64(PrecisionMultipiler) / float64(graph.AvgCruiseSpeed)
 }
 
-func (graph *GameGraph) GetTimeForDist(dist float64) float64 {
+func (graph *GameGraph) GetTimeForDist(dist cfgtype.Milliseconds) cfgtype.Seconds {
 	// Surprise ;) Distance is time now.
-	return float64(dist) / PrecisionMultipiler
+	return dist / PrecisionMultipiler
 }
 
 // makes time in ms. Higher int value help having better calcs.
-const PrecisionMultipiler = 1000
+const PrecisionMultipiler = cfgtype.Milliseconds(1000)
