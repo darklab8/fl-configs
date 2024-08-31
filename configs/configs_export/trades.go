@@ -120,7 +120,7 @@ func (t *TradeRoute) GetProffitPerTime() float64 {
 }
 
 func (t *TradeRoute) GetTime() float64 {
-	return float64(t.GetDist())/float64(t.g.graph.AvgCruiseSpeed) + float64(trades.BaseDockingDelay)
+	return float64(t.GetDist())/trades.PrecisionMultipiler + float64(trades.BaseDockingDelay)
 }
 
 func (e *Exporter) TradePaths(

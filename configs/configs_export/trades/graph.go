@@ -156,7 +156,7 @@ func (graph *GameGraph) GetPaths(parents [][]Parent, dist [][]int, source_key st
 
 	paths := GetPath(graph, parents, dist, source_key, target_key)
 	for _, path := range paths {
-		minutes := int(math.Floor(float64(graph.GetTimeForDist(float64(path.Dist))) / 60))
+		minutes := int(math.Floor(graph.GetTimeForDist(float64(path.Dist)) / 60))
 		detailed_path := DetailedPath{
 			PrevName:    string(graph.NicknameByIndex[path.Node]),
 			NextName:    string(graph.NicknameByIndex[path.NextNode]),
@@ -166,7 +166,7 @@ func (graph *GameGraph) GetPaths(parents [][]Parent, dist [][]int, source_key st
 			NextNode:    path.NextNode,
 			Dist:        path.Dist,
 			TimeMinutes: int(minutes),
-			TimeSeconds: graph.GetTimeForDist(float64(path.Dist)) - minutes*60,
+			TimeSeconds: int(int(graph.GetTimeForDist(float64(path.Dist))) - minutes*60),
 		}
 
 		detailed_paths = append(detailed_paths, detailed_path)

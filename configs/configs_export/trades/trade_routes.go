@@ -109,7 +109,7 @@ func MapConfigsToFGraph(
 				graph.SetIdsName(object.nickname, 0)
 
 				for _, existing_object := range system_objects {
-					distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(BaseDockingDelay)
+					distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + BaseDockingDelay*PrecisionMultipiler
 					graph.SetEdge(object.nickname, existing_object.nickname, distance)
 					graph.SetEdge(existing_object.nickname, object.nickname, distance)
 				}
@@ -141,7 +141,7 @@ func MapConfigsToFGraph(
 			}
 
 			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(BaseDockingDelay)
+				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + BaseDockingDelay*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -188,7 +188,7 @@ func MapConfigsToFGraph(
 			}
 
 			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(JumpHoleDelaySec)
+				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + JumpHoleDelaySec*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -245,14 +245,14 @@ func MapConfigsToFGraph(
 				}
 
 				distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-				distance_inside_tradelane := distance * float64(graph.AvgCruiseSpeed) / float64(AvgTradeLaneSpeed)
+				distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
 				graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 			} else {
 				// in production every trade lane ring will work as separate entity
 				if next_exists {
 					if last_tradelane, ok := system.TradelaneByNick[next_tradelane]; ok {
 						distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-						distance_inside_tradelane := distance * float64(graph.AvgCruiseSpeed) / float64(AvgTradeLaneSpeed)
+						distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
 						graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 					}
 				}
@@ -260,14 +260,14 @@ func MapConfigsToFGraph(
 				if prev_exists {
 					if last_tradelane, ok := system.TradelaneByNick[prev_tradelane]; ok {
 						distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-						distance_inside_tradelane := distance * float64(graph.AvgCruiseSpeed) / float64(AvgTradeLaneSpeed)
+						distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
 						graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 					}
 				}
 			}
 
 			for _, existing_object := range system_objects {
-				distance := DistanceForVecs(object.pos, existing_object.pos) + graph.GetDistForTime(TradeLaneDockingDelaySec)
+				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + TradeLaneDockingDelaySec*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -278,10 +278,20 @@ func MapConfigsToFGraph(
 	return graph
 }
 
-func (graph *GameGraph) GetDistForTime(time int) float64 {
-	return float64(time * graph.AvgCruiseSpeed)
+// func (graph *GameGraph) GetDistForTime(time int) float64 {
+// 	return float64(time * graph.AvgCruiseSpeed)
+// }
+
+func (graph *GameGraph) DistanceToTime(distance float64) float64 {
+	// we assume graph.AvgCruiseSpeed is above zero smth. Not going to check correctness
+	// lets try in milliseconds
+	return distance * PrecisionMultipiler / float64(graph.AvgCruiseSpeed)
 }
 
-func (graph *GameGraph) GetTimeForDist(dist float64) int {
-	return int(dist / float64(graph.AvgCruiseSpeed))
+func (graph *GameGraph) GetTimeForDist(dist float64) float64 {
+	// Surprise ;) Distance is time now.
+	return float64(dist) / PrecisionMultipiler
 }
+
+// makes time in ms. Higher int value help having better calcs.
+const PrecisionMultipiler = 1000
