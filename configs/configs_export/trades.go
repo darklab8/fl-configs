@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 )
@@ -72,6 +73,7 @@ func (t *TradeRoute) GetProffitPerV() float64 {
 type PathWithNavmap struct {
 	trades.DetailedPath
 	SectorCoord string
+	Pos         cfgtype.Vector
 }
 
 func (t *TradeRoute) GetPaths() []PathWithNavmap {
@@ -90,12 +92,14 @@ func (t *TradeRoute) GetPaths() []PathWithNavmap {
 
 			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(jh.System.Nickname)]
 			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
+			augmented_path.Pos = pos
 		}
 		if base, ok := t.g.e.configs.Systems.BasesByBases[path.NextName]; ok {
 			pos := base.Pos.Get()
 
 			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Nickname)]
 			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
+			augmented_path.Pos = pos
 		}
 
 		results = append(results, augmented_path)
