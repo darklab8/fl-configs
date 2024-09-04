@@ -32,7 +32,7 @@ type Commodity struct {
 	PriceBestBaseBuysFor  int
 	PriceBestBaseSellsFor int
 	ProffitMargin         int
-	Trades
+	BaseAllTradeRoutes
 }
 
 func GetPricePerVoume(price int, volume float64) float64 {

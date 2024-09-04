@@ -139,14 +139,15 @@ func MapConfigsToFGraph(
 				continue
 			}
 
-			goods, goods_defined := configs.Market.GoodsPerBase[object.nickname]
-			if !goods_defined {
-				continue
-			}
+			// Lets allow flying between all bases
+			// goods, goods_defined := configs.Market.GoodsPerBase[object.nickname]
+			// if !goods_defined {
+			// 	continue
+			// }
 
-			if len(goods.MarketGoods) == 0 {
-				continue
-			}
+			// if len(goods.MarketGoods) == 0 {
+			// 	continue
+			// }
 
 			for _, existing_object := range system_objects {
 				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + BaseDockingDelay*PrecisionMultipiler

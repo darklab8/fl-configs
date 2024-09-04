@@ -1,24 +1,43 @@
 package configs_export
 
-import (
-	"github.com/darklab8/fl-configs/configs/cfgtype"
-	"github.com/darklab8/fl-configs/configs/configs_export/trades"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
-)
+type TradeRoute struct {
+	Route       *Route
+	Commodity   *Commodity
+	BuyingGood  *GoodAtBase
+	SellingGood *GoodAtBase
+}
 
-type Trades struct {
+func NewTradeRoute(g *GraphResults, buying_good *GoodAtBase, selling_good *GoodAtBase, commodity *Commodity) *TradeRoute {
+	if g == nil {
+		return &TradeRoute{Route: &Route{is_disabled: true}}
+	}
+
+	route := &TradeRoute{
+		Route:       NewRoute(g, buying_good.BaseNickname, selling_good.BaseNickname),
+		BuyingGood:  buying_good,
+		SellingGood: selling_good,
+		Commodity:   commodity,
+	}
+
+	return route
+}
+
+func (t *TradeRoute) GetProffitPerV() float64 {
+	if t.Route.is_disabled {
+		return 0
+	}
+	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
+}
+
+func (t *TradeRoute) GetProffitPerTime() float64 {
+	return t.GetProffitPerV() / t.Route.GetTime()
+}
+
+type BaseAllTradeRoutes struct {
 	TradeRoutes        []*ComboTradeRoute
 	BestTransportRoute *TradeRoute
 	BestFrigateRoute   *TradeRoute
 	BestFreighterRoute *TradeRoute
-}
-
-type TradeRoute struct {
-	g           *GraphResults
-	Commodity   *Commodity
-	BuyingGood  *GoodAtBase
-	SellingGood *GoodAtBase
-	is_disabled bool
 }
 
 type ComboTradeRoute struct {
@@ -28,99 +47,10 @@ type ComboTradeRoute struct {
 }
 
 func (c *ComboTradeRoute) GetID() string {
-	if c.Transport.is_disabled {
+	if c.Transport.Route.is_disabled {
 		return ""
 	}
 	return c.Transport.Commodity.Nickname + c.Transport.BuyingGood.BaseNickname + c.Transport.SellingGood.BaseNickname
-}
-
-func NewTradeRoute(g *GraphResults, buying_good *GoodAtBase, selling_good *GoodAtBase, commodity *Commodity) *TradeRoute {
-	if g == nil {
-		return &TradeRoute{is_disabled: true}
-	}
-
-	route := &TradeRoute{
-		g:           g,
-		BuyingGood:  buying_good,
-		SellingGood: selling_good,
-		Commodity:   commodity,
-	}
-
-	return route
-}
-
-func (t *TradeRoute) GetCruiseSpeed() int {
-	if t.is_disabled {
-		return 0
-	}
-	return t.g.graph.AvgCruiseSpeed
-}
-
-func (t *TradeRoute) GetCanVisitFreighterOnlyJH() bool {
-	if t.is_disabled {
-		return false
-	}
-	return bool(t.g.graph.CanVisitFreightersOnlyJHs)
-}
-
-func (t *TradeRoute) GetProffitPerV() float64 {
-	if t.is_disabled {
-		return 0
-	}
-	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
-}
-
-type PathWithNavmap struct {
-	trades.DetailedPath
-	SectorCoord string
-	Pos         cfgtype.Vector
-}
-
-func (t *TradeRoute) GetPaths() []PathWithNavmap {
-	var results []PathWithNavmap
-	paths := t.g.graph.GetPaths(t.g.parents, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
-
-	for _, path := range paths {
-		// path.NextName // nickname of object
-
-		augmented_path := PathWithNavmap{
-			DetailedPath: path,
-		}
-
-		if jh, ok := t.g.e.configs.Systems.JumpholesByNick[path.NextName]; ok {
-			pos := jh.Pos.Get()
-
-			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(jh.System.Nickname)]
-			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
-			augmented_path.Pos = pos
-		}
-		if base, ok := t.g.e.configs.Systems.BasesByBases[path.NextName]; ok {
-			pos := base.Pos.Get()
-
-			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Nickname)]
-			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
-			augmented_path.Pos = pos
-		}
-
-		results = append(results, augmented_path)
-	}
-	return results
-}
-
-func (t *TradeRoute) GetNameByIdsName(ids_name int) string {
-	return string(t.g.e.configs.Infocards.Infonames[ids_name])
-}
-
-func (t *TradeRoute) GetDist() int {
-	return trades.GetDist(t.g.graph, t.g.dists, t.BuyingGood.BaseNickname, t.SellingGood.BaseNickname)
-}
-
-func (t *TradeRoute) GetProffitPerTime() float64 {
-	return t.GetProffitPerV() / t.GetTime()
-}
-
-func (t *TradeRoute) GetTime() float64 {
-	return float64(t.GetDist())/trades.PrecisionMultipiler + float64(trades.BaseDockingDelay)
 }
 
 func (e *Exporter) TradePaths(

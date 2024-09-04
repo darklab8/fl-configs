@@ -166,6 +166,7 @@ func (e *Exporter) Export() *Exporter {
 
 	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 	e.MiningOperations, e.Commodities = e.TradePaths(e.MiningOperations, e.Commodities)
+	e.Bases = e.AllRoutes(e.Bases)
 	return e
 }
 

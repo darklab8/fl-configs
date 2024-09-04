@@ -158,6 +158,7 @@ type Base struct {
 	SectorCoord      string
 
 	Missions BaseMissions
-	Trades
+	BaseAllTradeRoutes
+	BaseAllRoutes
 	MiningInfo
 }

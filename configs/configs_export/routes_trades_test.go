@@ -52,8 +52,8 @@ func TestGetTrades(t *testing.T) {
 			continue
 		}
 		for _, trade_route := range base.TradeRoutes {
-			trade_route.Transport.GetPaths()
-			trade_route.Frigate.GetDist()
+			trade_route.Transport.Route.GetPaths()
+			trade_route.Frigate.Route.GetDist()
 		}
 	}
 
