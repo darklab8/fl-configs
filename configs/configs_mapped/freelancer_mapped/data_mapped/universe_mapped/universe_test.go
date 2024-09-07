@@ -15,8 +15,9 @@ import (
 )
 
 func TestReader(t *testing.T) {
-	fileref := tests.FixtureFileFind().GetFile(FILENAME)
-	config := Read(iniload.NewLoader(fileref).Scan())
+	filesystem := tests.FixtureFileFind()
+	fileref := filesystem.GetFile(FILENAME)
+	config := Read(iniload.NewLoader(fileref).Scan(), filesystem)
 
 	assert.Greater(t, len(config.Bases), 0)
 	assert.Greater(t, len(config.Systems), 0)
@@ -28,5 +29,5 @@ func TestIdentifySystemFiles(t *testing.T) {
 	logus.Log.Debug("filefind.FindConfigs" + fmt.Sprintf("%v", filesystem))
 
 	universe_fileref := filesystem.GetFile(FILENAME)
-	_ = Read(iniload.NewLoader(universe_fileref).Scan())
+	_ = Read(iniload.NewLoader(universe_fileref).Scan(), filesystem)
 }

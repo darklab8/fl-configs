@@ -189,7 +189,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		wg.Add(1)
 		go func() {
 			timeit.NewTimerF(func() {
-				p.Universe_config = universe_mapped.Read(file_universe)
+				p.Universe_config = universe_mapped.Read(file_universe, filesystem)
 				p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
 			}, timeit.WithMsg("map systems"))
 			wg.Done()

@@ -4,9 +4,12 @@ parse universe.ini
 package universe_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/go-utils/utils/timeit"
 )
 
 // Feel free to map it xD
@@ -49,6 +52,8 @@ type Base struct {
 	File             *semantic.Path
 	BGCS_base_run_by *semantic.String
 	// Terrains *semantic.StringStringMap
+
+	ConfigBase *ConfigBase
 }
 
 type BaseNickname string
@@ -78,7 +83,25 @@ type Config struct {
 	TimeSeconds *semantic.Int
 }
 
-func Read(ini *iniload.IniLoader) *Config {
+type FileRead struct {
+	base_nickname string
+	file          *file.File
+	ini           *inireader.INIFile
+}
+
+type Room struct {
+	semantic.Model
+	Nickname *semantic.String
+	File     *semantic.Path
+}
+
+type ConfigBase struct {
+	File                  *inireader.INIFile
+	Rooms                 []*Room
+	RoomMapByRoomNickname map[string]*Room
+}
+
+func Read(ini *iniload.IniLoader, filesystem *filefind.Filesystem) *Config {
 	frelconfig := &Config{File: ini}
 
 	frelconfig.TimeSeconds = semantic.NewInt(ini.SectionMap[KEY_TIME_TAG][0], KEY_TIME_TAG)
@@ -100,6 +123,59 @@ func Read(ini *iniload.IniLoader) *Config {
 			frelconfig.Bases = append(frelconfig.Bases, base_to_add)
 			frelconfig.BasesMap[BaseNickname(base_to_add.Nickname.Get())] = base_to_add
 		}
+	}
+
+	// Reading Base Files
+	var base_files map[string]*file.File = make(map[string]*file.File)
+	timeit.NewTimerF(func() {
+		for _, base := range frelconfig.Bases {
+			filename := base.File.FileName()
+			path := filesystem.GetFile(filename)
+			base_files[base.Nickname.Get()] = file.NewFile(path.GetFilepath())
+		}
+	}, timeit.WithMsg("systems prepared files"))
+	var base_fileconfigs map[string]*inireader.INIFile = make(map[string]*inireader.INIFile)
+	func() {
+		timeit.NewTimerF(func() {
+			// Read system files with parallelism ^_^
+			iniconfigs_channel := make(chan *FileRead)
+			read_file := func(data *FileRead) {
+				data.ini = inireader.Read(data.file)
+				iniconfigs_channel <- data
+			}
+			for base_nickname, file := range base_files {
+				go read_file(&FileRead{
+					base_nickname: base_nickname,
+					file:          file,
+				})
+			}
+			for range base_files {
+				result := <-iniconfigs_channel
+				base_fileconfigs[result.base_nickname] = result.ini
+			}
+		}, timeit.WithMsg("Read system files with parallelism ^_^"))
+	}()
+	// Enhancing bases with Base File info about Rooms inside
+	for _, base := range frelconfig.Bases {
+		if base_file, ok := base_fileconfigs[base.Nickname.Get()]; ok {
+			base.ConfigBase = &ConfigBase{
+				File:                  base_file,
+				RoomMapByRoomNickname: make(map[string]*Room),
+			}
+
+			if rooms, ok := base_file.SectionMap["[room]"]; ok {
+				for _, room_info := range rooms {
+					room := &Room{
+						Nickname: semantic.NewString(room_info, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						File:     semantic.NewPath(room_info, "file"),
+					}
+					room.Map(room_info)
+					base.ConfigBase.Rooms = append(base.ConfigBase.Rooms, room)
+					base.ConfigBase.RoomMapByRoomNickname[room.Nickname.Get()] = room
+				}
+			}
+		}
+
 	}
 
 	if systems, ok := ini.SectionMap[KEY_SYSTEM_TAG]; ok {

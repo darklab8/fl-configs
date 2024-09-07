@@ -15,7 +15,7 @@ func TestSaveRecycleParams(t *testing.T) {
 	filesystem := tests.FixtureFileFind()
 
 	universe_ini := iniload.NewLoader(file.NewFile(filesystem.Hashmap[universe_mapped.FILENAME].GetFilepath())).Scan()
-	universe_config := universe_mapped.Read(universe_ini)
+	universe_config := universe_mapped.Read(universe_ini, filesystem)
 
 	systems := Read(universe_config, filesystem)
 

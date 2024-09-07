@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 )
 
@@ -126,6 +127,16 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 			base.Missions.Err = errors.New("base is not defined in mbases")
 			bases[base_index] = base
 			continue
+		}
+
+		if universe_base, ok := e.configs.Universe_config.BasesMap[universe_mapped.BaseNickname(base.Nickname)]; ok {
+
+			_, bar_exists := universe_base.ConfigBase.RoomMapByRoomNickname["bar"]
+			if !bar_exists {
+				base.Missions.Err = errors.New("bar is not defined for the base")
+				bases[base_index] = base
+				continue
+			}
 		}
 
 		// Firstly finding SystemBase coresponding to base
