@@ -46,11 +46,11 @@ func NewRoute(g *GraphResults, from_base_nickname string, to_base_nickname strin
 	}
 }
 
-func (c *ComboRoute) GetID() string {
-	if c.Transport.is_disabled {
+func (c *Route) GetID() string {
+	if c.is_disabled {
 		return ""
 	}
-	return c.Transport.from_base_nickname + c.Transport.to_base_nickname
+	return c.from_base_nickname + c.to_base_nickname
 }
 
 func (t *Route) GetCruiseSpeed() int {

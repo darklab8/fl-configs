@@ -46,13 +46,6 @@ type ComboTradeRoute struct {
 	Freighter *TradeRoute
 }
 
-func (c *ComboTradeRoute) GetID() string {
-	if c.Transport.Route.is_disabled {
-		return ""
-	}
-	return c.Transport.Commodity.Nickname + c.Transport.BuyingGood.BaseNickname + c.Transport.SellingGood.BaseNickname
-}
-
 func (e *Exporter) TradePaths(
 	bases []*Base,
 	commodities []*Commodity,
