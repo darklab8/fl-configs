@@ -64,7 +64,11 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 		// }()
 
 		ship.Class, _ = ship_info.ShipClass.GetValue()
-		ship.Type = strings.ToLower(ship_info.Type.Get())
+		if _, ok := ship_info.Type.GetValue(); !ok {
+			logus.Log.Warn("ship problem with type", typelog.Any("nickname", ship.Nickname))
+		}
+		ship.Type, _ = ship_info.Type.GetValue()
+		ship.Type = strings.ToLower(ship.Type)
 
 		if ship_name_id, ship_has_name := ship_info.IdsName.GetValue(); ship_has_name {
 			ship.NameID = ship_name_id
