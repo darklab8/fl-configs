@@ -4,7 +4,11 @@ ORM mapper for Freelancer ini reader. Easy mapping values to change.
 package semantic
 
 import (
+	"encoding/json"
+
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
 )
 
 // ORM values
@@ -63,5 +67,29 @@ func Optional() ValueOption {
 func Comment() ValueOption {
 	return func(i *Value) {
 		i.value_type = TypeComment
+	}
+}
+
+func quickJson(value any) string {
+	result, err := json.Marshal(value)
+	if err != nil {
+		return err.Error()
+	}
+	return string(result)
+}
+
+func handleGetCrashReporting(value *Value) {
+	if r := recover(); r != nil {
+		if value == nil {
+			logus.Log.Panic("value is not defined. not possible. ;)")
+			return
+		} else {
+			logus.Log.Error("unable to Get() from semantic.",
+				typelog.Any("value", quickJson(value)),
+				typelog.Any("key", value.key),
+				typelog.NestedStruct("section", value.section),
+			)
+		}
+		panic(r)
 	}
 }

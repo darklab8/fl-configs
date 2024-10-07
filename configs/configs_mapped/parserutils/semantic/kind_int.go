@@ -20,11 +20,16 @@ func NewInt(section *inireader.Section, key string, opts ...ValueOption) *Int {
 	return s
 }
 
-func (s *Int) Get() int {
+func (s *Int) get() int {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return 0
 	}
 	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value)
+}
+
+func (s *Int) Get() int {
+	defer handleGetCrashReporting(s.Value)
+	return s.get()
 }
 
 func (s *Int) GetValue() (int, bool) {
@@ -37,7 +42,7 @@ func (s *Int) GetValue() (int, bool) {
 				ok = false
 			}
 		}()
-		value = s.Get()
+		value = s.get()
 	}()
 
 	return value, ok

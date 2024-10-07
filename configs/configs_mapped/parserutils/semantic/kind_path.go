@@ -60,7 +60,7 @@ func (s *Path) FileName() utils_types.FilePath {
 	return utils_types.FilePath(value)
 }
 
-func (s *Path) Get() utils_types.FilePath {
+func (s *Path) get() utils_types.FilePath {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
@@ -75,6 +75,11 @@ func (s *Path) Get() utils_types.FilePath {
 	return utils_types.FilePath(value)
 }
 
+func (s *Path) Get() utils_types.FilePath {
+	defer handleGetCrashReporting(s.Value)
+	return s.get()
+}
+
 func (s *Path) GetValue() (utils_types.FilePath, bool) {
 	var value utils_types.FilePath
 	var ok bool = true
@@ -85,7 +90,7 @@ func (s *Path) GetValue() (utils_types.FilePath, bool) {
 				ok = false
 			}
 		}()
-		value = s.Get()
+		value = s.get()
 	}()
 
 	return value, ok

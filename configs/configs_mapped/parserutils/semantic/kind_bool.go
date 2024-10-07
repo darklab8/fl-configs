@@ -33,7 +33,7 @@ func NewBool(section *inireader.Section, key string, bool_type BoolType, opts ..
 	return s
 }
 
-func (s *Bool) Get() bool {
+func (s *Bool) get() bool {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return false
 	}
@@ -46,6 +46,11 @@ func (s *Bool) Get() bool {
 	panic("not expected bool type")
 }
 
+func (s *Bool) Get() bool {
+	defer handleGetCrashReporting(s.Value)
+	return s.get()
+}
+
 func (s *Bool) GetValue() (bool, bool) {
 	var value bool
 	var ok bool = true
@@ -56,7 +61,7 @@ func (s *Bool) GetValue() (bool, bool) {
 				ok = false
 			}
 		}()
-		value = s.Get()
+		value = s.get()
 	}()
 
 	return value, ok

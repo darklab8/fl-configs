@@ -26,11 +26,16 @@ func NewFloat(section *inireader.Section, key string, precision Precision, opts 
 	return s
 }
 
-func (s *Float) Get() float64 {
+func (s *Float) get() float64 {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return 0
 	}
 	return s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value
+}
+
+func (s *Float) Get() float64 {
+	defer handleGetCrashReporting(s.Value)
+	return s.get()
 }
 
 func (s *Float) GetValue() (float64, bool) {
@@ -43,7 +48,7 @@ func (s *Float) GetValue() (float64, bool) {
 				ok = false
 			}
 		}()
-		value = s.Get()
+		value = s.get()
 	}()
 
 	return value, ok

@@ -42,7 +42,7 @@ func NewString(section *inireader.Section, key string, opts ...StringOption) *St
 	return s
 }
 
-func (s *String) Get() string {
+func (s *String) get() string {
 	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
 		return ""
 	}
@@ -54,6 +54,13 @@ func (s *String) Get() string {
 		value = strings.ToLower(value)
 	}
 	return value
+
+}
+
+func (s *String) Get() string {
+
+	defer handleGetCrashReporting(s.Value)
+	return s.get()
 }
 
 func (s *String) GetValue() (string, bool) {
@@ -66,7 +73,7 @@ func (s *String) GetValue() (string, bool) {
 				ok = false
 			}
 		}()
-		value = s.Get()
+		value = s.get()
 	}()
 
 	return value, ok
