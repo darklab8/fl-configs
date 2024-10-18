@@ -65,7 +65,7 @@ type Config struct {
 	CommoditiesMap     map[string]*Commodity
 	Ships              []*Ship
 	ShipsMap           map[string]*Ship
-	ShipsMapByHull     map[string]*Ship
+	ShipsMapByHull     map[string][]*Ship
 	ShipHulls          []*ShipHull
 	ShipHullsMap       map[string]*ShipHull
 	ShipHullsMapByShip map[string]*ShipHull
@@ -87,7 +87,7 @@ func Read(configs []*iniload.IniLoader) *Config {
 	frelconfig.Goods = make([]*Good, 0, 100)
 	frelconfig.GoodsMap = make(map[string]*Good)
 	frelconfig.ShipHullsMapByShip = make(map[string]*ShipHull)
-	frelconfig.ShipsMapByHull = make(map[string]*Ship)
+	frelconfig.ShipsMapByHull = make(map[string][]*Ship)
 
 	for _, config := range configs {
 		for _, section := range config.SectionMap["[good]"] {
@@ -144,7 +144,7 @@ func Read(configs []*iniload.IniLoader) *Config {
 
 				frelconfig.Ships = append(frelconfig.Ships, ship)
 				frelconfig.ShipsMap[ship.Nickname.Get()] = ship
-				frelconfig.ShipsMapByHull[ship.Hull.Get()] = ship
+				frelconfig.ShipsMapByHull[ship.Hull.Get()] = append(frelconfig.ShipsMapByHull[ship.Hull.Get()], ship)
 			case "shiphull":
 				shiphull := &ShipHull{}
 				shiphull.Map(section)

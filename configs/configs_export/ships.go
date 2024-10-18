@@ -94,55 +94,58 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 			ship.Price = ship_hull_good.Price.Get()
 
 			ship_hull_nickname := ship_hull_good.Nickname.Get()
-			if ship_package_good, ok := e.configs.Goods.ShipsMapByHull[ship_hull_nickname]; ok {
+			if ship_package_goods, ok := e.configs.Goods.ShipsMapByHull[ship_hull_nickname]; ok {
 
-				for _, addon := range ship_package_good.Addons {
+				for _, ship_package_good := range ship_package_goods {
+					for _, addon := range ship_package_good.Addons {
 
-					// can be Power or Engine or Smth else
-					// addon = dsy_hessian_engine, HpEngine01, 1
-					// addon = dsy_loki_core, internal, 1
-					// addon = ge_s_scanner_01, internal, 1
-					addon_nickname := addon.ItemNickname.Get()
+						// can be Power or Engine or Smth else
+						// addon = dsy_hessian_engine, HpEngine01, 1
+						// addon = dsy_loki_core, internal, 1
+						// addon = ge_s_scanner_01, internal, 1
+						addon_nickname := addon.ItemNickname.Get()
 
-					if good_info, ok := e.configs.Goods.GoodsMap[addon_nickname]; ok {
-						if addon_price, ok := good_info.Price.GetValue(); ok {
-							ship.Price += addon_price
+						if good_info, ok := e.configs.Goods.GoodsMap[addon_nickname]; ok {
+							if addon_price, ok := good_info.Price.GetValue(); ok {
+								ship.Price += addon_price
+							}
+						}
+
+						if power, ok := e.configs.Equip.PowersMap[addon_nickname]; ok {
+							ship.PowerCapacity = power.Capacity.Get()
+							ship.PowerRechargeRate = power.ChargeRate.Get()
+
+							ship.ThrustCapacity = power.ThrustCapacity.Get()
+							ship.ThrustRecharge = power.ThrustRecharge.Get()
+						}
+						if engine, ok := e.configs.Equip.EnginesMap[addon_nickname]; ok {
+							ship.CruiseSpeed = e.GetEngineSpeed(engine)
+							engine_linear_drag, _ := engine.LinearDrag.GetValue()
+							ship_linear_drag, _ := ship_info.LinearDrag.GetValue()
+							engine_max_force, _ := engine.MaxForce.GetValue()
+							ship.ImpulseSpeed = float64(engine_max_force) / (float64(engine_linear_drag) + float64(ship_linear_drag))
+
+							ship.ReverseFraction = engine.ReverseFraction.Get()
+
+							ship.MaxAngularSpeedDegS = ship_info.SteeringTorque.X.Get() / ship_info.AngularDrag.X.Get()
+							ship.TimeTo90MaxAngularSpeed = ship_info.RotationIntertia.X.Get() / (ship_info.AngularDrag.X.Get() * LogOgE)
+
+							ship.MaxAngularSpeedDegS *= Pi180
+
+							if ship.TimeTo90MaxAngularSpeed > 0.5 {
+								ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS * (0.5 / ship.TimeTo90MaxAngularSpeed) / 2
+							} else {
+								ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS*(0.5-ship.TimeTo90MaxAngularSpeed) + ship.MaxAngularSpeedDegS*ship.TimeTo90MaxAngularSpeed/2
+							}
 						}
 					}
 
-					if power, ok := e.configs.Equip.PowersMap[addon_nickname]; ok {
-						ship.PowerCapacity = power.Capacity.Get()
-						ship.PowerRechargeRate = power.ChargeRate.Get()
-
-						ship.ThrustCapacity = power.ThrustCapacity.Get()
-						ship.ThrustRecharge = power.ThrustRecharge.Get()
-					}
-					if engine, ok := e.configs.Equip.EnginesMap[addon_nickname]; ok {
-						ship.CruiseSpeed = e.GetEngineSpeed(engine)
-						engine_linear_drag, _ := engine.LinearDrag.GetValue()
-						ship_linear_drag, _ := ship_info.LinearDrag.GetValue()
-						engine_max_force, _ := engine.MaxForce.GetValue()
-						ship.ImpulseSpeed = float64(engine_max_force) / (float64(engine_linear_drag) + float64(ship_linear_drag))
-
-						ship.ReverseFraction = engine.ReverseFraction.Get()
-
-						ship.MaxAngularSpeedDegS = ship_info.SteeringTorque.X.Get() / ship_info.AngularDrag.X.Get()
-						ship.TimeTo90MaxAngularSpeed = ship_info.RotationIntertia.X.Get() / (ship_info.AngularDrag.X.Get() * LogOgE)
-
-						ship.MaxAngularSpeedDegS *= Pi180
-
-						if ship.TimeTo90MaxAngularSpeed > 0.5 {
-							ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS * (0.5 / ship.TimeTo90MaxAngularSpeed) / 2
-						} else {
-							ship.AngularDistanceFrom0ToHalfSec = ship.MaxAngularSpeedDegS*(0.5-ship.TimeTo90MaxAngularSpeed) + ship.MaxAngularSpeedDegS*ship.TimeTo90MaxAngularSpeed/2
-						}
-					}
+					ship.Bases = append(ship.Bases, e.GetAtBasesSold(GetAtBasesInput{
+						Nickname: ship_package_good.Nickname.Get(),
+						Price:    ship.Price,
+					})...)
 				}
 
-				ship.Bases = e.GetAtBasesSold(GetAtBasesInput{
-					Nickname: ship_package_good.Nickname.Get(),
-					Price:    ship.Price,
-				})
 			}
 
 		}
