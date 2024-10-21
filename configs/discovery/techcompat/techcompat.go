@@ -103,21 +103,24 @@ func Read(input_file *iniload.IniLoader) *Config {
 	}
 
 	for _, faction_info := range input_file.SectionMap["[faction]"] {
-		faction := &Faction{}
-		faction.Map(faction_info)
 
-		faction.ID = semantic.NewString(faction_info, "item")
+		faction_nicknames := faction_info.ParamMap["item"][0]
+		for faction_order, _ := range faction_nicknames.Values {
+			faction := &Faction{}
+			faction.Map(faction_info)
+			faction.ID = semantic.NewString(faction_info, "item", semantic.OptsS(semantic.Order(faction_order)))
 
-		for index, _ := range faction_info.ParamMap["tech"] {
-			compat := &TechCompatibility{}
-			compat.Map(faction_info)
-			compat.Nickname = semantic.NewString(faction_info, "tech", semantic.OptsS(semantic.Index(index), semantic.Order(0)))
-			compat.Percentage = semantic.NewFloat(faction_info, "tech", semantic.Precision(2), semantic.Index(index), semantic.Order(1))
-			faction.TechCompats = append(faction.TechCompats, compat)
+			for index, _ := range faction_info.ParamMap["tech"] {
+				compat := &TechCompatibility{}
+				compat.Map(faction_info)
+				compat.Nickname = semantic.NewString(faction_info, "tech", semantic.OptsS(semantic.Index(index), semantic.Order(0)))
+				compat.Percentage = semantic.NewFloat(faction_info, "tech", semantic.Precision(2), semantic.Index(index), semantic.Order(1))
+				faction.TechCompats = append(faction.TechCompats, compat)
+			}
+
+			conf.Factions = append(conf.Factions, faction)
+			conf.FactionByID[faction.ID.Get()] = faction
 		}
-
-		conf.Factions = append(conf.Factions, faction)
-		conf.FactionByID[faction.ID.Get()] = faction
 	}
 
 	for _, techgroup_info := range input_file.SectionMap["[tech]"] {

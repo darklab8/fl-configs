@@ -43,4 +43,6 @@ func TestReader(t *testing.T) {
 
 	assert.Equal(t, float64(1), config.GetCompatibilty("item_is_not_listed_in_tech", "someid"))
 	assert.Equal(t, float64(0.01), config.GetCompatibilty("compatibility_for_not_equiped_id", ""))
+
+	assert.Equal(t, float64(1.0), config.GetCompatibilty("dsy_no2_cruiser", "dsy_license_nomadguard"))
 }
