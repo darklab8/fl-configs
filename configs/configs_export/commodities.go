@@ -42,7 +42,7 @@ func GetPricePerVoume(price int, volume float64) float64 {
 	return float64(price) / float64(volume)
 }
 
-func (e *Exporter) GetCommodities() []*Commodity {
+func (e *Exporter) GetCommodities(useful_bases_by_nick map[string]*Base) []*Commodity {
 	commodities := make([]*Commodity, 0, 100)
 
 	for _, comm := range e.configs.Goods.Commodities {
@@ -65,9 +65,10 @@ func (e *Exporter) GetCommodities() []*Commodity {
 		base_item_price := comm.Price.Get()
 
 		commodity.Bases = e.GetAtBasesSold(GetAtBasesInput{
-			Nickname: commodity.Nickname,
-			Price:    base_item_price,
-			Volume:   commodity.Volume,
+			Nickname:             commodity.Nickname,
+			Price:                base_item_price,
+			Volume:               commodity.Volume,
+			useful_bases_by_nick: useful_bases_by_nick,
 		})
 
 		for _, base_info := range commodity.Bases {
@@ -93,9 +94,10 @@ func (e *Exporter) GetCommodities() []*Commodity {
 }
 
 type GetAtBasesInput struct {
-	Nickname string
-	Price    int
-	Volume   float64
+	Nickname             string
+	Price                int
+	Volume               float64
+	useful_bases_by_nick map[string]*Base
 }
 
 func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
@@ -115,6 +117,12 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 					panic(r)
 				}
 			}()
+
+			if thebase, ok := commodity.useful_bases_by_nick[base_nickname]; ok {
+				if len(thebase.MarketGoods) == 0 {
+					continue
+				}
+			}
 
 			base_info = &GoodAtBase{
 				BaseNickname:      base_nickname,
@@ -152,6 +160,13 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 		base_info.BaseSells = market_good.BaseSells()
 
 		base_info.BaseNickname = base_nickname
+
+		// if it is empty then not dockable or smth, not found goods
+		if thebase, ok := commodity.useful_bases_by_nick[base_nickname]; ok {
+			if len(thebase.MarketGoods) == 0 {
+				continue
+			}
+		}
 
 		base_info.PriceBaseSellsFor = int(market_good.PriceModifier.Get() * float64(commodity.Price))
 

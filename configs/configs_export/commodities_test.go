@@ -12,7 +12,13 @@ func TestExportCommodities(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 
-	items := exporter.GetCommodities()
+	useful_bases := FilterToUserfulBases(exporter.GetBases())
+	useful_bases_by_nick := make(map[string]*Base)
+	for _, base := range useful_bases {
+		useful_bases_by_nick[base.Nickname] = base
+	}
+
+	items := exporter.GetCommodities(useful_bases_by_nick)
 	assert.Greater(t, len(items), 0)
 
 	fmt.Println(items[0])

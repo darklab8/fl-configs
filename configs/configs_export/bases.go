@@ -79,8 +79,13 @@ func (e *Exporter) GetBases() []*Base {
 		}
 
 		var market_goods []MarketGood
-		if found_commodities, ok := commodities_per_base[base.Nickname.Get()]; ok {
-			market_goods = found_commodities
+		if universe_base, ok := e.configs.Universe_config.BasesMap[universe_mapped.BaseNickname(base.Nickname.Get())]; ok {
+			_, bar_exists := universe_base.ConfigBase.RoomMapByRoomNickname["trader"]
+			if bar_exists {
+				if found_commodities, ok := commodities_per_base[base.Nickname.Get()]; ok {
+					market_goods = found_commodities
+				}
+			}
 		}
 
 		var nickname string = base.Nickname.Get()

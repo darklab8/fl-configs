@@ -1,6 +1,8 @@
 package configs_export
 
 import (
+	"fmt"
+
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
@@ -109,7 +111,24 @@ func (t *Route) GetNameByIdsName(ids_name int) string {
 }
 
 func (t *Route) GetDist() int {
-	return trades.GetDist(t.g.graph, t.g.dists, t.from_base_nickname, t.to_base_nickname)
+	is_panicked := true
+
+	defer func() {
+		if is_panicked {
+			fmt.Println("route=", t)
+
+			if t != nil {
+				fmt.Println("requested t.from_base_nickname=", t.from_base_nickname)
+				fmt.Println("requested t.to_base_nickname=", t.to_base_nickname)
+			}
+		}
+	}()
+
+	result := trades.GetDist(t.g.graph, t.g.dists, t.from_base_nickname, t.to_base_nickname)
+
+	is_panicked = false
+
+	return result
 }
 
 func (t *Route) GetTime() float64 {

@@ -14,7 +14,13 @@ func TestGetTrades(t *testing.T) {
 	e := NewExporter(configs)
 	e.ship_speeds = trades.DiscoverySpeeds
 
-	e.Commodities = e.GetCommodities()
+	useful_bases := FilterToUserfulBases(e.GetBases())
+	useful_bases_by_nick := make(map[string]*Base)
+	for _, base := range useful_bases {
+		useful_bases_by_nick[base.Nickname] = base
+	}
+
+	e.Commodities = e.GetCommodities(useful_bases_by_nick)
 
 	mining_bases := e.GetOres(e.Commodities)
 	mining_bases_by_system := make(map[string][]trades.ExtraBase)
