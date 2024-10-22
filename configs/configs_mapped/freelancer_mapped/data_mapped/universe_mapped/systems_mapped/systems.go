@@ -139,6 +139,7 @@ type Base struct {
 	RepNickname *semantic.String
 	Pos         *semantic.Vect
 	System      *System
+	Parent      *semantic.String
 }
 
 const (
@@ -187,7 +188,7 @@ type System struct {
 	Nickname        string
 	Bases           []*Base
 	BasesByNick     map[string]*Base
-	BasesByBases    map[string][]*Base
+	BasesByBases    map[string]*Base
 	Jumpholes       []*Jumphole
 	Tradelanes      []*TradeLaneRing
 	TradelaneByNick map[string]*TradeLaneRing
@@ -207,6 +208,7 @@ type Config struct {
 
 	// it can contain more than one base meeting condition.
 	BasesByBases    map[string]*Base
+	BasesByNick     map[string]*Base
 	JumpholesByNick map[string]*Jumphole
 }
 
@@ -219,6 +221,7 @@ type FileRead struct {
 func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesystem) *Config {
 	frelconfig := &Config{
 		BasesByBases:    make(map[string]*Base),
+		BasesByNick:     make(map[string]*Base),
 		JumpholesByNick: make(map[string]*Jumphole),
 	}
 	var wg sync.WaitGroup
@@ -271,7 +274,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 			system_to_add.Nickname = system_key
 			system_to_add.BasesByNick = make(map[string]*Base)
-			system_to_add.BasesByBases = make(map[string][]*Base)
+			system_to_add.BasesByBases = make(map[string]*Base)
 			system_to_add.Bases = make([]*Base, 0)
 			frelconfig.SystemsMap[system_key] = system_to_add
 			frelconfig.Systems = append(frelconfig.Systems, system_to_add)
@@ -325,7 +328,9 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 					if _, ok := obj.ParamMap[KEY_BASE]; ok {
 						base_to_add := &Base{
 							Archetype: semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-							System:    system_to_add,
+							Parent:    semantic.NewString(obj, "parent", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+
+							System: system_to_add,
 						}
 						base_to_add.Map(obj)
 
@@ -340,10 +345,14 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						base_to_add.Pos = semantic.NewVector(obj, "pos", semantic.Precision(0))
 
 						system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
-						system_to_add.BasesByBases[base_to_add.Base.Get()] = append(system_to_add.BasesByBases[base_to_add.Base.Get()], base_to_add)
+						system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 
 						frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						if base_nickname, ok := base_to_add.Nickname.GetValue(); ok {
+							frelconfig.BasesByNick[base_nickname] = base_to_add
+						}
+
 					}
 
 					if _, ok := obj.ParamMap["jump_effect"]; ok {
@@ -435,6 +444,25 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 	}, timeit.WithMsg("Map universe itself"))
 
 	wg.Wait()
+
+	// Making sure we selected Parent Bases to return
+	for _, base := range frelconfig.BasesByBases {
+		if parent_nickname, ok := base.Parent.GetValue(); ok {
+			if main_base, ok := frelconfig.BasesByNick[parent_nickname]; ok {
+				frelconfig.BasesByBases[main_base.Base.Get()] = main_base
+			}
+		}
+	}
+	for _, system := range frelconfig.Systems {
+		for _, base := range system.BasesByBases {
+			if parent_nickname, ok := base.Parent.GetValue(); ok {
+				if main_base, ok := system.BasesByNick[parent_nickname]; ok {
+					system.BasesByBases[main_base.Base.Get()] = main_base
+				}
+			}
+		}
+	}
+
 	return frelconfig
 }
 
