@@ -345,10 +345,16 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						base_to_add.Pos = semantic.NewVector(obj, "pos", semantic.Precision(0))
 
 						system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
-						system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						if _, ok := system_to_add.BasesByBases[base_to_add.Base.Get()]; !ok {
+							system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						}
+
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 
-						frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						if _, ok := frelconfig.BasesByBases[base_to_add.Base.Get()]; !ok {
+							frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						}
+
 						if base_nickname, ok := base_to_add.Nickname.GetValue(); ok {
 							frelconfig.BasesByNick[base_nickname] = base_to_add
 						}
