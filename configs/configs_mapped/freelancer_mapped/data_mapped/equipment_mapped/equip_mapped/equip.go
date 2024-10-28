@@ -88,6 +88,9 @@ type Gun struct {
 	Volume              *semantic.Float
 
 	FlashParticleName *semantic.String
+
+	BurstAmmo   *semantic.Int
+	BurstReload *semantic.Float
 }
 
 type Mine struct {
@@ -322,6 +325,9 @@ func Read(files []*iniload.IniLoader) *Config {
 					FlashParticleName: semantic.NewString(section, "flash_particle_name", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					DispersionAngle:   semantic.NewFloat(section, "dispersion_angle", semantic.Precision(2)),
 					Volume:            semantic.NewFloat(section, "volume", semantic.Precision(2)),
+
+					BurstAmmo:   semantic.NewInt(section, "burst_fire"),
+					BurstReload: semantic.NewFloat(section, "burst_fire", semantic.Precision(2), semantic.Order(1)),
 				}
 				gun.Map(section)
 

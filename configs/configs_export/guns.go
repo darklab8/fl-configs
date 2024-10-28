@@ -68,6 +68,19 @@ type Gun struct {
 	Missile
 	*DiscoveryTechCompat
 	GunDetailed
+
+	BurstFire *BurstFire
+}
+
+type BurstFire struct {
+	SustainedRefire float64
+	Ammo            int
+	ReloadTime      float64
+
+	SustainedHullDamagePerSec      float64
+	SustainedAvgShieldDamagePerSec float64
+	SustainedEnergyDamagePerSec    float64
+	SustainedPowerUsagePerSec      float64
 }
 
 func getGunClass(gun_info *equip_mapped.Gun) string {
@@ -105,6 +118,17 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		Speed:      gun_info.MuzzleVelosity.Get(),
 		Toughness:  gun_info.Toughness.Get(),
 		Lootable:   gun_info.Lootable.Get(),
+	}
+
+	if ammo, ok := gun_info.BurstAmmo.GetValue(); ok {
+		gun.BurstFire = &BurstFire{
+			Ammo: ammo,
+		}
+		gun.BurstFire.ReloadTime = gun_info.BurstReload.Get()
+
+		// (magCapacity * RefireDelay + Reload time) / Mag Capacity = This should be average refire delay
+
+		gun.BurstFire.SustainedRefire = 1 / (gun_info.RefireDelay.Get()*float64(gun.BurstFire.Ammo) + gun.BurstFire.ReloadTime) / float64(gun.BurstFire.Ammo)
 	}
 
 	gun.IsAutoTurret, _ = gun_info.IsAutoTurret.GetValue()
@@ -206,6 +230,14 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire
 	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire
 	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire
+
+	if gun.BurstFire != nil {
+		gun.BurstFire.SustainedHullDamagePerSec = float64(gun.HullDamage) * gun.BurstFire.SustainedRefire
+		gun.BurstFire.SustainedEnergyDamagePerSec = float64(gun.EnergyDamage) * gun.BurstFire.SustainedRefire
+		gun.BurstFire.SustainedAvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.BurstFire.SustainedRefire
+		gun.BurstFire.SustainedPowerUsagePerSec = float64(gun.PowerUsage) * gun.BurstFire.SustainedRefire
+	}
+
 	gun.AvgEfficiency = (float64(gun.HullDamage) + float64(gun.AvgShieldDamage)) / (gun.PowerUsage * 2)
 	gun.HullEfficiency = float64(gun.HullDamage) / gun.PowerUsage
 	gun.ShieldEfficiency = float64(gun.AvgShieldDamage) / gun.PowerUsage
