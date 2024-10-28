@@ -128,7 +128,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 		// (magCapacity * RefireDelay + Reload time) / Mag Capacity = This should be average refire delay
 
-		gun.BurstFire.SustainedRefire = 1 / (gun_info.RefireDelay.Get()*float64(gun.BurstFire.Ammo) + gun.BurstFire.ReloadTime) / float64(gun.BurstFire.Ammo)
+		gun.BurstFire.SustainedRefire = 1 / ((gun_info.RefireDelay.Get()*float64(gun.BurstFire.Ammo) + gun.BurstFire.ReloadTime) / float64(gun.BurstFire.Ammo))
 	}
 
 	gun.IsAutoTurret, _ = gun_info.IsAutoTurret.GetValue()
