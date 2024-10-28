@@ -91,6 +91,7 @@ type Gun struct {
 
 	BurstAmmo   *semantic.Int
 	BurstReload *semantic.Float
+	NumBarrels  *semantic.Int
 }
 
 type Mine struct {
@@ -328,6 +329,7 @@ func Read(files []*iniload.IniLoader) *Config {
 
 					BurstAmmo:   semantic.NewInt(section, "burst_fire"),
 					BurstReload: semantic.NewFloat(section, "burst_fire", semantic.Precision(2), semantic.Order(1)),
+					NumBarrels:  semantic.NewInt(section, "num_barrels"),
 				}
 				gun.Map(section)
 

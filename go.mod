@@ -5,7 +5,7 @@ go 1.22.5
 require (
 	github.com/darklab8/fl-data-discovery v0.2.1
 	github.com/darklab8/go-typelog v0.6.1
-	github.com/darklab8/go-utils v0.18.1
+	github.com/darklab8/go-utils v0.19.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/text v0.16.0
 )

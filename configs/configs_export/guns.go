@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
+	"github.com/darklab8/go-utils/utils/ptr"
 )
 
 type DamageBonus struct {
@@ -32,7 +33,6 @@ type Gun struct {
 
 	HitPts       string
 	PowerUsage   float64
-	PowerPerSec  float64
 	Refire       float64
 	Range        float64
 	Toughness    float64
@@ -69,7 +69,8 @@ type Gun struct {
 	*DiscoveryTechCompat
 	GunDetailed
 
-	BurstFire *BurstFire
+	NumBarrels *int
+	BurstFire  *BurstFire
 }
 
 type BurstFire struct {
@@ -120,6 +121,12 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		Lootable:   gun_info.Lootable.Get(),
 	}
 
+	num_barrels := 1
+	if num_barrels_value, ok := gun_info.NumBarrels.GetValue(); ok {
+		num_barrels = num_barrels_value
+		gun.NumBarrels = ptr.Ptr(num_barrels_value)
+	}
+
 	if ammo, ok := gun_info.BurstAmmo.GetValue(); ok {
 		gun.BurstFire = &BurstFire{
 			Ammo: ammo,
@@ -136,7 +143,6 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 	gun.HpType, _ = gun_info.HPGunType.GetValue()
 
-	gun.PowerPerSec = gun.PowerUsage * gun.Refire
 	munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
 
 	gun.FlashParticleName, _ = gun_info.FlashParticleName.GetValue()
@@ -226,16 +232,21 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	avgShieldModifier := avg_shield_modifier / float64(shield_modifier_count)
 	gun.AvgShieldDamage = int(float64(gun.ShieldDamage) * avgShieldModifier)
 
-	gun.HullDamagePerSec = float64(gun.HullDamage) * gun.Refire
-	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire
-	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire
-	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire
+	gun.HullDamagePerSec = float64(gun.HullDamage) * gun.Refire * float64(num_barrels)
+	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire * float64(num_barrels)
+	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire * float64(num_barrels)
+
+	if gun.Nickname == "fc_c_gun03_mark01" {
+		fmt.Println()
+	}
+
+	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire * float64(num_barrels)
 
 	if gun.BurstFire != nil {
-		gun.BurstFire.SustainedHullDamagePerSec = float64(gun.HullDamage) * gun.BurstFire.SustainedRefire
-		gun.BurstFire.SustainedEnergyDamagePerSec = float64(gun.EnergyDamage) * gun.BurstFire.SustainedRefire
-		gun.BurstFire.SustainedAvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.BurstFire.SustainedRefire
-		gun.BurstFire.SustainedPowerUsagePerSec = float64(gun.PowerUsage) * gun.BurstFire.SustainedRefire
+		gun.BurstFire.SustainedHullDamagePerSec = float64(gun.HullDamage) * gun.BurstFire.SustainedRefire * float64(num_barrels)
+		gun.BurstFire.SustainedEnergyDamagePerSec = float64(gun.EnergyDamage) * gun.BurstFire.SustainedRefire * float64(num_barrels)
+		gun.BurstFire.SustainedAvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.BurstFire.SustainedRefire * float64(num_barrels)
+		gun.BurstFire.SustainedPowerUsagePerSec = float64(gun.PowerUsage) * gun.BurstFire.SustainedRefire * float64(num_barrels)
 	}
 
 	gun.AvgEfficiency = (float64(gun.HullDamage) + float64(gun.AvgShieldDamage)) / (gun.PowerUsage * 2)
