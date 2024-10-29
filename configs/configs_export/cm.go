@@ -1,12 +1,13 @@
 package configs_export
 
+import "github.com/darklab8/go-utils/utils/ptr"
+
 type CounterMeasure struct {
 	Name  string
 	Price int
 
 	HitPts        int
 	AIRange       int
-	AmmoLimit     int
 	Lifetime      int
 	Range         int
 	DiversionPctg int
@@ -19,6 +20,8 @@ type CounterMeasure struct {
 	Bases []*GoodAtBase
 
 	*DiscoveryTechCompat
+
+	AmmoLimit AmmoLimit
 }
 
 func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
@@ -47,7 +50,14 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 
 		infocards := []int{cm.InfoID}
 		if ammo_info, ok := e.configs.Equip.CounterMeasureMap[cm_info.ProjectileArchetype.Get()]; ok {
-			cm.AmmoLimit, _ = ammo_info.AmmoLimit.GetValue()
+
+			if value, ok := ammo_info.AmmoLimitAmountInCatridge.GetValue(); ok {
+				cm.AmmoLimit.AmountInCatridge = ptr.Ptr(value)
+			}
+			if value, ok := ammo_info.AmmoLimitMaxCatridges.GetValue(); ok {
+				cm.AmmoLimit.MaxCatridges = ptr.Ptr(value)
+			}
+
 			cm.Lifetime = ammo_info.Lifetime.Get()
 			cm.Range = ammo_info.Range.Get()
 			cm.DiversionPctg = ammo_info.DiversionPctg.Get()

@@ -45,9 +45,10 @@ type Munition struct {
 	Motor              *semantic.String
 	MaxAngularVelocity *semantic.Float
 
-	HitPts    *semantic.Int
-	AmmoLimit *semantic.Int
-	Volume    *semantic.Float
+	HitPts                    *semantic.Int
+	AmmoLimitAmountInCatridge *semantic.Int
+	AmmoLimitMaxCatridges     *semantic.Int
+	Volume                    *semantic.Float
 
 	IdsName *semantic.Int
 	IdsInfo *semantic.Int
@@ -96,19 +97,20 @@ type Gun struct {
 
 type Mine struct {
 	semantic.Model
-	Nickname           *semantic.String
-	ExplosionArch      *semantic.String
-	AmmoLimit          *semantic.Int
-	HitPts             *semantic.Int
-	Lifetime           *semantic.Float
-	IdsName            *semantic.Int
-	IdsInfo            *semantic.Int
-	SeekDist           *semantic.Int
-	TopSpeed           *semantic.Int
-	Acceleration       *semantic.Int
-	OwnerSafeTime      *semantic.Int
-	DetonationDistance *semantic.Int
-	LinearDrag         *semantic.Float
+	Nickname                  *semantic.String
+	ExplosionArch             *semantic.String
+	AmmoLimitAmountInCatridge *semantic.Int
+	AmmoLimitMaxCatridges     *semantic.Int
+	HitPts                    *semantic.Int
+	Lifetime                  *semantic.Float
+	IdsName                   *semantic.Int
+	IdsInfo                   *semantic.Int
+	SeekDist                  *semantic.Int
+	TopSpeed                  *semantic.Int
+	Acceleration              *semantic.Int
+	OwnerSafeTime             *semantic.Int
+	DetonationDistance        *semantic.Int
+	LinearDrag                *semantic.Float
 }
 
 type MineDropper struct {
@@ -210,13 +212,14 @@ type CounterMeasureDropper struct {
 
 type CounterMeasure struct {
 	semantic.Model
-	Nickname      *semantic.String
-	IdsName       *semantic.Int
-	IdsInfo       *semantic.Int
-	AmmoLimit     *semantic.Int
-	Lifetime      *semantic.Int
-	Range         *semantic.Int
-	DiversionPctg *semantic.Int
+	Nickname                  *semantic.String
+	IdsName                   *semantic.Int
+	IdsInfo                   *semantic.Int
+	AmmoLimitAmountInCatridge *semantic.Int
+	AmmoLimitMaxCatridges     *semantic.Int
+	Lifetime                  *semantic.Int
+	Range                     *semantic.Int
+	DiversionPctg             *semantic.Int
 }
 
 type Scanner struct {
@@ -372,7 +375,8 @@ func Read(files []*iniload.IniLoader) *Config {
 				munition.MaxAngularVelocity = semantic.NewFloat(section, "max_angular_velocity", semantic.Precision(4))
 
 				munition.HitPts = semantic.NewInt(section, "hit_pts")
-				munition.AmmoLimit = semantic.NewInt(section, "ammo_limit")
+				munition.AmmoLimitAmountInCatridge = semantic.NewInt(section, "ammo_limit")
+				munition.AmmoLimitMaxCatridges = semantic.NewInt(section, "ammo_limit", semantic.Order(1))
 				munition.Volume = semantic.NewFloat(section, "volume", semantic.Precision(4))
 
 				frelconfig.Munitions = append(frelconfig.Munitions, munition)
@@ -403,9 +407,11 @@ func Read(files []*iniload.IniLoader) *Config {
 				frelconfig.MineDroppers = append(frelconfig.MineDroppers, mine_dropper)
 			case "[mine]":
 				mine := &Mine{
-					Nickname:           semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-					ExplosionArch:      semantic.NewString(section, "explosion_arch", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-					AmmoLimit:          semantic.NewInt(section, "ammo_limit"),
+					Nickname:                  semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					ExplosionArch:             semantic.NewString(section, "explosion_arch", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					AmmoLimitAmountInCatridge: semantic.NewInt(section, "ammo_limit"),
+					AmmoLimitMaxCatridges:     semantic.NewInt(section, "ammo_limit", semantic.Order(1)),
+
 					HitPts:             semantic.NewInt(section, "hit_pts"),
 					Lifetime:           semantic.NewFloat(section, "lifetime", semantic.Precision(2)),
 					IdsName:            semantic.NewInt(section, "ids_name"),
@@ -507,8 +513,8 @@ func Read(files []*iniload.IniLoader) *Config {
 					IdsName:  semantic.NewInt(section, "ids_name"),
 					IdsInfo:  semantic.NewInt(section, "ids_info"),
 
-					AmmoLimit:     semantic.NewInt(section, "ammo_limit"),
-					Lifetime:      semantic.NewInt(section, "lifetime"),
+					AmmoLimitAmountInCatridge: semantic.NewInt(section, "ammo_limit"),
+					AmmoLimitMaxCatridges:     semantic.NewInt(section, "ammo_limit", semantic.Order(1)), Lifetime: semantic.NewInt(section, "lifetime"),
 					Range:         semantic.NewInt(section, "range"),
 					DiversionPctg: semantic.NewInt(section, "diversion_pctg"),
 				}

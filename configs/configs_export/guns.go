@@ -71,6 +71,7 @@ type Gun struct {
 
 	NumBarrels *int
 	BurstFire  *BurstFire
+	AmmoLimit  AmmoLimit
 }
 
 type BurstFire struct {
@@ -169,6 +170,13 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 	if required_ammo, ok := munition.RequiredAmmo.GetValue(); ok {
 		gun.RequiredAmmo = required_ammo
+	}
+
+	if value, ok := munition.AmmoLimitAmountInCatridge.GetValue(); ok {
+		gun.AmmoLimit.AmountInCatridge = ptr.Ptr(value)
+	}
+	if value, ok := munition.AmmoLimitMaxCatridges.GetValue(); ok {
+		gun.AmmoLimit.MaxCatridges = ptr.Ptr(value)
 	}
 
 	gun.DamageType = "undefined"

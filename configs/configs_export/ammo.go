@@ -1,11 +1,12 @@
 package configs_export
 
+import "github.com/darklab8/go-utils/utils/ptr"
+
 type Ammo struct {
 	Name  string
 	Price int
 
 	HitPts           int
-	AmmoLimit        int
 	Volume           float64
 	MunitionLifetime float64
 
@@ -19,6 +20,8 @@ type Ammo struct {
 	Bases []*GoodAtBase
 
 	*DiscoveryTechCompat
+
+	AmmoLimit AmmoLimit
 }
 
 func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
@@ -31,7 +34,14 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		munition.InfoID, _ = munition_info.IdsInfo.GetValue()
 
 		munition.HitPts, _ = munition_info.HitPts.GetValue()
-		munition.AmmoLimit, _ = munition_info.AmmoLimit.GetValue()
+
+		if value, ok := munition_info.AmmoLimitAmountInCatridge.GetValue(); ok {
+			munition.AmmoLimit.AmountInCatridge = ptr.Ptr(value)
+		}
+		if value, ok := munition_info.AmmoLimitMaxCatridges.GetValue(); ok {
+			munition.AmmoLimit.MaxCatridges = ptr.Ptr(value)
+		}
+
 		munition.Volume, _ = munition_info.Volume.GetValue()
 		munition.SeekerRange, _ = munition_info.SeekerRange.GetValue()
 		munition.SeekerType, _ = munition_info.SeekerType.GetValue()

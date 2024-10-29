@@ -1,6 +1,10 @@
 package configs_export
 
-import "math"
+import (
+	"math"
+
+	"github.com/darklab8/go-utils/utils/ptr"
+)
 
 type Mine struct {
 	Name      string
@@ -33,6 +37,14 @@ type Mine struct {
 	Bases []*GoodAtBase
 
 	*DiscoveryTechCompat
+
+	AmmoLimit AmmoLimit
+}
+
+type AmmoLimit struct {
+	// Disco stuff
+	AmountInCatridge *int
+	MaxCatridges     *int
 }
 
 func (e *Exporter) GetMines(ids []Tractor) []Mine {
@@ -85,6 +97,13 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 				mine.AmmoPrice = price
 				mine.Value = math.Max(float64(mine.HullDamage), float64(mine.ShieldDamage)) / float64(mine.AmmoPrice)
 			}
+		}
+
+		if value, ok := mine_info.AmmoLimitAmountInCatridge.GetValue(); ok {
+			mine.AmmoLimit.AmountInCatridge = ptr.Ptr(value)
+		}
+		if value, ok := mine_info.AmmoLimitMaxCatridges.GetValue(); ok {
+			mine.AmmoLimit.MaxCatridges = ptr.Ptr(value)
 		}
 
 		e.exportInfocards(InfocardKey(mine.Nickname), mine.IdsInfo)
