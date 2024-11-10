@@ -1,6 +1,7 @@
 package trades
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -106,6 +107,11 @@ func MapConfigsToFGraph(
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
 	for _, system := range configs.Systems.Systems {
 
+		if system.Nickname == "iw05" {
+			fmt.Println()
+		}
+		system_speed_multiplier := configs.Overrides.GetSystemSpeedMultiplier(system.Nickname)
+
 		var system_objects []SystemObject = make([]SystemObject, 0, 50)
 
 		if bases, ok := extra_bases_by_system[system.Nickname]; ok {
@@ -117,7 +123,10 @@ func MapConfigsToFGraph(
 				graph.SetIdsName(object.nickname, 0)
 
 				for _, existing_object := range system_objects {
-					distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + BaseDockingDelay*PrecisionMultipiler
+					distance := graph.DistanceToTime(
+						DistanceForVecs(object.pos, existing_object.pos),
+						system_speed_multiplier,
+					) + BaseDockingDelay*PrecisionMultipiler
 					graph.SetEdge(object.nickname, existing_object.nickname, distance)
 					graph.SetEdge(existing_object.nickname, object.nickname, distance)
 				}
@@ -150,7 +159,10 @@ func MapConfigsToFGraph(
 			// }
 
 			for _, existing_object := range system_objects {
-				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + BaseDockingDelay*PrecisionMultipiler
+				distance := graph.DistanceToTime(
+					DistanceForVecs(object.pos, existing_object.pos),
+					system_speed_multiplier,
+				) + BaseDockingDelay*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -197,7 +209,9 @@ func MapConfigsToFGraph(
 			}
 
 			for _, existing_object := range system_objects {
-				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + JumpHoleDelaySec*PrecisionMultipiler
+				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos),
+					system_speed_multiplier,
+				) + JumpHoleDelaySec*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -276,7 +290,10 @@ func MapConfigsToFGraph(
 			}
 
 			for _, existing_object := range system_objects {
-				distance := graph.DistanceToTime(DistanceForVecs(object.pos, existing_object.pos)) + TradeLaneDockingDelaySec*PrecisionMultipiler
+				distance := graph.DistanceToTime(
+					DistanceForVecs(object.pos, existing_object.pos),
+					system_speed_multiplier,
+				) + TradeLaneDockingDelaySec*PrecisionMultipiler
 				graph.SetEdge(object.nickname, existing_object.nickname, distance)
 				graph.SetEdge(existing_object.nickname, object.nickname, distance)
 			}
@@ -291,10 +308,10 @@ func MapConfigsToFGraph(
 // 	return float64(time * graph.AvgCruiseSpeed)
 // }
 
-func (graph *GameGraph) DistanceToTime(distance float64) cfgtype.Milliseconds {
+func (graph *GameGraph) DistanceToTime(distance float64, system_speed_multiplier float64) cfgtype.Milliseconds {
 	// we assume graph.AvgCruiseSpeed is above zero smth. Not going to check correctness
 	// lets try in milliseconds
-	return distance * float64(PrecisionMultipiler) / float64(graph.AvgCruiseSpeed)
+	return distance * float64(PrecisionMultipiler) / (float64(graph.AvgCruiseSpeed) * system_speed_multiplier)
 }
 
 func (graph *GameGraph) GetTimeForDist(dist cfgtype.Milliseconds) cfgtype.Seconds {

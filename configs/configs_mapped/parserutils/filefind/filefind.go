@@ -33,6 +33,7 @@ func FindConfigs(folderpath utils_types.FilePath) *Filesystem {
 			!strings.Contains(path, ".txt") &&
 			!strings.Contains(path, ".xml") &&
 			!strings.Contains(path, ".dll") &&
+			!strings.Contains(path, ".yml") &&
 			!strings.Contains(path, ".json") {
 			return nil
 		}

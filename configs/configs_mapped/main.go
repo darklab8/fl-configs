@@ -31,6 +31,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/fl-configs/configs/overrides"
 	"github.com/darklab8/fl-data-discovery/autopatcher"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
@@ -82,6 +83,8 @@ type MappedConfigs struct {
 	Solararch    *solar_mapped.Config
 
 	Discovery *DiscoveryConfig
+
+	Overrides overrides.Overrides
 }
 
 func NewMappedConfigs() *MappedConfigs {
@@ -182,6 +185,12 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		}
 		wg.Wait()
 	}, timeit.WithMsg("Scanned ini loaders"))
+
+	overrides_file := filesystem.GetFile(overrides.FILENAME)
+	if overrides_file != nil {
+		logus.Log.Info("found overrides file")
+		p.Overrides = overrides.Read(overrides_file.GetFilepath())
+	}
 
 	timeit.NewTimerF(func() {
 		var wg sync.WaitGroup
