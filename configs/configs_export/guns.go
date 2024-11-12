@@ -72,6 +72,12 @@ type Gun struct {
 	NumBarrels *int
 	BurstFire  *BurstFire
 	AmmoLimit  AmmoLimit
+
+	DiscoGun *DiscoGun
+}
+
+type DiscoGun struct {
+	ArmorPen float64
 }
 
 type BurstFire struct {
@@ -272,6 +278,11 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 	// fmt.Println("CalculateTEchCompat", e.configs.Discovery != nil, gun.Nickname)
 	gun.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, gun.Nickname)
+
+	if e.configs.Discovery != nil {
+		armor_pen, _ := munition.ArmorPen.GetValue()
+		gun.DiscoGun = &DiscoGun{ArmorPen: armor_pen}
+	}
 	return gun
 }
 

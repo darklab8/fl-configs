@@ -10,19 +10,34 @@ type Precision int
 
 type Float struct {
 	*Value
-	precision Precision
+	precision     Precision
+	default_value float64
 }
 
-func NewFloat(section *inireader.Section, key string, precision Precision, opts ...ValueOption) *Float {
-	v := NewValue(section, key)
-	for _, opt := range opts {
-		opt(v)
+type FloatOption func(s *Float)
+
+func WithDefaultF(default_value float64) FloatOption {
+	return func(s *Float) { s.default_value = default_value }
+}
+
+func OptsF(opts ...ValueOption) FloatOption {
+	return func(s *Float) {
+		for _, opt := range opts {
+			opt(s.Value)
+		}
 	}
+}
+
+func NewFloat(section *inireader.Section, key string, precision Precision, opts ...FloatOption) *Float {
+	v := NewValue(section, key)
+
 	s := &Float{
 		Value:     v,
 		precision: precision,
 	}
-
+	for _, opt := range opts {
+		opt(s)
+	}
 	return s
 }
 
@@ -39,7 +54,7 @@ func (s *Float) Get() float64 {
 }
 
 func (s *Float) GetValue() (float64, bool) {
-	var value float64
+	var value float64 = s.default_value
 	var ok bool = true
 	func() {
 		defer func() {

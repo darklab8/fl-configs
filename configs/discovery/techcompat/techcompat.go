@@ -114,7 +114,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 				compat := &TechCompatibility{}
 				compat.Map(faction_info)
 				compat.Nickname = semantic.NewString(faction_info, "tech", semantic.OptsS(semantic.Index(index), semantic.Order(0)))
-				compat.Percentage = semantic.NewFloat(faction_info, "tech", semantic.Precision(2), semantic.Index(index), semantic.Order(1))
+				compat.Percentage = semantic.NewFloat(faction_info, "tech", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(1)))
 				faction.TechCompats = append(faction.TechCompats, compat)
 			}
 

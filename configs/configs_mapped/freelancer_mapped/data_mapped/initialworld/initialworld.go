@@ -78,7 +78,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 				rep := &Relationship{}
 				rep.Map(group_res)
-				rep.Rep = semantic.NewFloat(group_res, param_rep_key, semantic.Precision(2), semantic.Index(rep_index))
+				rep.Rep = semantic.NewFloat(group_res, param_rep_key, semantic.Precision(2), semantic.OptsF(semantic.Index(rep_index)))
 				rep.TargetNickname = semantic.NewString(group_res, param_rep_key, semantic.OptsS(semantic.Index(rep_index), semantic.Order(1)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				group.Relationships = append(group.Relationships, rep)
 			}

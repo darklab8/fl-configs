@@ -128,8 +128,8 @@ func Read(input_file *iniload.IniLoader) *Config {
 					faction.Map(section)
 
 					mission_type := &MissionType{
-						MinDifficulty: semantic.NewFloat(section, "mission_type", semantic.Precision(2), semantic.Order(1)),
-						MaxDifficulty: semantic.NewFloat(section, "mission_type", semantic.Precision(2), semantic.Order(2)),
+						MinDifficulty: semantic.NewFloat(section, "mission_type", semantic.Precision(2), semantic.OptsF(semantic.Order(1))),
+						MaxDifficulty: semantic.NewFloat(section, "mission_type", semantic.Precision(2), semantic.OptsF(semantic.Order(2))),
 						Weight:        semantic.NewInt(section, "mission_type", semantic.Order(3)),
 					}
 					mission_type.Map(section)

@@ -80,11 +80,11 @@ func Read(files []*iniload.IniLoader) *Config {
 				good_to_add.Map(section)
 				good_to_add.Nickname = semantic.NewString(section, KEY_MARKET_GOOD, semantic.OptsS(semantic.Index(good_index)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				good_to_add.LevelRequired = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(1))
-				good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(2))
+				good_to_add.RepRequired = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.OptsF(semantic.Index(good_index), semantic.Order(2)))
 				good_to_add.BaseSellsIPositiveAndDiscoSellPrice = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(3))
 				good_to_add.baseSellsIfAboveZero = semantic.NewInt(section, KEY_MARKET_GOOD, semantic.Index(good_index), semantic.Order(4))
 
-				good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.Index(good_index), semantic.Order(6))
+				good_to_add.PriceModifier = semantic.NewFloat(section, KEY_MARKET_GOOD, semantic.Precision(2), semantic.OptsF(semantic.Index(good_index), semantic.Order(6)))
 				base_to_add.MarketGoods = append(base_to_add.MarketGoods, good_to_add)
 				base_to_add.MarketGoodsMap[good_to_add.Nickname.Get()] = good_to_add
 

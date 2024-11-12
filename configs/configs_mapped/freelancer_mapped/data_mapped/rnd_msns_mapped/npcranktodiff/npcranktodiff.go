@@ -35,7 +35,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 			len_of_difficulties := len(values.Values) - 1
 			for i := 1; i <= len_of_difficulties; i++ {
 				npc_rank_to_diff.Difficulties = append(npc_rank_to_diff.Difficulties,
-					semantic.NewFloat(section, "npcrank", semantic.Precision(2), semantic.Index(index), semantic.Order(i)),
+					semantic.NewFloat(section, "npcrank", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(i))),
 				)
 			}
 

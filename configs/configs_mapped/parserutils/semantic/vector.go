@@ -16,9 +16,9 @@ type Vect struct {
 
 func NewVector(section *inireader.Section, key string, precision Precision, opts ...ValueOption) *Vect {
 	v := &Vect{
-		X: NewFloat(section, key, precision, Order(0)),
-		Y: NewFloat(section, key, precision, Order(1)),
-		Z: NewFloat(section, key, precision, Order(2)),
+		X: NewFloat(section, key, precision, OptsF(Order(0))),
+		Y: NewFloat(section, key, precision, OptsF(Order(1))),
+		Z: NewFloat(section, key, precision, OptsF(Order(2))),
 	}
 	v.Map(section)
 	return v

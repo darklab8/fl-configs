@@ -430,7 +430,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 								faction := &Patrol{
 									FactionNickname: semantic.NewString(zone_info, "faction",
 										semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(index), semantic.Order(0))),
-									Chance: semantic.NewFloat(zone_info, "faction", semantic.Precision(2), semantic.Index(index), semantic.Order(1)),
+									Chance: semantic.NewFloat(zone_info, "faction", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(1))),
 								}
 								faction.Map(zone_info)
 								spawn_area.Factions = append(spawn_area.Factions, faction)

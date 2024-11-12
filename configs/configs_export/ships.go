@@ -45,6 +45,12 @@ type Ship struct {
 	BiggestHardpoint []string
 
 	*DiscoveryTechCompat
+
+	DiscoShip *DiscoShip
+}
+
+type DiscoShip struct {
+	ArmorMult float64
 }
 
 func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tractor) []Ship {
@@ -199,6 +205,11 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 		}
 		e.exportInfocards(InfocardKey(ship.Nickname), infocards...)
 		ship.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, ship.Nickname)
+
+		if e.configs.Discovery != nil {
+			armor_mult, _ := ship_info.ArmorMult.GetValue()
+			ship.DiscoShip = &DiscoShip{ArmorMult: armor_mult}
+		}
 
 		ships = append(ships, ship)
 	}

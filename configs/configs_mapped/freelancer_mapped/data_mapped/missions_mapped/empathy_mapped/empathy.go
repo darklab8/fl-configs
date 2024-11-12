@@ -54,13 +54,13 @@ func Read(input_file *iniload.IniLoader) *Config {
 		for event_index, event := range section.ParamMap[event_key] {
 			switch event.First.AsString() {
 			case "object_destruction":
-				repo_changes.ObjectDestruction = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.Index(event_index), semantic.Order(1))
+				repo_changes.ObjectDestruction = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.OptsF(semantic.Index(event_index), semantic.Order(1)))
 			case "random_mission_success":
-				repo_changes.MissionSuccess = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.Index(event_index), semantic.Order(1))
+				repo_changes.MissionSuccess = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.OptsF(semantic.Index(event_index), semantic.Order(1)))
 			case "random_mission_failure":
-				repo_changes.MissionFailure = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.Index(event_index), semantic.Order(1))
+				repo_changes.MissionFailure = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.OptsF(semantic.Index(event_index), semantic.Order(1)))
 			case "random_mission_abortion":
-				repo_changes.MissionAbort = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.Index(event_index), semantic.Order(1))
+				repo_changes.MissionAbort = semantic.NewFloat(section, event_key, semantic.Precision(2), semantic.OptsF(semantic.Index(event_index), semantic.Order(1)))
 			}
 		}
 
@@ -69,7 +69,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 			empathy := &EmpathyRate{}
 			empathy.Map(section)
 			empathy.TargetFactionNickname = semantic.NewString(section, empathy_rate_key, semantic.OptsS(semantic.Index(good_index), semantic.Order(0)))
-			empathy.RepoChange = semantic.NewFloat(section, empathy_rate_key, semantic.Precision(2), semantic.Index(good_index), semantic.Order(1))
+			empathy.RepoChange = semantic.NewFloat(section, empathy_rate_key, semantic.Precision(2), semantic.OptsF(semantic.Index(good_index), semantic.Order(1)))
 			repo_changes.EmpathyRates = append(repo_changes.EmpathyRates, empathy)
 			repo_changes.EmpathyRatesMap[empathy.TargetFactionNickname.Get()] = empathy
 		}

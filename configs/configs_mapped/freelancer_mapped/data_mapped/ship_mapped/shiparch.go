@@ -37,6 +37,7 @@ type Ship struct {
 		Some is good ship, it has stuff leading to [Power], [Engine], [Scanner] and [ShieldGenerator]
 
 	*/
+	ArmorMult *semantic.Float // disco only
 }
 
 type HpType struct {
@@ -89,6 +90,8 @@ func Read(files []*iniload.IniLoader) *Config {
 				SteeringTorque:   semantic.NewVector(section, "steering_torque", semantic.Precision(2)),
 				AngularDrag:      semantic.NewVector(section, "angular_drag", semantic.Precision(2)),
 				RotationIntertia: semantic.NewVector(section, "rotation_inertia", semantic.Precision(2)),
+
+				ArmorMult: semantic.NewFloat(section, "armor_mult", semantic.Precision(2), semantic.WithDefaultF(1.0)),
 			}
 			ship.Map(section)
 			ship.ShieldLink.Map(section)

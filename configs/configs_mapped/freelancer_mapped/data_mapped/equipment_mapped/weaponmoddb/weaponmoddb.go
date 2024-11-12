@@ -45,7 +45,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 				shield_mode := &ShieldMod{}
 				shield_mode.Map(section)
 				shield_mode.ShieldType = semantic.NewString(section, KEY_SHIELD_MODE, semantic.OptsS(semantic.Index(index)), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-				shield_mode.DamageModifier = semantic.NewFloat(section, KEY_SHIELD_MODE, semantic.Precision(2), semantic.Index(index), semantic.Order(1))
+				shield_mode.DamageModifier = semantic.NewFloat(section, KEY_SHIELD_MODE, semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(1)))
 				weapon_type.ShieldMods = append(weapon_type.ShieldMods, shield_mode)
 			}
 			frelconfig.WeaponTypes = append(frelconfig.WeaponTypes, weapon_type)

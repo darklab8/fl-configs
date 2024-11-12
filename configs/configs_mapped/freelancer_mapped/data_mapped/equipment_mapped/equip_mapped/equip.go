@@ -60,6 +60,8 @@ type Munition struct {
 	SeekerType   *semantic.String
 	SeekerRange  *semantic.Int
 	SeekerFovDeg *semantic.Int
+
+	ArmorPen *semantic.Float // Disco only
 }
 
 type Explosion struct {
@@ -331,7 +333,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					Volume:            semantic.NewFloat(section, "volume", semantic.Precision(2)),
 
 					BurstAmmo:   semantic.NewInt(section, "burst_fire"),
-					BurstReload: semantic.NewFloat(section, "burst_fire", semantic.Precision(2), semantic.Order(1)),
+					BurstReload: semantic.NewFloat(section, "burst_fire", semantic.Precision(2), semantic.OptsF(semantic.Order(1))),
 					NumBarrels:  semantic.NewInt(section, "num_barrels"),
 				}
 				gun.Map(section)
@@ -359,6 +361,8 @@ func Read(files []*iniload.IniLoader) *Config {
 					SeekerType:   semantic.NewString(section, "seeker"),
 					SeekerRange:  semantic.NewInt(section, "seeker_range"),
 					SeekerFovDeg: semantic.NewInt(section, "seeker_fov_deg"),
+
+					ArmorPen: semantic.NewFloat(section, "armor_pen", semantic.Precision(2), semantic.WithDefaultF(0)),
 				}
 				munition.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				munition.IdsName = semantic.NewInt(section, "ids_name")

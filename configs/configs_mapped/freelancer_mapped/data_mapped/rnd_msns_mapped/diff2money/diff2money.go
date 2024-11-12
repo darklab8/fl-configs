@@ -29,7 +29,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 		for index, _ := range section.ParamMap["diff2money"] {
 			diff_to_money := &DiffToMoney{
-				MinLevel:   semantic.NewFloat(section, "diff2money", semantic.Precision(2), semantic.Index(index), semantic.Order(0)),
+				MinLevel:   semantic.NewFloat(section, "diff2money", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(0))),
 				MoneyAward: semantic.NewInt(section, "diff2money", semantic.Index(index), semantic.Order(1)),
 			}
 			diff_to_money.Map(section)
