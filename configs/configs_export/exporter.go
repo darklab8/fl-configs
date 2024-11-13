@@ -104,6 +104,13 @@ func NewGraphResults(
 func (e *Exporter) Export() *Exporter {
 	var wg sync.WaitGroup
 
+	e.Bases = e.GetBases()
+	useful_bases := FilterToUserfulBases(e.Bases)
+	e.useful_bases_by_nick = make(map[string]*Base)
+	for _, base := range useful_bases {
+		e.useful_bases_by_nick[base.Nickname] = base
+	}
+
 	e.Commodities = e.GetCommodities()
 	e.MiningOperations = e.GetOres(e.Commodities)
 	mining_bases_by_system := make(map[string][]trades.ExtraBase)
@@ -133,13 +140,6 @@ func (e *Exporter) Export() *Exporter {
 			e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
 			wg.Done()
 		}()
-	}
-
-	e.Bases = e.GetBases()
-	useful_bases := FilterToUserfulBases(e.Bases)
-	e.useful_bases_by_nick = make(map[string]*Base)
-	for _, base := range useful_bases {
-		e.useful_bases_by_nick[base.Nickname] = base
 	}
 
 	e.Tractors = e.GetTractors()

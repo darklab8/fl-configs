@@ -23,7 +23,7 @@ func TestGetShips(t *testing.T) {
 	assert.Greater(t, len(items), 0)
 
 	for _, item := range items {
-		if strings.Contains(item.Nickname, "loki") {
+		if strings.Contains(item.Nickname, "medium_miner") {
 			fmt.Println()
 		}
 	}

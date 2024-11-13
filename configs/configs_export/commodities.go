@@ -17,6 +17,8 @@ type GoodAtBase struct {
 	LevelRequired     int
 	RepRequired       float64
 
+	NotBuyable bool
+
 	BaseInfo
 }
 
@@ -117,6 +119,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 			}()
 
 			base_info = &GoodAtBase{
+				NotBuyable:        false,
 				BaseNickname:      base_nickname,
 				BaseSells:         !base_market.SellOnly.Get(),
 				PriceBaseBuysFor:  base_market.PriceBaseBuysFor.Get(),
@@ -127,7 +130,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 
 			if e.useful_bases_by_nick != nil {
 				if _, ok := e.useful_bases_by_nick[base_info.BaseNickname]; !ok {
-					continue
+					base_info.NotBuyable = true
 				}
 			}
 
@@ -147,7 +150,9 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 		}
 
 		market_good := base_market.MarketGood
-		base_info := &GoodAtBase{}
+		base_info := &GoodAtBase{
+			NotBuyable: false,
+		}
 		base_info.Volume = commodity.Volume
 		base_info.BaseSells = market_good.BaseSells()
 
@@ -168,7 +173,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 
 		if e.useful_bases_by_nick != nil {
 			if _, ok := e.useful_bases_by_nick[base_info.BaseNickname]; !ok {
-				continue
+				base_info.NotBuyable = true
 			}
 		}
 
