@@ -130,6 +130,9 @@ func FilterToUserfulBases(bases []*Base) []*Base {
 				is_invisible = false
 			}
 		}
+		if strings.Contains(item.Name, "Drydock") {
+			is_invisible = false
+		}
 		if is_invisible {
 			continue
 		}
