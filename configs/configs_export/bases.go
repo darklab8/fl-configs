@@ -133,7 +133,7 @@ func FilterToUserfulBases(bases []*Base) []*Base {
 		if is_invisible {
 			continue
 		}
-
+		item.Reachable = true
 		useful_bases = append(useful_bases, item)
 	}
 	return useful_bases
@@ -160,4 +160,6 @@ type Base struct {
 	BaseAllTradeRoutes
 	BaseAllRoutes
 	MiningInfo
+
+	Reachable bool
 }
