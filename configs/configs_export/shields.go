@@ -4,6 +4,7 @@ import (
 	"math"
 	"regexp"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
@@ -27,10 +28,12 @@ type Shield struct {
 	HitPts    int
 	Lootable  bool
 
-	Nickname string
-	HpType   string
-	IdsName  int
-	IdsInfo  int
+	Nickname     string
+	HpType       string
+	NicknameHash flhash.HashCode
+	HpTypeHash   flhash.HashCode
+	IdsName      int
+	IdsInfo      int
 
 	Bases []*GoodAtBase
 
@@ -44,6 +47,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		shield := Shield{}
 
 		shield.Nickname = shield_gen.Nickname.Get()
+		shield.NicknameHash = flhash.HashNickname(shield.Nickname)
 
 		if ids_info, ok := shield_gen.IdsInfo.GetValue(); ok {
 			shield.IdsInfo = ids_info
@@ -94,6 +98,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 
 		if hp_type, ok := shield_gen.HpType.GetValue(); ok {
 			shield.HpType = hp_type
+			shield.HpTypeHash = flhash.HashNickname(shield.HpType)
 			if parsed_type_class := TypeClassRegex.FindStringSubmatch(hp_type); len(parsed_type_class) > 0 {
 				shield.Type = parsed_type_class[1]
 				shield.Class = parsed_type_class[2]

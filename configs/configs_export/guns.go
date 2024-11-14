@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
 
@@ -21,15 +22,18 @@ type GunDetailed struct {
 }
 
 type Gun struct {
-	Nickname string
-	Name     string
-	Type     string
-	Price    int
-	Class    string
-	HpType   string
-	IdsName  int
-	IdsInfo  int
-	Volume   float64
+	Nickname     string
+	NicknameHash flhash.HashCode
+	MunitionHash flhash.HashCode
+	HpTypeHash   flhash.HashCode
+	Name         string
+	Type         string
+	Price        int
+	Class        string
+	HpType       string
+	IdsName      int
+	IdsInfo      int
+	Volume       float64
 
 	HitPts       string
 	PowerUsage   float64
@@ -116,16 +120,17 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	}()
 
 	gun := Gun{
-		Nickname:   gun_nickname,
-		IdsName:    gun_info.IdsName.Get(),
-		IdsInfo:    gun_info.IdsInfo.Get(),
-		Class:      getGunClass(gun_info),
-		HitPts:     gun_info.HitPts.Get(),
-		PowerUsage: gun_info.PowerUsage.Get(),
-		Refire:     float64(1 / gun_info.RefireDelay.Get()),
-		Speed:      gun_info.MuzzleVelosity.Get(),
-		Toughness:  gun_info.Toughness.Get(),
-		Lootable:   gun_info.Lootable.Get(),
+		Nickname:     gun_nickname,
+		NicknameHash: flhash.HashNickname(gun_nickname),
+		IdsName:      gun_info.IdsName.Get(),
+		IdsInfo:      gun_info.IdsInfo.Get(),
+		Class:        getGunClass(gun_info),
+		HitPts:       gun_info.HitPts.Get(),
+		PowerUsage:   gun_info.PowerUsage.Get(),
+		Refire:       float64(1 / gun_info.RefireDelay.Get()),
+		Speed:        gun_info.MuzzleVelosity.Get(),
+		Toughness:    gun_info.Toughness.Get(),
+		Lootable:     gun_info.Lootable.Get(),
 	}
 
 	num_barrels := 1
@@ -149,9 +154,10 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.Volume, _ = gun_info.Volume.GetValue()
 
 	gun.HpType, _ = gun_info.HPGunType.GetValue()
+	gun.HpTypeHash = flhash.HashNickname(gun.HpType)
 
 	munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
-
+	gun.MunitionHash = flhash.HashNickname(munition.Nickname.Get())
 	gun.FlashParticleName, _ = gun_info.FlashParticleName.GetValue()
 	gun.ConstEffect, _ = munition.ConstEffect.GetValue()
 	gun.MunitionHitEffect, _ = munition.MunitionHitEffect.GetValue()

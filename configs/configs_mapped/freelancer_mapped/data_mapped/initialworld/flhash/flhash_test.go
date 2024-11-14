@@ -3,6 +3,7 @@ package flhash
 // Provided by marko_oktabyr (discord)
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -40,4 +41,8 @@ func TestNameHash_Hash(t *testing.T) {
 			t.Errorf("%s: expected %s but got %s", test.name, test.flName, sName)
 		}
 	}
+}
+
+func TestHashSmth(t *testing.T) {
+	fmt.Println(HashNickname("st02_03_base"))
 }

@@ -3,16 +3,20 @@ package configs_export
 import (
 	"math"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
 
 type Mine struct {
-	Name      string
-	Price     int
-	AmmoPrice int
-	Nickname  string
-	IdsName   int
-	IdsInfo   int
+	Name                string
+	Price               int
+	AmmoPrice           int
+	Nickname            string
+	MineDropperHash     flhash.HashCode
+	ProjectileArchetype string
+	MineHash            flhash.HashCode
+	IdsName             int
+	IdsInfo             int
 
 	HullDamage    int
 	EnergyDamange int
@@ -54,6 +58,8 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine := Mine{}
 
 		mine.Nickname = mine_dropper.Nickname.Get()
+		mine.MineDropperHash = flhash.HashNickname(mine.Nickname)
+
 		mine.IdsInfo = mine_dropper.IdsInfo.Get()
 		mine.IdsName = mine_dropper.IdsName.Get()
 		mine.PowerUsage = mine_dropper.PowerUsage.Get()
@@ -74,6 +80,9 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine.Name = e.GetInfocardName(mine.IdsName, mine.Nickname)
 
 		mine_info := e.configs.Equip.MinesMap[mine_dropper.ProjectileArchetype.Get()]
+		mine.ProjectileArchetype = mine_info.Nickname.Get()
+		mine.MineHash = flhash.HashNickname(mine.ProjectileArchetype)
+
 		explosion := e.configs.Equip.ExplosionMap[mine_info.ExplosionArch.Get()]
 
 		mine.HullDamage = explosion.HullDamage.Get()

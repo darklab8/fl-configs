@@ -1,6 +1,9 @@
 package configs_export
 
-import "github.com/darklab8/go-utils/utils/ptr"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+	"github.com/darklab8/go-utils/utils/ptr"
+)
 
 type CounterMeasure struct {
 	Name  string
@@ -12,10 +15,11 @@ type CounterMeasure struct {
 	Range         int
 	DiversionPctg int
 
-	Lootable bool
-	Nickname string
-	NameID   int
-	InfoID   int
+	Lootable     bool
+	Nickname     string
+	NicknameHash flhash.HashCode
+	NameID       int
+	InfoID       int
 
 	Bases []*GoodAtBase
 
@@ -30,6 +34,7 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 	for _, cm_info := range e.configs.Equip.CounterMeasureDroppers {
 		cm := CounterMeasure{}
 		cm.Nickname = cm_info.Nickname.Get()
+		cm.NicknameHash = flhash.HashNickname(cm.Nickname)
 		cm.HitPts = cm_info.HitPts.Get()
 		cm.AIRange = cm_info.AIRange.Get()
 		cm.Lootable = cm_info.Lootable.Get()

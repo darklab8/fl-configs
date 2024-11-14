@@ -3,14 +3,16 @@ package configs_export
 import (
 	"math"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
 
 type MarketGood struct {
-	Name     string
-	Nickname string
-	HpType   string
-	Type     string
+	Name         string
+	Nickname     string
+	NicknameHash flhash.HashCode
+	HpType       string
+	Type         string
 
 	LevelRequired int
 	RepRequired   float64
@@ -93,6 +95,7 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 			good_to_add := MarketGood{
 				Name:          Name,
 				Nickname:      market_good_nickname,
+				NicknameHash:  flhash.HashNickname(market_good_nickname),
 				HpType:        hptype,
 				Type:          category,
 				LevelRequired: market_good.LevelRequired.Get(),

@@ -1,6 +1,9 @@
 package configs_export
 
-import "github.com/darklab8/go-utils/utils/ptr"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+	"github.com/darklab8/go-utils/utils/ptr"
+)
 
 type Ammo struct {
 	Name  string
@@ -11,6 +14,7 @@ type Ammo struct {
 	MunitionLifetime float64
 
 	Nickname     string
+	NicknameHash flhash.HashCode
 	NameID       int
 	InfoID       int
 	SeekerType   string
@@ -30,6 +34,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 	for _, munition_info := range e.configs.Equip.Munitions {
 		munition := Ammo{}
 		munition.Nickname = munition_info.Nickname.Get()
+		munition.NicknameHash = flhash.HashNickname(munition.Nickname)
 		munition.NameID, _ = munition_info.IdsName.GetValue()
 		munition.InfoID, _ = munition_info.IdsInfo.GetValue()
 
@@ -65,7 +70,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 			}
 		}
 
-		if !e.Buyable(munition.Bases) && (munition.Name == "") {
+		if !e.Buyable(munition.Bases) {
 			continue
 		}
 

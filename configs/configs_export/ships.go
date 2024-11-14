@@ -6,12 +6,14 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
 
 type Ship struct {
-	Nickname string
+	Nickname     string
+	NicknameHash flhash.HashCode
 
 	Name      string
 	Class     int
@@ -60,6 +62,7 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 		ship := Ship{
 			Nickname: ship_info.Nickname.Get(),
 		}
+		ship.NicknameHash = flhash.HashNickname(ship.Nickname)
 
 		// defer func() {
 		// 	if r := recover(); r != nil {

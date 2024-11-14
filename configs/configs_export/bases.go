@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
@@ -87,20 +88,22 @@ func (e *Exporter) GetBases() []*Base {
 		e.exportInfocards(InfocardKey(nickname), infocard_ids...)
 
 		base := &Base{
-			Name:             name,
-			Nickname:         nickname,
-			FactionName:      factionName,
-			System:           string(system_name),
-			SystemNickname:   base.System.Get(),
-			StridName:        base.StridName.Get(),
-			InfocardID:       infocard_id,
-			Infocard:         InfocardKey(nickname),
-			File:             utils_types.FilePath(base.File.Get()),
-			BGCS_base_run_by: base.BGCS_base_run_by.Get(),
-			MarketGoods:      market_goods,
-			Pos:              pos,
-			Archetypes:       archetypes,
-			Region:           Region,
+			Name:               name,
+			Nickname:           nickname,
+			NicknameHash:       flhash.HashNickname(nickname),
+			FactionName:        factionName,
+			System:             string(system_name),
+			SystemNickname:     base.System.Get(),
+			SystemNicknameHash: flhash.HashNickname(base.System.Get()),
+			StridName:          base.StridName.Get(),
+			InfocardID:         infocard_id,
+			Infocard:           InfocardKey(nickname),
+			File:               utils_types.FilePath(base.File.Get()),
+			BGCS_base_run_by:   base.BGCS_base_run_by.Get(),
+			MarketGoods:        market_goods,
+			Pos:                pos,
+			Archetypes:         archetypes,
+			Region:             Region,
 		}
 
 		if found_system {
@@ -140,21 +143,23 @@ func FilterToUserfulBases(bases []*Base) []*Base {
 }
 
 type Base struct {
-	Name             string
-	Archetypes       []string
-	Nickname         string
-	FactionName      string
-	System           string
-	SystemNickname   string
-	Region           string
-	StridName        int
-	InfocardID       int
-	Infocard         InfocardKey
-	File             utils_types.FilePath
-	BGCS_base_run_by string
-	MarketGoods      []MarketGood
-	Pos              cfgtype.Vector
-	SectorCoord      string
+	Name               string
+	Archetypes         []string
+	Nickname           string
+	NicknameHash       flhash.HashCode
+	FactionName        string
+	System             string
+	SystemNickname     string
+	SystemNicknameHash flhash.HashCode
+	Region             string
+	StridName          int
+	InfocardID         int
+	Infocard           InfocardKey
+	File               utils_types.FilePath
+	BGCS_base_run_by   string
+	MarketGoods        []MarketGood
+	Pos                cfgtype.Vector
+	SectorCoord        string
 
 	Missions BaseMissions
 	BaseAllTradeRoutes

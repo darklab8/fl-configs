@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"hash/crc32"
+	"strconv"
 	"strings"
 	"unicode/utf16"
 )
@@ -36,6 +37,18 @@ type NicknameHasher struct {
 }
 
 type HashCode int
+
+func (h HashCode) ToIntStr() string {
+	return strconv.Itoa(int(h))
+}
+
+func (h HashCode) ToUintStr() string {
+	return strconv.FormatUint(uint64(int(h)), 10)
+}
+
+func (h HashCode) ToHexStr() string {
+	return fmt.Sprintf("%x", int(h))
+}
 
 func (h *NicknameHasher) Hash(name string) HashCode {
 	bytes := []byte(strings.ToLower(name))

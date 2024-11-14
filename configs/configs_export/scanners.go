@@ -1,5 +1,7 @@
 package configs_export
 
+import "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+
 type Scanner struct {
 	Name  string
 	Price int
@@ -7,10 +9,11 @@ type Scanner struct {
 	Range          int
 	CargoScanRange int
 
-	Lootable bool
-	Nickname string
-	NameID   int
-	InfoID   int
+	Lootable     bool
+	Nickname     string
+	NicknameHash flhash.HashCode
+	NameID       int
+	InfoID       int
 
 	Bases []*GoodAtBase
 
@@ -23,6 +26,7 @@ func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 	for _, scanner_info := range e.configs.Equip.Scanners {
 		item := Scanner{}
 		item.Nickname = scanner_info.Nickname.Get()
+		item.NicknameHash = flhash.HashNickname(item.Nickname)
 		item.Lootable = scanner_info.Lootable.Get()
 		item.NameID = scanner_info.IdsName.Get()
 		item.InfoID = scanner_info.IdsInfo.Get()

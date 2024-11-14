@@ -1,6 +1,9 @@
 package configs_export
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
+import (
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+)
 
 type Engine struct {
 	Name  string
@@ -13,13 +16,17 @@ type Engine struct {
 	ReverseFraction  float64
 	ImpulseSpeed     float64
 
-	HpType      string
-	FlameEffect string
-	TrailEffect string
+	HpType          string
+	HpTypeHash      flhash.HashCode
+	FlameEffect     string
+	FlameEffectHash flhash.HashCode
+	TrailEffect     string
+	TrailEffectHash flhash.HashCode
 
-	Nickname string
-	NameID   int
-	InfoID   int
+	Nickname     string
+	NicknameHash flhash.HashCode
+	NameID       int
+	InfoID       int
 
 	Bases []*GoodAtBase
 	*DiscoveryTechCompat
@@ -75,6 +82,11 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 		}
 
 		engine.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, engine.Nickname)
+		engine.NicknameHash = flhash.HashNickname(engine.Nickname)
+		engine.HpTypeHash = flhash.HashNickname(engine.HpType)
+		engine.FlameEffectHash = flhash.HashNickname(engine.FlameEffect)
+		engine.TrailEffectHash = flhash.HashNickname(engine.TrailEffect)
+
 		engines = append(engines, engine)
 	}
 	return engines

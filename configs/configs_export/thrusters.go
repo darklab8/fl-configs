@@ -1,18 +1,21 @@
 package configs_export
 
+import "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+
 type Thruster struct {
-	Name       string
-	Price      int
-	MaxForce   int
-	PowerUsage int
-	Efficiency float64
-	Value      float64
-	Rating     float64
-	HitPts     int
-	Lootable   bool
-	Nickname   string
-	NameID     int
-	InfoID     int
+	Name         string
+	Price        int
+	MaxForce     int
+	PowerUsage   int
+	Efficiency   float64
+	Value        float64
+	Rating       float64
+	HitPts       int
+	Lootable     bool
+	Nickname     string
+	NicknameHash flhash.HashCode
+	NameID       int
+	InfoID       int
 
 	Bases []*GoodAtBase
 
@@ -25,6 +28,7 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 	for _, thruster_info := range e.configs.Equip.Thrusters {
 		thruster := Thruster{}
 		thruster.Nickname = thruster_info.Nickname.Get()
+		thruster.NicknameHash = flhash.HashNickname(thruster.Nickname)
 		thruster.MaxForce = thruster_info.MaxForce.Get()
 		thruster.PowerUsage = thruster_info.PowerUsage.Get()
 		thruster.HitPts = thruster_info.HitPts.Get()

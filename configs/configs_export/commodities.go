@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 )
 
@@ -24,6 +25,7 @@ type GoodAtBase struct {
 
 type Commodity struct {
 	Nickname              string
+	NicknameHash          flhash.HashCode
 	Name                  string
 	Combinable            bool
 	Volume                float64
@@ -50,6 +52,7 @@ func (e *Exporter) GetCommodities() []*Commodity {
 	for _, comm := range e.configs.Goods.Commodities {
 		commodity := &Commodity{}
 		commodity.Nickname = comm.Nickname.Get()
+		commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
 		commodity.Combinable = comm.Combinable.Get()
 
 		equipment_name := comm.Equipment.Get()
