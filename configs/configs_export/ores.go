@@ -103,7 +103,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 				good_at_base := &GoodAtBase{
 					BaseNickname: base.Nickname,
 
-					BaseSells:         true,
+					BaseBuysOnly:      true,
 					PriceBaseBuysFor:  0,
 					PriceBaseSellsFor: 0,
 					Volume:            commodity.Volume,
@@ -162,7 +162,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 									good_at_base := &GoodAtBase{
 										BaseNickname: base.Nickname,
 
-										BaseSells:         true,
+										BaseBuysOnly:      true,
 										PriceBaseBuysFor:  0,
 										PriceBaseSellsFor: 0,
 										Volume:            commodity.Volume,

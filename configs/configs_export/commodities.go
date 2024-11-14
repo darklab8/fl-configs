@@ -11,7 +11,7 @@ import (
 
 type GoodAtBase struct {
 	BaseNickname      string
-	BaseSells         bool
+	BaseBuysOnly      bool
 	PriceBaseBuysFor  int
 	PriceBaseSellsFor int
 	Volume            float64
@@ -82,7 +82,7 @@ func (e *Exporter) GetCommodities() []*Commodity {
 				commodity.PriceBestBaseBuysFor = base_info.PriceBaseBuysFor
 			}
 			if base_info.PriceBaseSellsFor < commodity.PriceBestBaseSellsFor || commodity.PriceBestBaseSellsFor == 0 {
-				if base_info.BaseSells {
+				if base_info.BaseBuysOnly {
 					commodity.PriceBestBaseSellsFor = base_info.PriceBaseSellsFor
 				}
 
@@ -126,9 +126,10 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 			base_info = &GoodAtBase{
 				NotBuyable:        false,
 				BaseNickname:      base_nickname,
-				BaseSells:         !base_market.SellOnly.Get(),
+				BaseBuysOnly:      !base_market.SellOnly.Get(),
 				PriceBaseBuysFor:  base_market.PriceBaseBuysFor.Get(),
 				PriceBaseSellsFor: base_market.PriceBaseSellsFor.Get(),
+				Volume:            commodity.Volume,
 			}
 
 			base_info.BaseInfo = e.GetBaseInfo(universe_mapped.BaseNickname(base_info.BaseNickname))
@@ -157,10 +158,9 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 		market_good := base_market.MarketGood
 		base_info := &GoodAtBase{
 			NotBuyable: false,
+			Volume:     commodity.Volume,
 		}
-		base_info.Volume = commodity.Volume
-		base_info.BaseSells = market_good.BaseSells()
-
+		base_info.BaseBuysOnly = market_good.BaseSells()
 		base_info.BaseNickname = base_nickname
 
 		base_info.PriceBaseSellsFor = int(market_good.PriceModifier.Get() * float64(commodity.Price))

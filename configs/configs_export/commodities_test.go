@@ -16,4 +16,10 @@ func TestExportCommodities(t *testing.T) {
 	assert.Greater(t, len(items), 0)
 
 	fmt.Println(items[0])
+
+	for _, item := range items {
+		if item.Nickname == "commodity_diamonds" {
+			fmt.Println()
+		}
+	}
 }
