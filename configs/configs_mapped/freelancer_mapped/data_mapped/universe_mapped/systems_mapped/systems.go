@@ -157,6 +157,11 @@ type Jumphole struct {
 	System *System
 }
 
+type Object struct {
+	semantic.Model
+	Nickname *semantic.String
+}
+
 type Asteroids struct {
 	semantic.Model
 	File         *semantic.Path
@@ -200,6 +205,7 @@ type System struct {
 
 	Asteroids   []*Asteroids
 	ZonesByNick map[string]*Zone
+	Objects     []*Object
 }
 
 type Config struct {
@@ -323,6 +329,12 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 			}
 			if objects, ok := sysiniconf.SectionMap[KEY_OBJECT]; ok {
 				for _, obj := range objects {
+
+					object_to_add := &Object{
+						Nickname: semantic.NewString(obj, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					}
+					object_to_add.Map(obj)
+					system_to_add.Objects = append(system_to_add.Objects, object_to_add)
 
 					// check if it is base object
 					if _, ok := obj.ParamMap[KEY_BASE]; ok {

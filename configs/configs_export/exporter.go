@@ -175,6 +175,10 @@ func (e *Exporter) Export() *Exporter {
 		for zone_nick := range system.ZonesByNick {
 			e.Hashes[zone_nick] = flhash.HashNickname(zone_nick)
 		}
+		for _, object := range system.Objects {
+			nickname, _ := object.Nickname.GetValue()
+			e.Hashes[nickname] = flhash.HashNickname(nickname)
+		}
 	}
 	for _, good := range e.configs.Goods.Goods {
 		nickname, _ := good.Nickname.GetValue()
