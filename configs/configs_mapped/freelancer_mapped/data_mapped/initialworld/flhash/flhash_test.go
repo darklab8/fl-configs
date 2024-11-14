@@ -44,5 +44,9 @@ func TestNameHash_Hash(t *testing.T) {
 }
 
 func TestHashSmth(t *testing.T) {
-	fmt.Println(HashNickname("st02_03_base"))
+	hash := HashNickname("st02_03_base")
+	fmt.Println(hash.ToIntStr())
+	fmt.Println(hash.ToUintStr())
+	fmt.Println(hash.ToHexStr())
+
 }

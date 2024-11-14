@@ -39,7 +39,7 @@ type NicknameHasher struct {
 type HashCode int
 
 func (h HashCode) ToIntStr() string {
-	return strconv.Itoa(int(h))
+	return fmt.Sprintf("%d", int32(h))
 }
 
 func (h HashCode) ToUintStr() string {
