@@ -29,6 +29,8 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 		thruster := Thruster{}
 		thruster.Nickname = thruster_info.Nickname.Get()
 		thruster.NicknameHash = flhash.HashNickname(thruster.Nickname)
+		e.Hashes[thruster.Nickname] = thruster.NicknameHash
+
 		thruster.MaxForce = thruster_info.MaxForce.Get()
 		thruster.PowerUsage = thruster_info.PowerUsage.Get()
 		thruster.HitPts = thruster_info.HitPts.Get()

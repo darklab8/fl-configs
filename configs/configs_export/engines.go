@@ -87,6 +87,11 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 		engine.FlameEffectHash = flhash.HashNickname(engine.FlameEffect)
 		engine.TrailEffectHash = flhash.HashNickname(engine.TrailEffect)
 
+		e.Hashes[engine.Nickname] = engine.NicknameHash
+		e.Hashes[engine.HpType] = engine.HpTypeHash
+		e.Hashes[engine.FlameEffect] = engine.FlameEffectHash
+		e.Hashes[engine.TrailEffect] = engine.TrailEffectHash
+
 		engines = append(engines, engine)
 	}
 	return engines

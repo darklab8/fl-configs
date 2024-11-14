@@ -106,6 +106,9 @@ func (e *Exporter) GetBases() []*Base {
 			Region:             Region,
 		}
 
+		e.Hashes[base.Nickname] = base.NicknameHash
+		e.Hashes[base.SystemNickname] = base.SystemNicknameHash
+
 		if found_system {
 			base.SectorCoord = VectorToSectorCoord(system, base.Pos)
 		}

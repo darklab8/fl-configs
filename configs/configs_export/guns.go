@@ -289,6 +289,11 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		armor_pen, _ := munition.ArmorPen.GetValue()
 		gun.DiscoGun = &DiscoGun{ArmorPen: armor_pen}
 	}
+
+	e.Hashes[gun.Nickname] = gun.NicknameHash
+	e.Hashes[munition.Nickname.Get()] = gun.MunitionHash
+	e.Hashes[gun.HpType] = gun.HpTypeHash
+
 	return gun
 }
 

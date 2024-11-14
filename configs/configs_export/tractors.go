@@ -68,6 +68,8 @@ func (e *Exporter) GetTractors() []Tractor {
 		}
 		tractor.Nickname = cfgtype.TractorID(tractor_info.Nickname.Get())
 		tractor.NicknameHash = flhash.HashNickname(string(tractor.Nickname))
+		e.Hashes[string(tractor.Nickname)] = tractor.NicknameHash
+
 		tractor.MaxLength = tractor_info.MaxLength.Get()
 		tractor.ReachSpeed = tractor_info.ReachSpeed.Get()
 		tractor.Lootable = tractor_info.Lootable.Get()

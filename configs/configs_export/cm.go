@@ -35,6 +35,7 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 		cm := CounterMeasure{}
 		cm.Nickname = cm_info.Nickname.Get()
 		cm.NicknameHash = flhash.HashNickname(cm.Nickname)
+		e.Hashes[cm.Nickname] = cm.NicknameHash
 		cm.HitPts = cm_info.HitPts.Get()
 		cm.AIRange = cm_info.AIRange.Get()
 		cm.Lootable = cm_info.Lootable.Get()

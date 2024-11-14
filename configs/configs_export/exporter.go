@@ -7,6 +7,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 )
 
@@ -34,6 +35,7 @@ type Infocards map[InfocardKey]Infocard
 
 type Exporter struct {
 	configs *configs_mapped.MappedConfigs
+	Hashes  map[string]flhash.HashCode
 
 	Bases                []*Base
 	MiningOperations     []*Base
@@ -68,6 +70,7 @@ func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Expo
 		configs:     configs,
 		Infocards:   map[InfocardKey]Infocard{},
 		ship_speeds: trades.VanillaSpeeds,
+		Hashes:      make(map[string]flhash.HashCode),
 	}
 
 	for _, opt := range opts {
@@ -167,6 +170,16 @@ func (e *Exporter) Export() *Exporter {
 	e.Bases, e.Commodities = e.TradePaths(e.Bases, e.Commodities)
 	e.MiningOperations, e.Commodities = e.TradePaths(e.MiningOperations, e.Commodities)
 	e.Bases = e.AllRoutes(e.Bases)
+
+	for _, system := range e.configs.Systems.Systems {
+		for zone_nick := range system.ZonesByNick {
+			e.Hashes[zone_nick] = flhash.HashNickname(zone_nick)
+		}
+	}
+	for _, good := range e.configs.Goods.Goods {
+		nickname, _ := good.Nickname.GetValue()
+		e.Hashes[nickname] = flhash.HashNickname(nickname)
+	}
 	return e
 }
 

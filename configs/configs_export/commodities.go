@@ -53,6 +53,8 @@ func (e *Exporter) GetCommodities() []*Commodity {
 		commodity := &Commodity{}
 		commodity.Nickname = comm.Nickname.Get()
 		commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
+		e.Hashes[commodity.Nickname] = commodity.NicknameHash
+
 		commodity.Combinable = comm.Combinable.Get()
 
 		equipment_name := comm.Equipment.Get()

@@ -35,6 +35,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		munition := Ammo{}
 		munition.Nickname = munition_info.Nickname.Get()
 		munition.NicknameHash = flhash.HashNickname(munition.Nickname)
+		e.Hashes[munition.Nickname] = munition.NicknameHash
 		munition.NameID, _ = munition_info.IdsName.GetValue()
 		munition.InfoID, _ = munition_info.IdsInfo.GetValue()
 

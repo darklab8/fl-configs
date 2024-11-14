@@ -48,6 +48,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 
 		shield.Nickname = shield_gen.Nickname.Get()
 		shield.NicknameHash = flhash.HashNickname(shield.Nickname)
+		e.Hashes[shield.Nickname] = shield.NicknameHash
 
 		if ids_info, ok := shield_gen.IdsInfo.GetValue(); ok {
 			shield.IdsInfo = ids_info
@@ -99,6 +100,8 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		if hp_type, ok := shield_gen.HpType.GetValue(); ok {
 			shield.HpType = hp_type
 			shield.HpTypeHash = flhash.HashNickname(shield.HpType)
+			e.Hashes[shield.HpType] = shield.HpTypeHash
+
 			if parsed_type_class := TypeClassRegex.FindStringSubmatch(hp_type); len(parsed_type_class) > 0 {
 				shield.Type = parsed_type_class[1]
 				shield.Class = parsed_type_class[2]

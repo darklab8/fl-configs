@@ -59,6 +59,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 
 		mine.Nickname = mine_dropper.Nickname.Get()
 		mine.MineDropperHash = flhash.HashNickname(mine.Nickname)
+		e.Hashes[mine.Nickname] = mine.MineDropperHash
 
 		mine.IdsInfo = mine_dropper.IdsInfo.Get()
 		mine.IdsName = mine_dropper.IdsName.Get()
@@ -82,6 +83,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine_info := e.configs.Equip.MinesMap[mine_dropper.ProjectileArchetype.Get()]
 		mine.ProjectileArchetype = mine_info.Nickname.Get()
 		mine.MineHash = flhash.HashNickname(mine.ProjectileArchetype)
+		e.Hashes[mine.ProjectileArchetype] = mine.MineHash
 
 		explosion := e.configs.Equip.ExplosionMap[mine_info.ExplosionArch.Get()]
 

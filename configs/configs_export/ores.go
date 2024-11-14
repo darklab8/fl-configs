@@ -60,6 +60,8 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			base.Nickname, _ = zone.Nickname.GetValue()
 			base.NicknameHash = flhash.HashNickname(base.Nickname)
+			e.Hashes[base.Nickname] = base.NicknameHash
+
 			base.InfocardID, _ = zone.IDsInfo.GetValue()
 			base.StridName, _ = zone.IdsName.GetValue()
 

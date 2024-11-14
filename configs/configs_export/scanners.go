@@ -27,6 +27,8 @@ func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 		item := Scanner{}
 		item.Nickname = scanner_info.Nickname.Get()
 		item.NicknameHash = flhash.HashNickname(item.Nickname)
+		e.Hashes[item.Nickname] = item.NicknameHash
+
 		item.Lootable = scanner_info.Lootable.Get()
 		item.NameID = scanner_info.IdsName.Get()
 		item.InfoID = scanner_info.IdsInfo.Get()

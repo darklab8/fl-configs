@@ -107,6 +107,8 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 				Infocard:      InfocardKey(market_good_nickname),
 			}
 
+			e.Hashes[market_good_nickname] = good_to_add.NicknameHash
+
 			if category == "commodity" {
 
 				if e.configs.Discovery != nil {

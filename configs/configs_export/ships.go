@@ -63,6 +63,7 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 			Nickname: ship_info.Nickname.Get(),
 		}
 		ship.NicknameHash = flhash.HashNickname(ship.Nickname)
+		e.Hashes[ship.Nickname] = ship.NicknameHash
 
 		// defer func() {
 		// 	if r := recover(); r != nil {
