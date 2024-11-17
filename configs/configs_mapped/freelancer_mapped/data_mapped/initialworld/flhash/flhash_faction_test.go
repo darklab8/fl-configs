@@ -1,4 +1,4 @@
-package factionhash
+package flhash
 
 import (
 	"fmt"
