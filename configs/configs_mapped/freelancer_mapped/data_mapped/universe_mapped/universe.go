@@ -70,6 +70,9 @@ type System struct {
 	Ids_info      *semantic.Int
 	File          *semantic.Path
 	NavMapScale   *semantic.Float
+
+	PosX *semantic.Float
+	PosY *semantic.Float
 }
 
 type Config struct {
@@ -182,6 +185,8 @@ func Read(ini *iniload.IniLoader, filesystem *filefind.Filesystem) *Config {
 		for _, system := range systems {
 			system_to_add := System{
 				NavMapScale: semantic.NewFloat(system, "NavMapScale", semantic.Precision(2)),
+				PosX:        semantic.NewFloat(system, "pos", semantic.Precision(2), semantic.OptsF(semantic.Order(0))),
+				PosY:        semantic.NewFloat(system, "pos", semantic.Precision(2), semantic.OptsF(semantic.Order(1))),
 			}
 			system_to_add.Map(system)
 
