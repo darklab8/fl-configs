@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 )
@@ -28,7 +29,7 @@ type Engine struct {
 	NameID       int
 	InfoID       int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 	*DiscoveryTechCompat
 }
 
@@ -47,7 +48,9 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 	var engines []Engine
 
 	for _, engine_info := range e.configs.Equip.Engines {
-		engine := Engine{}
+		engine := Engine{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		engine.Nickname = engine_info.Nickname.Get()
 		engine.CruiseSpeed = e.GetEngineSpeed(engine_info)
 		engine.CruiseChargeTime, _ = engine_info.CruiseChargeTime.GetValue()
@@ -66,7 +69,7 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 		if good_info, ok := e.configs.Goods.GoodsMap[engine.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				engine.Price = price
-				engine.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				engine.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

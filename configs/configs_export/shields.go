@@ -4,6 +4,7 @@ import (
 	"math"
 	"regexp"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
@@ -35,7 +36,7 @@ type Shield struct {
 	IdsName      int
 	IdsInfo      int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 }
@@ -44,7 +45,9 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 	var shields []Shield
 
 	for _, shield_gen := range e.configs.Equip.ShieldGens {
-		shield := Shield{}
+		shield := Shield{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 
 		shield.Nickname = shield_gen.Nickname.Get()
 		shield.NicknameHash = flhash.HashNickname(shield.Nickname)
@@ -77,7 +80,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		if good_info, ok := e.configs.Goods.GoodsMap[shield.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				shield.Price = price
-				shield.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				shield.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
@@ -51,16 +52,20 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 			location := zone.Pos.Get()
 			var added_goods map[string]bool = make(map[string]bool)
 			base := &Base{
-				Pos:        location,
-				MiningInfo: MiningInfo{},
+				Pos:                location,
+				MiningInfo:         MiningInfo{},
+				MarketGoodsPerNick: make(map[string]MarketGood),
 			}
 			base.DynamicLootMin, _ = asteroids.LootableZone.DynamicLootMin.GetValue()
 			base.DynamicLootMax, _ = asteroids.LootableZone.DynamicLootMax.GetValue()
 			base.DynamicLootDifficulty, _ = asteroids.LootableZone.DynamicLootDifficulty.GetValue()
 
-			base.Nickname, _ = zone.Nickname.GetValue()
-			base.NicknameHash = flhash.HashNickname(base.Nickname)
-			e.Hashes[base.Nickname] = base.NicknameHash
+			var base_nickname string
+			base_nickname, _ = zone.Nickname.GetValue()
+			base.Nickname = cfgtype.BaseUniNick(base_nickname)
+
+			base.NicknameHash = flhash.HashNickname(base_nickname)
+			e.Hashes[base_nickname] = base.NicknameHash
 
 			base.InfocardID, _ = zone.IDsInfo.GetValue()
 			base.StridName, _ = zone.IdsName.GetValue()
@@ -94,7 +99,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 				market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 			}
 			base.Name = market_good.Name
-			base.MarketGoods = append(base.MarketGoods, market_good)
+			base.MarketGoodsPerNick[market_good.Nickname] = market_good
 			base.MinedGood = market_good
 
 			added_goods[market_good.Nickname] = true
@@ -117,7 +122,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 					},
 				}
 
-				commodity.Bases = append(commodity.Bases, good_at_base)
+				commodity.Bases[good_at_base.BaseNickname] = good_at_base
 			}
 
 			if e.configs.Discovery != nil {
@@ -156,7 +161,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 								if equipment, ok := e.configs.Equip.CommoditiesMap[commodity_produced]; ok {
 									market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 								}
-								base.MarketGoods = append(base.MarketGoods, market_good)
+								base.MarketGoodsPerNick[market_good.Nickname] = market_good
 
 								if commodity, ok := comm_by_nick[market_good.Nickname]; ok {
 									good_at_base := &GoodAtBase{
@@ -178,7 +183,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 										good_at_base.SectorCoord = VectorToSectorCoord(system_uni, good_at_base.BasePos)
 									}
 
-									commodity.Bases = append(commodity.Bases, good_at_base)
+									commodity.Bases[good_at_base.BaseNickname] = good_at_base
 								}
 								added_goods[commodity_produced] = true
 							}
@@ -207,7 +212,7 @@ for Freelancer Discovery we also add possible sub products of refinery at player
 
 			sb = append(sb, "")
 			sb = append(sb, "commodities:")
-			for _, good := range base.MarketGoods {
+			for _, good := range base.MarketGoodsPerNick {
 				if good.Nickname == base.MinedGood.Nickname {
 					sb = append(sb, fmt.Sprintf("Minable: %s (%s)", good.Name, good.Nickname))
 				} else {

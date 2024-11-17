@@ -10,7 +10,7 @@ import (
 )
 
 type GoodAtBase struct {
-	BaseNickname      string
+	BaseNickname      cfgtype.BaseUniNick
 	BaseSells         bool
 	PriceBaseBuysFor  int
 	PriceBaseSellsFor int
@@ -18,7 +18,8 @@ type GoodAtBase struct {
 	LevelRequired     int
 	RepRequired       float64
 
-	NotBuyable bool
+	NotBuyable           bool
+	IsServerSideOverride bool
 
 	BaseInfo
 }
@@ -32,7 +33,7 @@ type Commodity struct {
 	NameID                int
 	InfocardID            int
 	Infocard              InfocardKey
-	Bases                 []*GoodAtBase
+	Bases                 map[cfgtype.BaseUniNick]*GoodAtBase
 	PriceBestBaseBuysFor  int
 	PriceBestBaseSellsFor int
 	ProffitMargin         int
@@ -50,7 +51,9 @@ func (e *Exporter) GetCommodities() []*Commodity {
 	commodities := make([]*Commodity, 0, 100)
 
 	for _, comm := range e.configs.Goods.Commodities {
-		commodity := &Commodity{}
+		commodity := &Commodity{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		commodity.Nickname = comm.Nickname.Get()
 		commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
 		e.Hashes[commodity.Nickname] = commodity.NicknameHash
@@ -71,7 +74,7 @@ func (e *Exporter) GetCommodities() []*Commodity {
 		commodity.Volume = volume
 		base_item_price := comm.Price.Get()
 
-		commodity.Bases = e.GetAtBasesSold(GetAtBasesInput{
+		commodity.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 			Nickname: commodity.Nickname,
 			Price:    base_item_price,
 			Volume:   commodity.Volume,
@@ -99,61 +102,56 @@ func (e *Exporter) GetCommodities() []*Commodity {
 	return commodities
 }
 
-type GetAtBasesInput struct {
+type GetCommodityAtBasesInput struct {
 	Nickname string
 	Price    int
 	Volume   float64
 }
 
-func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
-	var bases_list []*GoodAtBase
-	var bases_already_found map[string]bool = make(map[string]bool)
+func (e *Exporter) ServerSideMarketGoodsOverrides(commodity GetCommodityAtBasesInput) map[cfgtype.BaseUniNick]*GoodAtBase {
+	var bases_already_found map[cfgtype.BaseUniNick]*GoodAtBase = make(map[cfgtype.BaseUniNick]*GoodAtBase)
 
-	if e.configs.Discovery != nil {
-		for _, base_market := range e.configs.Discovery.Prices.BasesPerGood[commodity.Nickname] {
-			var base_info *GoodAtBase
-			base_nickname := base_market.BaseNickname.Get()
+	for _, base_market := range e.configs.Discovery.Prices.BasesPerGood[commodity.Nickname] {
+		var base_info *GoodAtBase
+		base_nickname := cfgtype.BaseUniNick(base_market.BaseNickname.Get())
 
-			defer func() {
-				if r := recover(); r != nil {
-					fmt.Println("Recovered in f", r)
-					fmt.Println("recovered base_nickname", base_nickname)
-					fmt.Println("recovered commodity nickname", commodity.Nickname)
-					panic(r)
-				}
-			}()
-
-			base_info = &GoodAtBase{
-				NotBuyable:        false,
-				BaseNickname:      base_nickname,
-				BaseSells:         base_market.BaseSells.Get(),
-				PriceBaseBuysFor:  base_market.PriceBaseBuysFor.Get(),
-				PriceBaseSellsFor: base_market.PriceBaseSellsFor.Get(),
-				Volume:            commodity.Volume,
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in f", r)
+				fmt.Println("recovered base_nickname", base_nickname)
+				fmt.Println("recovered commodity nickname", commodity.Nickname)
+				panic(r)
 			}
+		}()
 
-			base_info.BaseInfo = e.GetBaseInfo(universe_mapped.BaseNickname(base_info.BaseNickname))
-
-			if e.useful_bases_by_nick != nil {
-				if _, ok := e.useful_bases_by_nick[base_info.BaseNickname]; !ok {
-					base_info.NotBuyable = true
-				}
-			}
-
-			bases_list = append(bases_list, base_info)
-			bases_already_found[base_info.BaseNickname] = true
+		base_info = &GoodAtBase{
+			NotBuyable:           false,
+			BaseNickname:         base_nickname,
+			BaseSells:            base_market.BaseSells.Get(),
+			PriceBaseBuysFor:     base_market.PriceBaseBuysFor.Get(),
+			PriceBaseSellsFor:    base_market.PriceBaseSellsFor.Get(),
+			Volume:               commodity.Volume,
+			IsServerSideOverride: true,
 		}
+
+		base_info.BaseInfo = e.GetBaseInfo(universe_mapped.BaseNickname(base_info.BaseNickname))
+
+		if e.useful_bases_by_nick != nil {
+			if _, ok := e.useful_bases_by_nick[base_info.BaseNickname]; !ok {
+				base_info.NotBuyable = true
+			}
+		}
+
+		bases_already_found[base_info.BaseNickname] = base_info
 	}
+	return bases_already_found
+}
+
+func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtype.BaseUniNick]*GoodAtBase {
+	var goods_per_base map[cfgtype.BaseUniNick]*GoodAtBase = make(map[cfgtype.BaseUniNick]*GoodAtBase)
 
 	for _, base_market := range e.configs.Market.BasesPerGood[commodity.Nickname] {
 		base_nickname := base_market.Base
-
-		// skip read from disco already
-		if e.configs.Discovery != nil {
-			if _, already_found := bases_already_found[base_nickname]; already_found {
-				continue
-			}
-		}
 
 		market_good := base_market.MarketGood
 		base_info := &GoodAtBase{
@@ -182,9 +180,17 @@ func (e *Exporter) GetAtBasesSold(commodity GetAtBasesInput) []*GoodAtBase {
 			}
 		}
 
-		bases_list = append(bases_list, base_info)
+		goods_per_base[base_info.BaseNickname] = base_info
 	}
-	return bases_list
+
+	if e.configs.Discovery != nil {
+		serverside_overrides := e.ServerSideMarketGoodsOverrides(commodity)
+		for _, item := range serverside_overrides {
+			goods_per_base[item.BaseNickname] = item
+		}
+	}
+
+	return goods_per_base
 }
 
 type BaseInfo struct {

@@ -13,3 +13,7 @@ type FactionNick string
 type Milliseconds = float64
 
 type Seconds = float64
+
+type BaseUniNick string
+
+func (b BaseUniNick) ToStr() string { return string(b) }

@@ -3,6 +3,7 @@ package configs_export
 import (
 	"math"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
@@ -23,6 +24,9 @@ type MarketGood struct {
 	PriceBase     int
 	PriceToBuy    int
 	PriceToSell   *int
+	Volume        float64
+
+	IsServerSideOverride bool
 }
 
 func NameWithSpacesOnly(word string) bool {
@@ -34,13 +38,14 @@ func NameWithSpacesOnly(word string) bool {
 	return true
 }
 
-func (e *Exporter) getMarketGoods() map[string][]MarketGood {
-	var goods_per_base map[string][]MarketGood = make(map[string][]MarketGood)
+func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[string]MarketGood {
+
+	var goods_per_base map[cfgtype.BaseUniNick]map[string]MarketGood = make(map[cfgtype.BaseUniNick]map[string]MarketGood)
 
 	for _, base_good := range e.configs.Market.BaseGoods {
-		base_nickname := base_good.Base.Get()
+		base_nickname := cfgtype.BaseUniNick(base_good.Base.Get())
 
-		var MarketGoods []MarketGood = make([]MarketGood, 0, 200)
+		var MarketGoods map[string]MarketGood = make(map[string]MarketGood)
 		for _, market_good := range base_good.MarketGoods {
 
 			var market_good_nickname string = market_good.Nickname.Get()
@@ -119,10 +124,10 @@ func (e *Exporter) getMarketGoods() map[string][]MarketGood {
 
 			}
 
-			MarketGoods = append(MarketGoods, good_to_add)
+			MarketGoods[market_good_nickname] = good_to_add
 		}
 
-		goods_per_base[base_nickname] = append(goods_per_base[base_nickname], MarketGoods...)
+		goods_per_base[base_nickname] = MarketGoods
 	}
 	return goods_per_base
 }

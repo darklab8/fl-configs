@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
@@ -21,7 +22,7 @@ type CounterMeasure struct {
 	NameID       int
 	InfoID       int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 
@@ -32,7 +33,9 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 	var tractors []CounterMeasure
 
 	for _, cm_info := range e.configs.Equip.CounterMeasureDroppers {
-		cm := CounterMeasure{}
+		cm := CounterMeasure{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		cm.Nickname = cm_info.Nickname.Get()
 		cm.NicknameHash = flhash.HashNickname(cm.Nickname)
 		e.Hashes[cm.Nickname] = cm.NicknameHash
@@ -45,7 +48,7 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 		if good_info, ok := e.configs.Goods.GoodsMap[cm.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				cm.Price = price
-				cm.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				cm.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

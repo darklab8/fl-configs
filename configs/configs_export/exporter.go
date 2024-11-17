@@ -39,7 +39,7 @@ type Exporter struct {
 
 	Bases                []*Base
 	MiningOperations     []*Base
-	useful_bases_by_nick map[string]*Base
+	useful_bases_by_nick map[cfgtype.BaseUniNick]*Base
 
 	ship_speeds trades.ShipSpeeds
 	transport   *GraphResults
@@ -109,12 +109,15 @@ func (e *Exporter) Export() *Exporter {
 
 	e.Bases = e.GetBases()
 	useful_bases := FilterToUserfulBases(e.Bases)
-	e.useful_bases_by_nick = make(map[string]*Base)
+	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]*Base)
 	for _, base := range useful_bases {
 		e.useful_bases_by_nick[base.Nickname] = base
 	}
 
 	e.Commodities = e.GetCommodities()
+
+	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
+
 	e.MiningOperations = e.GetOres(e.Commodities)
 	mining_bases_by_system := make(map[string][]trades.ExtraBase)
 	for _, base := range e.MiningOperations {
@@ -200,7 +203,7 @@ func Empty(phrase string) bool {
 	return true
 }
 
-func (e *Exporter) Buyable(Bases []*GoodAtBase) bool {
+func (e *Exporter) Buyable(Bases map[cfgtype.BaseUniNick]*GoodAtBase) bool {
 	for _, base := range Bases {
 
 		if e.useful_bases_by_nick != nil {
@@ -213,7 +216,7 @@ func (e *Exporter) Buyable(Bases []*GoodAtBase) bool {
 	return false
 }
 
-func Buyable(Bases []*GoodAtBase) bool {
+func Buyable(Bases map[cfgtype.BaseUniNick]*GoodAtBase) bool {
 	return len(Bases) > 0
 }
 

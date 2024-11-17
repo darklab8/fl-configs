@@ -24,7 +24,7 @@ func FixtureBases(t *testing.T) FixtureBasesOutput {
 
 	found_goods := false
 	for _, base := range bases {
-		if len(base.MarketGoods) > 0 {
+		if len(base.MarketGoodsPerNick) > 0 {
 			found_goods = true
 		}
 	}

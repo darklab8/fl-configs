@@ -1,6 +1,7 @@
 package mbases_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
@@ -85,14 +86,14 @@ type Config struct {
 
 	File    *iniload.IniLoader
 	Bases   []*Base
-	BaseMap map[string]*Base
+	BaseMap map[cfgtype.BaseUniNick]*Base
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
 	frelconfig := &Config{
 		File:    input_file,
 		Bases:   make([]*Base, 0, 100),
-		BaseMap: make(map[string]*Base),
+		BaseMap: make(map[cfgtype.BaseUniNick]*Base),
 	}
 
 	for i := 0; i < len(input_file.Sections); i++ {
@@ -108,7 +109,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 			base.LocalFaction = semantic.NewString(mbase_section, "local_faction")
 			base.Diff = semantic.NewInt(mbase_section, "diff")
 			frelconfig.Bases = append(frelconfig.Bases, base)
-			frelconfig.BaseMap[base.Nickname.Get()] = base
+			frelconfig.BaseMap[cfgtype.BaseUniNick(base.Nickname.Get())] = base
 
 			for j := i + 1; j < len(input_file.Sections) && input_file.Sections[j].Type != "[mbase]"; j++ {
 				section := input_file.Sections[j]

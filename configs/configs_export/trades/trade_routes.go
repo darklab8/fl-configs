@@ -74,7 +74,7 @@ const (
 
 type ExtraBase struct {
 	Pos      cfgtype.Vector
-	Nickname string
+	Nickname cfgtype.BaseUniNick
 }
 
 /*
@@ -117,7 +117,7 @@ func MapConfigsToFGraph(
 		if bases, ok := extra_bases_by_system[system.Nickname]; ok {
 			for _, base := range bases {
 				object := SystemObject{
-					nickname: base.Nickname,
+					nickname: base.Nickname.ToStr(),
 					pos:      base.Pos,
 				}
 				graph.SetIdsName(object.nickname, 0)

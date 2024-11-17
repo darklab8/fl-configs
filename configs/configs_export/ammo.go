@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
@@ -21,7 +22,7 @@ type Ammo struct {
 	SeekerRange  int
 	SeekerFovDeg int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 
@@ -32,7 +33,9 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 	var tractors []Ammo
 
 	for _, munition_info := range e.configs.Equip.Munitions {
-		munition := Ammo{}
+		munition := Ammo{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		munition.Nickname = munition_info.Nickname.Get()
 		munition.NicknameHash = flhash.HashNickname(munition.Nickname)
 		e.Hashes[munition.Nickname] = munition.NicknameHash
@@ -64,7 +67,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		if good_info, ok := e.configs.Goods.GoodsMap[munition_info.Nickname.Get()]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				munition.Price = price
-				munition.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				munition.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

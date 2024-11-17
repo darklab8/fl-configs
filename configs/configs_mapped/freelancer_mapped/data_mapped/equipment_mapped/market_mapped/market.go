@@ -1,6 +1,7 @@
 package market_mapped
 
 import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
@@ -36,7 +37,7 @@ type BaseGood struct {
 
 type MarketGoodAtBase struct {
 	MarketGood *MarketGood
-	Base       string
+	Base       cfgtype.BaseUniNick
 }
 
 type Config struct {
@@ -44,7 +45,7 @@ type Config struct {
 
 	BaseGoods    []*BaseGood
 	BasesPerGood map[string][]*MarketGoodAtBase
-	GoodsPerBase map[string]*BaseGood
+	GoodsPerBase map[cfgtype.BaseUniNick]*BaseGood
 }
 
 const (
@@ -60,7 +61,7 @@ const (
 func Read(files []*iniload.IniLoader) *Config {
 	frelconfig := &Config{
 		Files:        files,
-		GoodsPerBase: make(map[string]*BaseGood),
+		GoodsPerBase: make(map[cfgtype.BaseUniNick]*BaseGood),
 	}
 	frelconfig.BaseGoods = make([]*BaseGood, 0)
 	frelconfig.BasesPerGood = make(map[string][]*MarketGoodAtBase)
@@ -73,7 +74,7 @@ func Read(files []*iniload.IniLoader) *Config {
 			}
 			base_to_add.Map(section)
 			base_to_add.Base = semantic.NewString(section, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-			base_nickname := base_to_add.Base.Get()
+			base_nickname := cfgtype.BaseUniNick(base_to_add.Base.Get())
 
 			for good_index, _ := range section.ParamMap[KEY_MARKET_GOOD] {
 				good_to_add := &MarketGood{}

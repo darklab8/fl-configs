@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
@@ -66,7 +67,7 @@ type Gun struct {
 	ShieldEfficiency       float64
 	EnergyDamageEfficiency float64
 
-	Bases         []*GoodAtBase
+	Bases         map[cfgtype.BaseUniNick]*GoodAtBase
 	DamageBonuses []DamageBonus
 
 	Missile
@@ -131,6 +132,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		Speed:        gun_info.MuzzleVelosity.Get(),
 		Toughness:    gun_info.Toughness.Get(),
 		Lootable:     gun_info.Lootable.Get(),
+		Bases:        make(map[cfgtype.BaseUniNick]*GoodAtBase),
 	}
 
 	num_barrels := 1
@@ -218,7 +220,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	if good_info, ok := e.configs.Goods.GoodsMap[gun.Nickname]; ok {
 		if price, ok := good_info.Price.GetValue(); ok {
 			gun.Price = price
-			gun.Bases = e.GetAtBasesSold(GetAtBasesInput{
+			gun.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 				Nickname: good_info.Nickname.Get(),
 				Price:    price,
 			})

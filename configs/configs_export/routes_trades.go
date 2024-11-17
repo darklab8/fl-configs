@@ -1,5 +1,7 @@
 package configs_export
 
+import "github.com/darklab8/fl-configs/configs/cfgtype"
+
 type TradeRoute struct {
 	Route       *Route
 	Commodity   *Commodity
@@ -13,7 +15,7 @@ func NewTradeRoute(g *GraphResults, buying_good *GoodAtBase, selling_good *GoodA
 	}
 
 	route := &TradeRoute{
-		Route:       NewRoute(g, buying_good.BaseNickname, selling_good.BaseNickname),
+		Route:       NewRoute(g, buying_good.BaseNickname.ToStr(), selling_good.BaseNickname.ToStr()),
 		BuyingGood:  buying_good,
 		SellingGood: selling_good,
 		Commodity:   commodity,
@@ -52,11 +54,11 @@ func (e *Exporter) TradePaths(
 ) ([]*Base, []*Commodity) {
 
 	var commodity_by_nick map[string]*Commodity = make(map[string]*Commodity)
-	var commodity_by_good_and_base map[string]map[string]*GoodAtBase = make(map[string]map[string]*GoodAtBase)
+	var commodity_by_good_and_base map[string]map[cfgtype.BaseUniNick]*GoodAtBase = make(map[string]map[cfgtype.BaseUniNick]*GoodAtBase)
 	for _, commodity := range commodities {
 		commodity_by_nick[commodity.Nickname] = commodity
 		if _, ok := commodity_by_good_and_base[commodity.Nickname]; !ok {
-			commodity_by_good_and_base[commodity.Nickname] = make(map[string]*GoodAtBase)
+			commodity_by_good_and_base[commodity.Nickname] = make(map[cfgtype.BaseUniNick]*GoodAtBase)
 		}
 		for _, good_at_base := range commodity.Bases {
 			commodity_by_good_and_base[commodity.Nickname][good_at_base.BaseNickname] = good_at_base
@@ -64,7 +66,7 @@ func (e *Exporter) TradePaths(
 	}
 
 	for _, base := range bases {
-		for _, good := range base.MarketGoods {
+		for _, good := range base.MarketGoodsPerNick {
 			if good.Type != "commodity" {
 				continue
 			}

@@ -1,6 +1,9 @@
 package configs_export
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+)
 
 type Thruster struct {
 	Name         string
@@ -17,7 +20,7 @@ type Thruster struct {
 	NameID       int
 	InfoID       int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 }
@@ -26,7 +29,9 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 	var thrusters []Thruster
 
 	for _, thruster_info := range e.configs.Equip.Thrusters {
-		thruster := Thruster{}
+		thruster := Thruster{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		thruster.Nickname = thruster_info.Nickname.Get()
 		thruster.NicknameHash = flhash.HashNickname(thruster.Nickname)
 		e.Hashes[thruster.Nickname] = thruster.NicknameHash
@@ -41,7 +46,7 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 		if good_info, ok := e.configs.Goods.GoodsMap[thruster.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				thruster.Price = price
-				thruster.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				thruster.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

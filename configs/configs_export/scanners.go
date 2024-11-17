@@ -1,6 +1,9 @@
 package configs_export
 
-import "github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+import (
+	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+)
 
 type Scanner struct {
 	Name  string
@@ -15,7 +18,7 @@ type Scanner struct {
 	NameID       int
 	InfoID       int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 }
@@ -24,7 +27,9 @@ func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 	var scanners []Scanner
 
 	for _, scanner_info := range e.configs.Equip.Scanners {
-		item := Scanner{}
+		item := Scanner{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 		item.Nickname = scanner_info.Nickname.Get()
 		item.NicknameHash = flhash.HashNickname(item.Nickname)
 		e.Hashes[item.Nickname] = item.NicknameHash
@@ -38,7 +43,7 @@ func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 		if good_info, ok := e.configs.Goods.GoodsMap[item.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				item.Price = price
-				item.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				item.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

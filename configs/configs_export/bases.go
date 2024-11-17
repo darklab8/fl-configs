@@ -9,6 +9,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/infocard_mapped/infocard"
+	"github.com/darklab8/go-utils/utils/ptr"
 	"github.com/darklab8/go-utils/utils/utils_types"
 )
 
@@ -78,19 +79,19 @@ func (e *Exporter) GetBases() []*Base {
 			factionName = e.GetInfocardName(group.IdsName.Get(), reputation_nickname)
 		}
 
-		var market_goods []MarketGood
-		if found_commodities, ok := commodities_per_base[base.Nickname.Get()]; ok {
-			market_goods = found_commodities
+		var market_goods_per_good_nick map[string]MarketGood = make(map[string]MarketGood)
+		if found_commodities, ok := commodities_per_base[cfgtype.BaseUniNick(base.Nickname.Get())]; ok {
+			market_goods_per_good_nick = found_commodities
 		}
 
-		var nickname string = base.Nickname.Get()
+		var nickname cfgtype.BaseUniNick = cfgtype.BaseUniNick(base.Nickname.Get())
 
 		e.exportInfocards(InfocardKey(nickname), infocard_ids...)
 
 		base := &Base{
 			Name:               name,
 			Nickname:           nickname,
-			NicknameHash:       flhash.HashNickname(nickname),
+			NicknameHash:       flhash.HashNickname(nickname.ToStr()),
 			FactionName:        factionName,
 			System:             string(system_name),
 			SystemNickname:     base.System.Get(),
@@ -100,13 +101,13 @@ func (e *Exporter) GetBases() []*Base {
 			Infocard:           InfocardKey(nickname),
 			File:               utils_types.FilePath(base.File.Get()),
 			BGCS_base_run_by:   base.BGCS_base_run_by.Get(),
-			MarketGoods:        market_goods,
+			MarketGoodsPerNick: market_goods_per_good_nick,
 			Pos:                pos,
 			Archetypes:         archetypes,
 			Region:             Region,
 		}
 
-		e.Hashes[base.Nickname] = base.NicknameHash
+		e.Hashes[string(base.Nickname)] = base.NicknameHash
 		e.Hashes[base.SystemNickname] = base.SystemNicknameHash
 
 		if found_system {
@@ -119,10 +120,47 @@ func (e *Exporter) GetBases() []*Base {
 	return results
 }
 
+func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
+	var base_per_nick map[cfgtype.BaseUniNick]*Base = make(map[cfgtype.BaseUniNick]*Base)
+	for _, base := range bases {
+		base_per_nick[base.Nickname] = base
+	}
+
+	for _, commodity := range commodities {
+		for _, base_location := range commodity.Bases {
+
+			var market_good MarketGood
+
+			if base, ok := base_per_nick[base_location.BaseNickname]; ok {
+				if good, ok := base.MarketGoodsPerNick[commodity.Nickname]; ok {
+					market_good = good
+				}
+			}
+
+			market_good.Name = commodity.Name
+			market_good.Nickname = commodity.Nickname
+			market_good.NicknameHash = commodity.NicknameHash
+			market_good.Type = "commodity"
+
+			market_good.LevelRequired = base_location.LevelRequired
+			market_good.RepRequired = base_location.RepRequired
+			market_good.BaseSells = base_location.BaseSells
+
+			market_good.PriceToBuy = base_location.PriceBaseSellsFor
+			market_good.PriceToSell = ptr.Ptr(base_location.PriceBaseBuysFor)
+			market_good.Infocard = commodity.Infocard
+			market_good.Volume = commodity.Volume
+			market_good.IsServerSideOverride = base_location.IsServerSideOverride
+
+			base_per_nick[base_location.BaseNickname].MarketGoodsPerNick[commodity.Nickname] = market_good
+		}
+	}
+}
+
 func FilterToUserfulBases(bases []*Base) []*Base {
 	var useful_bases []*Base = make([]*Base, 0, len(bases))
 	for _, item := range bases {
-		if (item.Name == "Object Unknown" || item.Name == "") && len(item.MarketGoods) == 0 {
+		if (item.Name == "Object Unknown" || item.Name == "") && len(item.MarketGoodsPerNick) == 0 {
 			continue
 		}
 
@@ -148,7 +186,7 @@ func FilterToUserfulBases(bases []*Base) []*Base {
 type Base struct {
 	Name               string
 	Archetypes         []string
-	Nickname           string
+	Nickname           cfgtype.BaseUniNick
 	NicknameHash       flhash.HashCode
 	FactionName        string
 	System             string
@@ -160,7 +198,7 @@ type Base struct {
 	Infocard           InfocardKey
 	File               utils_types.FilePath
 	BGCS_base_run_by   string
-	MarketGoods        []MarketGood
+	MarketGoodsPerNick map[string]MarketGood
 	Pos                cfgtype.Vector
 	SectorCoord        string
 

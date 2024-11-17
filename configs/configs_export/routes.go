@@ -21,7 +21,7 @@ type BaseRoute struct {
 
 func NewBaseRoute(g *GraphResults, FromBase *Base, ToBase *Base) *BaseRoute {
 	return &BaseRoute{
-		Route:    NewRoute(g, FromBase.Nickname, ToBase.Nickname),
+		Route:    NewRoute(g, FromBase.Nickname.ToStr(), ToBase.Nickname.ToStr()),
 		FromBase: FromBase,
 		ToBase:   ToBase,
 	}

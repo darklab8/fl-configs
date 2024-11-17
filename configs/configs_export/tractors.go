@@ -46,7 +46,7 @@ type Tractor struct {
 	NameID       int
 	InfoID       int
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 	DiscoveryIDRephacks
 }
 
@@ -65,6 +65,7 @@ func (e *Exporter) GetTractors() []Tractor {
 			DiscoveryIDRephacks: DiscoveryIDRephacks{
 				Rephacks: make(map[cfgtype.FactionNick]Rephack),
 			},
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
 		tractor.Nickname = cfgtype.TractorID(tractor_info.Nickname.Get())
 		tractor.NicknameHash = flhash.HashNickname(string(tractor.Nickname))
@@ -79,7 +80,7 @@ func (e *Exporter) GetTractors() []Tractor {
 		if good_info, ok := e.configs.Goods.GoodsMap[string(tractor.Nickname)]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				tractor.Price = price
-				tractor.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				tractor.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})

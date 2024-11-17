@@ -3,6 +3,7 @@ package configs_export
 import (
 	"math"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
@@ -38,7 +39,7 @@ type Mine struct {
 	HitPts   int
 	Lootable bool
 
-	Bases []*GoodAtBase
+	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
 
@@ -55,7 +56,9 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 	var mines []Mine
 
 	for _, mine_dropper := range e.configs.Equip.MineDroppers {
-		mine := Mine{}
+		mine := Mine{
+			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
+		}
 
 		mine.Nickname = mine_dropper.Nickname.Get()
 		mine.MineDropperHash = flhash.HashNickname(mine.Nickname)
@@ -71,7 +74,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		if good_info, ok := e.configs.Goods.GoodsMap[mine.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				mine.Price = price
-				mine.Bases = e.GetAtBasesSold(GetAtBasesInput{
+				mine.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
 					Nickname: good_info.Nickname.Get(),
 					Price:    price,
 				})
