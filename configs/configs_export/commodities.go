@@ -21,6 +21,8 @@ type GoodAtBase struct {
 	NotBuyable           bool
 	IsServerSideOverride bool
 
+	IsTransportUnreachable bool
+
 	BaseInfo
 }
 

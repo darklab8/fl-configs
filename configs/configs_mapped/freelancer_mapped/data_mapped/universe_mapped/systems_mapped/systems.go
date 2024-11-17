@@ -194,6 +194,7 @@ type System struct {
 	Bases           []*Base
 	BasesByNick     map[string]*Base
 	BasesByBases    map[string]*Base
+	AllBasesByBases map[string][]*Base
 	Jumpholes       []*Jumphole
 	Tradelanes      []*TradeLaneRing
 	TradelaneByNick map[string]*TradeLaneRing
@@ -275,6 +276,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 				MissionsSpawnZonesByFaction: make(map[string][]*MissionPatrolZone),
 				TradelaneByNick:             make(map[string]*TradeLaneRing),
 				ZonesByNick:                 make(map[string]*Zone),
+				AllBasesByBases:             make(map[string][]*Base),
 			}
 			system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
@@ -360,6 +362,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						if _, ok := system_to_add.BasesByBases[base_to_add.Base.Get()]; !ok {
 							system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
 						}
+						system_to_add.AllBasesByBases[base_to_add.Base.Get()] = append(system_to_add.AllBasesByBases[base_to_add.Base.Get()], base_to_add)
 
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 

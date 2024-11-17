@@ -202,6 +202,8 @@ type Base struct {
 	Pos                cfgtype.Vector
 	SectorCoord        string
 
+	IsTransportUnreachable bool
+
 	Missions BaseMissions
 	BaseAllTradeRoutes
 	BaseAllRoutes

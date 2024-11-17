@@ -57,5 +57,7 @@ func TestGetTrades(t *testing.T) {
 		}
 	}
 
+	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
+
 	fmt.Println()
 }

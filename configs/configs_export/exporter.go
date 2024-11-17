@@ -187,7 +187,70 @@ func (e *Exporter) Export() *Exporter {
 		nickname, _ := good.Nickname.GetValue()
 		e.Hashes[nickname] = flhash.HashNickname(nickname)
 	}
+
+	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
+
 	return e
+}
+
+func (e *Exporter) EnhanceBasesWithIsTransportReachable(
+	bases []*Base,
+	transports_graph *GraphResults,
+) {
+	reachable_base_example := "li01_01_base"
+	g := transports_graph
+
+	for _, base := range bases {
+		base_nickname := base.Nickname.ToStr()
+		if trades.GetDist(g.graph, g.dists, reachable_base_example, base_nickname) >= trades.INF/2 {
+			base.IsTransportUnreachable = true
+		}
+	}
+
+	enhance_with_transport_unrechability := func(Bases map[cfgtype.BaseUniNick]*GoodAtBase) {
+		for _, base := range Bases {
+			if trades.GetDist(g.graph, g.dists, reachable_base_example, string(base.BaseNickname)) >= trades.INF/2 {
+				base.IsTransportUnreachable = true
+			}
+		}
+	}
+
+	for _, item := range e.Commodities {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Guns {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Missiles {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Mines {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Shields {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Thrusters {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Ships {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Tractors {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Engines {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.CMs {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Scanners {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Ammos {
+		enhance_with_transport_unrechability(item.Bases)
+	}
 }
 
 func Export(configs *configs_mapped.MappedConfigs) *Exporter {

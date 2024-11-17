@@ -9,8 +9,8 @@ import (
 
 type Solar struct {
 	semantic.Model
-	Nickname      *semantic.String
-	DockingSphere *semantic.String
+	Nickname       *semantic.String
+	DockingSpheres []*semantic.String
 }
 
 type Config struct {
@@ -32,11 +32,16 @@ func Read(input_file *iniload.IniLoader) *Config {
 	for _, section := range input_file.SectionMap["[solar]"] {
 
 		solar := &Solar{
-			Nickname:      semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-			DockingSphere: semantic.NewString(section, "docking_sphere", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+			Nickname: semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+		}
+		solar.Map(section)
+
+		empathy_rate_key := "docking_sphere"
+		for good_index, _ := range section.ParamMap[empathy_rate_key] {
+			solar.DockingSpheres = append(solar.DockingSpheres,
+				semantic.NewString(section, "docking_sphere", semantic.WithLowercaseS(), semantic.OptsS(semantic.Index(good_index)), semantic.WithoutSpacesS()))
 		}
 
-		solar.Map(section)
 		frelconfig.Solars = append(frelconfig.Solars, solar)
 		frelconfig.SolarsByNick[solar.Nickname.Get()] = solar
 
