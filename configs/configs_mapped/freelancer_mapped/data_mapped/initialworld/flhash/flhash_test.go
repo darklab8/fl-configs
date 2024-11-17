@@ -48,5 +48,4 @@ func TestHashSmth(t *testing.T) {
 	fmt.Println(hash.ToIntStr())
 	fmt.Println(hash.ToUintStr())
 	fmt.Println(hash.ToHexStr())
-
 }
