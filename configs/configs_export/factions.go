@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/missions_mapped/mbases_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 )
@@ -17,9 +18,10 @@ type Reputation struct {
 }
 
 type Faction struct {
-	Name      string
-	ShortName string
-	Nickname  string
+	Name         string
+	ShortName    string
+	Nickname     string
+	NicknameHash flhash.HashCode
 
 	ObjectDestruction float64
 	MissionSuccess    float64
@@ -53,11 +55,13 @@ func (e *Exporter) GetFactions(bases []*Base) []Faction {
 	for _, group := range e.configs.InitialWorld.Groups {
 		var nickname string = group.Nickname.Get()
 		faction := Faction{
-			Nickname:   nickname,
-			InfonameID: group.IdsName.Get(),
-			InfocardID: group.IdsInfo.Get(),
-			Infocard:   InfocardKey(nickname),
+			Nickname:     nickname,
+			NicknameHash: flhash.HashFaction(nickname),
+			InfonameID:   group.IdsName.Get(),
+			InfocardID:   group.IdsInfo.Get(),
+			Infocard:     InfocardKey(nickname),
 		}
+		e.Hashes[faction.Nickname] = faction.NicknameHash
 
 		if rephacks, ok := faction_rephacks[nickname]; ok {
 
