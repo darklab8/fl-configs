@@ -3,6 +3,7 @@ package equip_mapped
 import (
 	"strings"
 
+	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/iniload"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
@@ -28,8 +29,22 @@ type Commodity struct {
 	PodApperance      *semantic.String
 	LootAppearance    *semantic.String
 	DecayPerSecond    *semantic.Int
-	Volume            *semantic.Float
 	HitPts            *semantic.Int
+
+	Volumes []*Volume
+}
+type Volume struct {
+	semantic.Model
+	ShipClass *semantic.Int
+	Volume    *semantic.Float
+}
+
+func (volume Volume) GetShipClass() cfgtype.ShipClass {
+	if value, ok := volume.ShipClass.GetValue(); ok {
+		return cfgtype.ShipClass(value)
+	}
+
+	return -1
 }
 
 type Munition struct {
@@ -321,8 +336,25 @@ func Read(files []*iniload.IniLoader) *Config {
 				commodity.PodApperance = semantic.NewString(section, "pod_appearance")
 				commodity.LootAppearance = semantic.NewString(section, "loot_appearance")
 				commodity.DecayPerSecond = semantic.NewInt(section, "decay_per_second")
-				commodity.Volume = semantic.NewFloat(section, "volume", semantic.Precision(6))
 				commodity.HitPts = semantic.NewInt(section, "hit_pts")
+
+				// commodity.Volume = semantic.NewFloat(section, "volume", semantic.Precision(6))
+				override := &Volume{
+					ShipClass: semantic.NewInt(section, "volume", semantic.Order(1)), // does not exist. For uniformness with override
+					Volume:    semantic.NewFloat(section, "volume", semantic.Precision(6)),
+				}
+				override.Map(section)
+				commodity.Volumes = append(commodity.Volumes, override)
+
+				volume_override_key := "volume_class_override"
+				for index, _ := range section.ParamMap[volume_override_key] {
+					override := &Volume{
+						ShipClass: semantic.NewInt(section, volume_override_key, semantic.Index(index), semantic.Order(0)),
+						Volume:    semantic.NewFloat(section, volume_override_key, semantic.Precision(6), semantic.OptsF(semantic.Index(index), semantic.Order(1))),
+					}
+					override.Map(section)
+					commodity.Volumes = append(commodity.Volumes, override)
+				}
 
 				frelconfig.Commodities = append(frelconfig.Commodities, commodity)
 				frelconfig.CommoditiesMap[commodity.Nickname.Get()] = commodity

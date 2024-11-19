@@ -79,7 +79,7 @@ func (e *Exporter) GetBases() []*Base {
 			factionName = e.GetInfocardName(group.IdsName.Get(), reputation_nickname)
 		}
 
-		var market_goods_per_good_nick map[string]MarketGood = make(map[string]MarketGood)
+		var market_goods_per_good_nick map[CommodityKey]MarketGood = make(map[CommodityKey]MarketGood)
 		if found_commodities, ok := commodities_per_base[cfgtype.BaseUniNick(base.Nickname.Get())]; ok {
 			market_goods_per_good_nick = found_commodities
 		}
@@ -130,9 +130,10 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 		for _, base_location := range commodity.Bases {
 
 			var market_good MarketGood
+			commodity_key := GetCommodityKey(commodity.Nickname, commodity.ShipClass)
 
 			if base, ok := base_per_nick[base_location.BaseNickname]; ok {
-				if good, ok := base.MarketGoodsPerNick[commodity.Nickname]; ok {
+				if good, ok := base.MarketGoodsPerNick[commodity_key]; ok {
 					market_good = good
 				}
 			}
@@ -152,7 +153,7 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 			market_good.Volume = commodity.Volume
 			market_good.IsServerSideOverride = base_location.IsServerSideOverride
 
-			base_per_nick[base_location.BaseNickname].MarketGoodsPerNick[commodity.Nickname] = market_good
+			base_per_nick[base_location.BaseNickname].MarketGoodsPerNick[commodity_key] = market_good
 		}
 	}
 }
@@ -198,7 +199,7 @@ type Base struct {
 	Infocard           InfocardKey
 	File               utils_types.FilePath
 	BGCS_base_run_by   string
-	MarketGoodsPerNick map[string]MarketGood
+	MarketGoodsPerNick map[CommodityKey]MarketGood
 	Pos                cfgtype.Vector
 	SectorCoord        string
 
@@ -210,4 +211,10 @@ type Base struct {
 	MiningInfo
 
 	Reachable bool
+}
+
+type CommodityKey string
+
+func GetCommodityKey(nickname string, ship_class cfgtype.ShipClass) CommodityKey {
+	return CommodityKey(fmt.Sprintf("%s_%d", nickname, ship_class))
 }
