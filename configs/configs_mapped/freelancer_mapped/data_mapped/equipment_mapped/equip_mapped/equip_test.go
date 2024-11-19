@@ -19,9 +19,11 @@ func TestReadSelectEquip(t *testing.T) {
 		commodity.IdsName.Get()
 	}
 
-	comm_vip := config.CommoditiesMap["commodity_vips"]
-	assert.Greater(t, len(comm_vip.Volumes), 0)
+	// Runnable only for disco
+	// comm_vip := config.CommoditiesMap["commodity_vips"]
 
-	assert.Equal(t, comm_vip.Volumes[0].ShipClass.Get(), 10)
-	assert.Equal(t, comm_vip.Volumes[0].Volume.Get(), 500)
+	// assert.Greater(t, len(comm_vip.Volumes), 0)
+
+	// assert.Equal(t, comm_vip.Volumes[1].ShipClass.Get(), 10)
+	// assert.Equal(t, comm_vip.Volumes[1].Volume.Get(), 500)
 }
