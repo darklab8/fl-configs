@@ -15,3 +15,7 @@ tasks:
   profiler:show:
     cmds:
       - go tool pprof main.go prof.prof
+
+  godocs:
+    cmds:
+      - godoc -http=:8000

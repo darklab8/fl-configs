@@ -396,6 +396,7 @@ func Read(files []*iniload.IniLoader) *Config {
 
 					ArmorPen: semantic.NewFloat(section, "armor_pen", semantic.Precision(2), semantic.WithDefaultF(0)),
 				}
+				munition.Map(section)
 				munition.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				munition.IdsName = semantic.NewInt(section, "ids_name")
 				munition.IdsInfo = semantic.NewInt(section, "ids_info")
