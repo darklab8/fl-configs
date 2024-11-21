@@ -17,12 +17,14 @@ type Config struct {
 	*iniload.IniLoader
 	Recipes           []*CommodityRecipe
 	RecipePerConsumed map[string][]*CommodityRecipe
+	RecipePerProduced map[string][]*CommodityRecipe
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
 	conf := &Config{
 		IniLoader:         input_file,
 		RecipePerConsumed: make(map[string][]*CommodityRecipe),
+		RecipePerProduced: make(map[string][]*CommodityRecipe),
 	}
 
 	for _, recipe_info := range input_file.SectionMap["[recipe]"] {
@@ -48,7 +50,9 @@ func Read(input_file *iniload.IniLoader) *Config {
 		for _, consumed := range recipe.ConsumedItem {
 			conf.RecipePerConsumed[consumed.Get()] = append(conf.RecipePerConsumed[consumed.Get()], recipe)
 		}
-
+		for _, produced := range recipe.ProcucedItem {
+			conf.RecipePerProduced[produced.Get()] = append(conf.RecipePerProduced[produced.Get()], recipe)
+		}
 	}
 
 	return conf

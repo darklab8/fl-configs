@@ -39,7 +39,7 @@ type Exporter struct {
 
 	Bases                []*Base
 	MiningOperations     []*Base
-	useful_bases_by_nick map[cfgtype.BaseUniNick]*Base
+	useful_bases_by_nick map[cfgtype.BaseUniNick]bool
 
 	ship_speeds trades.ShipSpeeds
 	transport   *GraphResults
@@ -108,12 +108,12 @@ func (e *Exporter) Export() *Exporter {
 	var wg sync.WaitGroup
 
 	e.Bases = e.GetBases()
-	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 	useful_bases := FilterToUserfulBases(e.Bases)
-	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]*Base)
+	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]bool)
 	for _, base := range useful_bases {
-		e.useful_bases_by_nick[base.Nickname] = base
+		e.useful_bases_by_nick[base.Nickname] = true
 	}
+	e.useful_bases_by_nick[pob_crafts_nickname] = true
 
 	e.Commodities = e.GetCommodities()
 	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
@@ -189,6 +189,7 @@ func (e *Exporter) Export() *Exporter {
 	}
 
 	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
+	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 
 	return e
 }
