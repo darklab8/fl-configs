@@ -63,7 +63,9 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 			market_good.Type = fmt.Sprintf("%s craft", category)
 			if equip, ok := e.configs.Equip.ItemsMap[market_good.Nickname]; ok {
 				market_good.Type = fmt.Sprintf("%s craft", equip.Category)
+				e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 			}
+
 		}
 		var ship_nickname string
 		if good_ship, ok := e.configs.Goods.ShipsMap[produced]; ok {
@@ -73,13 +75,16 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 				ship_nickname = ship_nick
 				if equipment, ok := e.configs.Shiparch.ShipsMap[ship_nick]; ok {
 					market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
+					e.exportInfocards(InfocardKey(market_good.Nickname), equipment.IdsInfo1.Get(), equipment.IdsInfo.Get())
 				}
 			}
 		} else {
 			if equip, ok := e.configs.Equip.ItemsMap[produced]; ok {
 				market_good.Name = e.GetInfocardName(equip.IdsName.Get(), produced)
+				e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 			}
 		}
+
 		market_good_key := GetCommodityKey(market_good.Nickname, market_good.ShipClass)
 		base.MarketGoodsPerNick[market_good_key] = market_good
 

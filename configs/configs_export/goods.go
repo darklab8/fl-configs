@@ -88,8 +88,10 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 
 					Name = e.GetInfocardName(shiparch.IdsName.Get(), ship_nickname)
 
+					// e.exportInfocards(InfocardKey(market_good_nickname),
+					// 	shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
 					e.exportInfocards(InfocardKey(market_good_nickname),
-						shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
+						shiparch.IdsInfo1.Get(), shiparch.IdsInfo.Get())
 				}
 
 				if gun, ok := e.configs.Equip.GunMap[market_good_nickname]; ok {
