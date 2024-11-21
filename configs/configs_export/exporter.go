@@ -108,6 +108,7 @@ func (e *Exporter) Export() *Exporter {
 	var wg sync.WaitGroup
 
 	e.Bases = e.GetBases()
+	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 	useful_bases := FilterToUserfulBases(e.Bases)
 	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]*Base)
 	for _, base := range useful_bases {
@@ -115,7 +116,6 @@ func (e *Exporter) Export() *Exporter {
 	}
 
 	e.Commodities = e.GetCommodities()
-
 	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
 
 	e.MiningOperations = e.GetOres(e.Commodities)

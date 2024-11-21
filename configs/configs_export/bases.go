@@ -129,6 +129,11 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 	for _, commodity := range commodities {
 		for _, base_location := range commodity.Bases {
 
+			// no idea why :) but crashes otherwise
+			if base_location.BaseNickname == pob_crafts_nickname {
+				continue
+			}
+
 			var market_good MarketGood
 			commodity_key := GetCommodityKey(commodity.Nickname, commodity.ShipClass)
 

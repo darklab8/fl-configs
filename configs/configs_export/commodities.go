@@ -200,6 +200,23 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 		for _, item := range serverside_overrides {
 			goods_per_base[item.BaseNickname] = item
 		}
+
+		pob_produced := e.pob_produced()
+		if _, ok := pob_produced[commodity.Nickname]; ok {
+			good_to_add := &GoodAtBase{
+				BaseNickname:         pob_crafts_nickname,
+				BaseSells:            true,
+				IsServerSideOverride: true,
+				BaseInfo: BaseInfo{
+					BaseName:    "PoB Crafts",
+					SystemName:  "Neverwhere",
+					Region:      "Neverwhere",
+					FactionName: "Neverwhere",
+				},
+			}
+			goods_per_base[pob_crafts_nickname] = good_to_add
+
+		}
 	}
 
 	return goods_per_base
