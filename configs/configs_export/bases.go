@@ -59,9 +59,14 @@ func (e *Exporter) GetBases() []*Base {
 			if system_base, ok := system.BasesByBases[base.Nickname.Get()]; ok {
 				infocard_id = system_base.IDsInfo.Get()
 				reputation_nickname = system_base.RepNickname.Get()
-				pos, _ = system_base.Pos.GetValue()
-				archetype, _ := system_base.Archetype.GetValue()
-				archetypes = append(archetypes, archetype)
+			}
+
+			if system_bases, ok := system.AllBasesByDockWith[base.Nickname.Get()]; ok {
+				for _, system_base := range system_bases {
+					pos, _ = system_base.Pos.GetValue()
+					archetype, _ := system_base.Archetype.GetValue()
+					archetypes = append(archetypes, archetype)
+				}
 			}
 		}
 

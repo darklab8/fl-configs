@@ -155,7 +155,7 @@ func MapConfigsToFGraph(
 
 			if configs.Discovery != nil {
 				is_dockable_by_caps := false
-				if bases, ok := system.AllBasesByBases[system_base_base]; ok {
+				if bases, ok := system.AllBasesByDockWith[system_base_base]; ok {
 					for _, base_obj := range bases {
 						base_archetype := base_obj.Archetype.Get()
 						if solar, ok := configs.Solararch.SolarsByNick[base_archetype]; ok {
