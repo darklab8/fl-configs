@@ -42,7 +42,7 @@ func Example_extractIniSection() {
 
 	fmt.Println(output.String())
 
-	// Output:
+	// Example of output
 	// [Gun]
 	// nickname = fc_or_gun01_mark02
 	// ids_name = 263221
