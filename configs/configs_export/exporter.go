@@ -39,7 +39,7 @@ type Exporter struct {
 
 	Bases                []*Base
 	MiningOperations     []*Base
-	useful_bases_by_nick map[cfgtype.BaseUniNick]*Base
+	useful_bases_by_nick map[cfgtype.BaseUniNick]bool
 
 	ship_speeds trades.ShipSpeeds
 	transport   *GraphResults
@@ -109,13 +109,13 @@ func (e *Exporter) Export() *Exporter {
 
 	e.Bases = e.GetBases()
 	useful_bases := FilterToUserfulBases(e.Bases)
-	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]*Base)
+	e.useful_bases_by_nick = make(map[cfgtype.BaseUniNick]bool)
 	for _, base := range useful_bases {
-		e.useful_bases_by_nick[base.Nickname] = base
+		e.useful_bases_by_nick[base.Nickname] = true
 	}
+	e.useful_bases_by_nick[pob_crafts_nickname] = true
 
 	e.Commodities = e.GetCommodities()
-
 	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
 
 	e.MiningOperations = e.GetOres(e.Commodities)
@@ -187,7 +187,71 @@ func (e *Exporter) Export() *Exporter {
 		nickname, _ := good.Nickname.GetValue()
 		e.Hashes[nickname] = flhash.HashNickname(nickname)
 	}
+
+	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
+	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
+
 	return e
+}
+
+func (e *Exporter) EnhanceBasesWithIsTransportReachable(
+	bases []*Base,
+	transports_graph *GraphResults,
+) {
+	reachable_base_example := "li01_01_base"
+	g := transports_graph
+
+	for _, base := range bases {
+		base_nickname := base.Nickname.ToStr()
+		if trades.GetDist(g.graph, g.dists, reachable_base_example, base_nickname) >= trades.INF/2 {
+			base.IsTransportUnreachable = true
+		}
+	}
+
+	enhance_with_transport_unrechability := func(Bases map[cfgtype.BaseUniNick]*GoodAtBase) {
+		for _, base := range Bases {
+			if trades.GetDist(g.graph, g.dists, reachable_base_example, string(base.BaseNickname)) >= trades.INF/2 {
+				base.IsTransportUnreachable = true
+			}
+		}
+	}
+
+	for _, item := range e.Commodities {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Guns {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Missiles {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Mines {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Shields {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Thrusters {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Ships {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Tractors {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Engines {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.CMs {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Scanners {
+		enhance_with_transport_unrechability(item.Bases)
+	}
+	for _, item := range e.Ammos {
+		enhance_with_transport_unrechability(item.Bases)
+	}
 }
 
 func Export(configs *configs_mapped.MappedConfigs) *Exporter {

@@ -17,3 +17,16 @@ type Seconds = float64
 type BaseUniNick string
 
 func (b BaseUniNick) ToStr() string { return string(b) }
+
+type ShipClass int64
+
+func (s ShipClass) ToStr() string {
+	switch s {
+	case 10:
+		return "liner"
+	case 14:
+		return "miner"
+	default:
+		return ""
+	}
+}

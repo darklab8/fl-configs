@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
@@ -25,6 +26,7 @@ type MarketGood struct {
 	PriceToBuy    int
 	PriceToSell   *int
 	Volume        float64
+	ShipClass     cfgtype.ShipClass
 
 	IsServerSideOverride bool
 }
@@ -38,14 +40,23 @@ func NameWithSpacesOnly(word string) bool {
 	return true
 }
 
-func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[string]MarketGood {
+func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]MarketGood {
 
-	var goods_per_base map[cfgtype.BaseUniNick]map[string]MarketGood = make(map[cfgtype.BaseUniNick]map[string]MarketGood)
+	var goods_per_base map[cfgtype.BaseUniNick]map[CommodityKey]MarketGood = make(map[cfgtype.BaseUniNick]map[CommodityKey]MarketGood)
 
 	for _, base_good := range e.configs.Market.BaseGoods {
 		base_nickname := cfgtype.BaseUniNick(base_good.Base.Get())
 
-		var MarketGoods map[string]MarketGood = make(map[string]MarketGood)
+		if base_nickname == "li01_01_base" {
+			fmt.Println()
+		}
+
+		var MarketGoods map[CommodityKey]MarketGood
+		if market_goods, ok := goods_per_base[base_nickname]; ok {
+			MarketGoods = market_goods
+		} else {
+			MarketGoods = make(map[CommodityKey]MarketGood)
+		}
 		for _, market_good := range base_good.MarketGoods {
 
 			var market_good_nickname string = market_good.Nickname.Get()
@@ -77,8 +88,10 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[string]MarketGoo
 
 					Name = e.GetInfocardName(shiparch.IdsName.Get(), ship_nickname)
 
+					// e.exportInfocards(InfocardKey(market_good_nickname),
+					// 	shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
 					e.exportInfocards(InfocardKey(market_good_nickname),
-						shiparch.IdsInfo.Get(), shiparch.IdsInfo1.Get(), shiparch.IdsInfo2.Get(), shiparch.IdsInfo3.Get())
+						shiparch.IdsInfo1.Get(), shiparch.IdsInfo.Get())
 				}
 
 				if gun, ok := e.configs.Equip.GunMap[market_good_nickname]; ok {
@@ -110,6 +123,7 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[string]MarketGoo
 				PriceBase:     price_base,
 				PriceToBuy:    int(math.Floor(float64(price_base) * market_good.PriceModifier.Get())),
 				Infocard:      InfocardKey(market_good_nickname),
+				ShipClass:     -1,
 			}
 
 			e.Hashes[market_good_nickname] = good_to_add.NicknameHash
@@ -121,10 +135,18 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[string]MarketGoo
 				} else {
 					good_to_add.PriceToSell = &good_to_add.PriceToBuy
 				}
+				equipment := e.configs.Equip.CommoditiesMap[market_good_nickname]
 
+				for _, volume := range equipment.Volumes {
+					good_to_add2 := good_to_add
+					good_to_add2.Volume = volume.Volume.Get()
+					good_to_add2.ShipClass = volume.GetShipClass()
+					MarketGoods[GetCommodityKey(good_to_add2.Nickname, good_to_add2.ShipClass)] = good_to_add2
+				}
+
+			} else {
+				MarketGoods[GetCommodityKey(market_good_nickname, good_to_add.ShipClass)] = good_to_add
 			}
-
-			MarketGoods[market_good_nickname] = good_to_add
 		}
 
 		goods_per_base[base_nickname] = MarketGoods

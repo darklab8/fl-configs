@@ -190,13 +190,16 @@ type Zone struct {
 
 type System struct {
 	semantic.ConfigModel
-	Nickname        string
-	Bases           []*Base
-	BasesByNick     map[string]*Base
-	BasesByBases    map[string]*Base
-	Jumpholes       []*Jumphole
-	Tradelanes      []*TradeLaneRing
-	TradelaneByNick map[string]*TradeLaneRing
+	Nickname           string
+	Bases              []*Base
+	BasesByNick        map[string]*Base
+	BasesByBases       map[string]*Base
+	BasesByDockWith    map[string]*Base
+	AllBasesByBases    map[string][]*Base
+	AllBasesByDockWith map[string][]*Base
+	Jumpholes          []*Jumphole
+	Tradelanes         []*TradeLaneRing
+	TradelaneByNick    map[string]*TradeLaneRing
 
 	MissionZoneVignettes []*MissionVignetteZone
 
@@ -214,6 +217,7 @@ type Config struct {
 
 	// it can contain more than one base meeting condition.
 	BasesByBases    map[string]*Base
+	BasesByDockWith map[string]*Base
 	BasesByNick     map[string]*Base
 	JumpholesByNick map[string]*Jumphole
 }
@@ -227,6 +231,8 @@ type FileRead struct {
 func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesystem) *Config {
 	frelconfig := &Config{
 		BasesByBases:    make(map[string]*Base),
+		BasesByDockWith: make(map[string]*Base),
+
 		BasesByNick:     make(map[string]*Base),
 		JumpholesByNick: make(map[string]*Jumphole),
 	}
@@ -275,12 +281,17 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 				MissionsSpawnZonesByFaction: make(map[string][]*MissionPatrolZone),
 				TradelaneByNick:             make(map[string]*TradeLaneRing),
 				ZonesByNick:                 make(map[string]*Zone),
+				AllBasesByBases:             make(map[string][]*Base),
+				AllBasesByDockWith:          make(map[string][]*Base),
+
+				BasesByNick:     make(map[string]*Base),
+				BasesByBases:    make(map[string]*Base),
+				BasesByDockWith: make(map[string]*Base),
 			}
 			system_to_add.Init(sysiniconf.Sections, sysiniconf.Comments, sysiniconf.File.GetFilepath())
 
 			system_to_add.Nickname = system_key
-			system_to_add.BasesByNick = make(map[string]*Base)
-			system_to_add.BasesByBases = make(map[string]*Base)
+
 			system_to_add.Bases = make([]*Base, 0)
 			frelconfig.SystemsMap[system_key] = system_to_add
 			frelconfig.Systems = append(frelconfig.Systems, system_to_add)
@@ -348,7 +359,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 						base_to_add.Nickname = semantic.NewString(obj, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 						base_to_add.Base = semantic.NewString(obj, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-						base_to_add.DockWith = semantic.NewString(obj, "dock_with", semantic.OptsS(semantic.Optional()))
+						base_to_add.DockWith = semantic.NewString(obj, "dock_with", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 						base_to_add.RepNickname = semantic.NewString(obj, "reputation", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 
 						base_to_add.IDsInfo = semantic.NewInt(obj, "ids_info", semantic.Optional())
@@ -357,14 +368,24 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 						base_to_add.Pos = semantic.NewVector(obj, "pos", semantic.Precision(0))
 
 						system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
+
 						if _, ok := system_to_add.BasesByBases[base_to_add.Base.Get()]; !ok {
 							system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
 						}
+						system_to_add.AllBasesByBases[base_to_add.Base.Get()] = append(system_to_add.AllBasesByBases[base_to_add.Base.Get()], base_to_add)
+
+						if _, ok := system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()]; !ok {
+							system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()] = append(system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()], base_to_add)
+						}
+						system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()] = append(system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()], base_to_add)
 
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 
 						if _, ok := frelconfig.BasesByBases[base_to_add.Base.Get()]; !ok {
 							frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						}
+						if _, ok := frelconfig.BasesByDockWith[base_to_add.DockWith.Get()]; !ok {
+							frelconfig.BasesByDockWith[base_to_add.DockWith.Get()] = base_to_add
 						}
 
 						if base_nickname, ok := base_to_add.Nickname.GetValue(); ok {

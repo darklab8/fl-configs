@@ -91,7 +91,7 @@ func (t *Route) GetPaths() []PathWithNavmap {
 			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
 			augmented_path.Pos = pos
 		}
-		if base, ok := t.g.e.configs.Systems.BasesByBases[path.NextName]; ok {
+		if base, ok := t.g.e.configs.Systems.BasesByDockWith[path.NextName]; ok {
 			pos := base.Pos.Get()
 
 			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Nickname)]

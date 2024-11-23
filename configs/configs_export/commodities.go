@@ -15,11 +15,14 @@ type GoodAtBase struct {
 	PriceBaseBuysFor  int
 	PriceBaseSellsFor int
 	Volume            float64
+	ShipClass         cfgtype.ShipClass
 	LevelRequired     int
 	RepRequired       float64
 
 	NotBuyable           bool
 	IsServerSideOverride bool
+
+	IsTransportUnreachable bool
 
 	BaseInfo
 }
@@ -30,6 +33,7 @@ type Commodity struct {
 	Name                  string
 	Combinable            bool
 	Volume                float64
+	ShipClass             cfgtype.ShipClass
 	NameID                int
 	InfocardID            int
 	Infocard              InfocardKey
@@ -51,61 +55,67 @@ func (e *Exporter) GetCommodities() []*Commodity {
 	commodities := make([]*Commodity, 0, 100)
 
 	for _, comm := range e.configs.Goods.Commodities {
-		commodity := &Commodity{
-			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
-		}
-		commodity.Nickname = comm.Nickname.Get()
-		commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
-		e.Hashes[commodity.Nickname] = commodity.NicknameHash
-
-		commodity.Combinable = comm.Combinable.Get()
-
 		equipment_name := comm.Equipment.Get()
 		equipment := e.configs.Equip.CommoditiesMap[equipment_name]
 
-		commodity.NameID = equipment.IdsName.Get()
-
-		commodity.Name = e.GetInfocardName(equipment.IdsName.Get(), commodity.Nickname)
-		commodity.Infocard = InfocardKey(commodity.Nickname)
-		e.exportInfocards(commodity.Infocard, equipment.IdsInfo.Get())
-		commodity.InfocardID = equipment.IdsInfo.Get()
-
-		volume := equipment.Volume.Get()
-		commodity.Volume = volume
-		base_item_price := comm.Price.Get()
-
-		commodity.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
-			Nickname: commodity.Nickname,
-			Price:    base_item_price,
-			Volume:   commodity.Volume,
-		})
-
-		for _, base_info := range commodity.Bases {
-			if base_info.PriceBaseBuysFor > commodity.PriceBestBaseBuysFor {
-				commodity.PriceBestBaseBuysFor = base_info.PriceBaseBuysFor
+		for _, volume_info := range equipment.Volumes {
+			commodity := &Commodity{
+				Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 			}
-			if base_info.PriceBaseSellsFor < commodity.PriceBestBaseSellsFor || commodity.PriceBestBaseSellsFor == 0 {
-				if base_info.BaseSells {
-					commodity.PriceBestBaseSellsFor = base_info.PriceBaseSellsFor
+			commodity.Nickname = comm.Nickname.Get()
+			commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
+			e.Hashes[commodity.Nickname] = commodity.NicknameHash
+
+			commodity.Combinable = comm.Combinable.Get()
+
+			commodity.NameID = equipment.IdsName.Get()
+
+			commodity.Name = e.GetInfocardName(equipment.IdsName.Get(), commodity.Nickname)
+			e.exportInfocards(commodity.Infocard, equipment.IdsInfo.Get())
+			commodity.InfocardID = equipment.IdsInfo.Get()
+
+			commodity.Volume = volume_info.Volume.Get()
+			commodity.ShipClass = volume_info.GetShipClass()
+			commodity.Infocard = InfocardKey(commodity.Nickname)
+
+			base_item_price := comm.Price.Get()
+
+			commodity.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
+				Nickname:  commodity.Nickname,
+				Price:     base_item_price,
+				Volume:    commodity.Volume,
+				ShipClass: commodity.ShipClass,
+			})
+
+			for _, base_info := range commodity.Bases {
+				if base_info.PriceBaseBuysFor > commodity.PriceBestBaseBuysFor {
+					commodity.PriceBestBaseBuysFor = base_info.PriceBaseBuysFor
 				}
+				if base_info.PriceBaseSellsFor < commodity.PriceBestBaseSellsFor || commodity.PriceBestBaseSellsFor == 0 {
+					if base_info.BaseSells {
+						commodity.PriceBestBaseSellsFor = base_info.PriceBaseSellsFor
+					}
 
+				}
 			}
+
+			if commodity.PriceBestBaseBuysFor > 0 && commodity.PriceBestBaseSellsFor > 0 {
+				commodity.ProffitMargin = commodity.PriceBestBaseBuysFor - commodity.PriceBestBaseSellsFor
+			}
+
+			commodities = append(commodities, commodity)
 		}
 
-		if commodity.PriceBestBaseBuysFor > 0 && commodity.PriceBestBaseSellsFor > 0 {
-			commodity.ProffitMargin = commodity.PriceBestBaseBuysFor - commodity.PriceBestBaseSellsFor
-		}
-
-		commodities = append(commodities, commodity)
 	}
 
 	return commodities
 }
 
 type GetCommodityAtBasesInput struct {
-	Nickname string
-	Price    int
-	Volume   float64
+	Nickname  string
+	Price     int
+	Volume    float64
+	ShipClass cfgtype.ShipClass
 }
 
 func (e *Exporter) ServerSideMarketGoodsOverrides(commodity GetCommodityAtBasesInput) map[cfgtype.BaseUniNick]*GoodAtBase {
@@ -131,6 +141,7 @@ func (e *Exporter) ServerSideMarketGoodsOverrides(commodity GetCommodityAtBasesI
 			PriceBaseBuysFor:     base_market.PriceBaseBuysFor.Get(),
 			PriceBaseSellsFor:    base_market.PriceBaseSellsFor.Get(),
 			Volume:               commodity.Volume,
+			ShipClass:            commodity.ShipClass,
 			IsServerSideOverride: true,
 		}
 
@@ -157,6 +168,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 		base_info := &GoodAtBase{
 			NotBuyable: false,
 			Volume:     commodity.Volume,
+			ShipClass:  commodity.ShipClass,
 		}
 		base_info.BaseSells = market_good.BaseSells()
 		base_info.BaseNickname = base_nickname
@@ -187,6 +199,23 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 		serverside_overrides := e.ServerSideMarketGoodsOverrides(commodity)
 		for _, item := range serverside_overrides {
 			goods_per_base[item.BaseNickname] = item
+		}
+
+		pob_produced := e.pob_produced()
+		if _, ok := pob_produced[commodity.Nickname]; ok {
+			good_to_add := &GoodAtBase{
+				BaseNickname:         pob_crafts_nickname,
+				BaseSells:            true,
+				IsServerSideOverride: true,
+				BaseInfo: BaseInfo{
+					BaseName:    "PoB Crafts",
+					SystemName:  "Neverwhere",
+					Region:      "Neverwhere",
+					FactionName: "Neverwhere",
+				},
+			}
+			goods_per_base[pob_crafts_nickname] = good_to_add
+
 		}
 	}
 

@@ -33,6 +33,10 @@ type File struct {
 	webfile *WebFile
 }
 
+func NewMemoryFile(lines []string) *File {
+	return &File{lines: lines}
+}
+
 func NewFile(filepath utils_types.FilePath) *File {
 	return &File{filepath: filepath}
 }
@@ -59,6 +63,10 @@ func (f *File) close() {
 }
 
 func (f *File) ReadLines() ([]string, error) {
+
+	if len(f.lines) > 0 {
+		return f.lines, nil
+	}
 
 	if f.webfile != nil {
 		res, err := http.Get(f.webfile.url)

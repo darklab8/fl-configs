@@ -59,9 +59,14 @@ func (e *Exporter) GetBases() []*Base {
 			if system_base, ok := system.BasesByBases[base.Nickname.Get()]; ok {
 				infocard_id = system_base.IDsInfo.Get()
 				reputation_nickname = system_base.RepNickname.Get()
-				pos, _ = system_base.Pos.GetValue()
-				archetype, _ := system_base.Archetype.GetValue()
-				archetypes = append(archetypes, archetype)
+			}
+
+			if system_bases, ok := system.AllBasesByDockWith[base.Nickname.Get()]; ok {
+				for _, system_base := range system_bases {
+					pos, _ = system_base.Pos.GetValue()
+					archetype, _ := system_base.Archetype.GetValue()
+					archetypes = append(archetypes, archetype)
+				}
 			}
 		}
 
@@ -79,7 +84,7 @@ func (e *Exporter) GetBases() []*Base {
 			factionName = e.GetInfocardName(group.IdsName.Get(), reputation_nickname)
 		}
 
-		var market_goods_per_good_nick map[string]MarketGood = make(map[string]MarketGood)
+		var market_goods_per_good_nick map[CommodityKey]MarketGood = make(map[CommodityKey]MarketGood)
 		if found_commodities, ok := commodities_per_base[cfgtype.BaseUniNick(base.Nickname.Get())]; ok {
 			market_goods_per_good_nick = found_commodities
 		}
@@ -129,10 +134,16 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 	for _, commodity := range commodities {
 		for _, base_location := range commodity.Bases {
 
+			// no idea why :) but crashes otherwise
+			if base_location.BaseNickname == pob_crafts_nickname {
+				continue
+			}
+
 			var market_good MarketGood
+			commodity_key := GetCommodityKey(commodity.Nickname, commodity.ShipClass)
 
 			if base, ok := base_per_nick[base_location.BaseNickname]; ok {
-				if good, ok := base.MarketGoodsPerNick[commodity.Nickname]; ok {
+				if good, ok := base.MarketGoodsPerNick[commodity_key]; ok {
 					market_good = good
 				}
 			}
@@ -152,7 +163,7 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 			market_good.Volume = commodity.Volume
 			market_good.IsServerSideOverride = base_location.IsServerSideOverride
 
-			base_per_nick[base_location.BaseNickname].MarketGoodsPerNick[commodity.Nickname] = market_good
+			base_per_nick[base_location.BaseNickname].MarketGoodsPerNick[commodity_key] = market_good
 		}
 	}
 }
@@ -198,9 +209,11 @@ type Base struct {
 	Infocard           InfocardKey
 	File               utils_types.FilePath
 	BGCS_base_run_by   string
-	MarketGoodsPerNick map[string]MarketGood
+	MarketGoodsPerNick map[CommodityKey]MarketGood
 	Pos                cfgtype.Vector
 	SectorCoord        string
+
+	IsTransportUnreachable bool
 
 	Missions BaseMissions
 	BaseAllTradeRoutes
@@ -208,4 +221,10 @@ type Base struct {
 	MiningInfo
 
 	Reachable bool
+}
+
+type CommodityKey string
+
+func GetCommodityKey(nickname string, ship_class cfgtype.ShipClass) CommodityKey {
+	return CommodityKey(fmt.Sprintf("%s_%d", nickname, ship_class))
 }
