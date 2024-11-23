@@ -152,24 +152,27 @@ func MapConfigsToFGraph(
 
 			// get all objects with same Base?
 			// Check if any of them has docking sphere medium
-			is_dockable_by_caps := false
-			if bases, ok := system.AllBasesByBases[system_base_base]; ok {
-				for _, base_obj := range bases {
-					base_archetype := base_obj.Archetype.Get()
-					if solar, ok := configs.Solararch.SolarsByNick[base_archetype]; ok {
-						for _, docking_sphere := range solar.DockingSpheres {
-							if docking_sphere_name, dockable := docking_sphere.GetValue(); dockable {
-								if docking_sphere_name == "jump" {
-									is_dockable_by_caps = true
-									break
+
+			if configs.Discovery != nil {
+				is_dockable_by_caps := false
+				if bases, ok := system.AllBasesByBases[system_base_base]; ok {
+					for _, base_obj := range bases {
+						base_archetype := base_obj.Archetype.Get()
+						if solar, ok := configs.Solararch.SolarsByNick[base_archetype]; ok {
+							for _, docking_sphere := range solar.DockingSpheres {
+								if docking_sphere_name, dockable := docking_sphere.GetValue(); dockable {
+									if docking_sphere_name == "jump" {
+										is_dockable_by_caps = true
+										break
+									}
 								}
 							}
 						}
 					}
 				}
-			}
-			if !is_dockable_by_caps && bool(!with_freighter_paths) {
-				continue
+				if !is_dockable_by_caps && bool(!with_freighter_paths) {
+					continue
+				}
 			}
 
 			// Lets allow flying between all bases
