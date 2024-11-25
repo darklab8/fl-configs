@@ -129,7 +129,7 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 			continue
 		}
 
-		if universe_base, ok := e.configs.Universe_config.BasesMap[universe_mapped.BaseNickname(base.Nickname)]; ok {
+		if universe_base, ok := e.configs.Universe.BasesMap[universe_mapped.BaseNickname(base.Nickname)]; ok {
 
 			_, bar_exists := universe_base.ConfigBase.RoomMapByRoomNickname["bar"]
 			if !bar_exists {

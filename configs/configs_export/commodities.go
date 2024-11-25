@@ -2,7 +2,6 @@ package configs_export
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
@@ -232,23 +231,12 @@ type BaseInfo struct {
 }
 
 func (e *Exporter) GetRegionName(system *universe_mapped.System) string {
-	var Region string
-	system_infocard_Id := system.Ids_info.Get()
-	if value, ok := e.configs.Infocards.Infocards[system_infocard_Id]; ok {
-		if len(value.Lines) > 0 {
-			Region = value.Lines[0]
-		}
-	}
-
-	if strings.Contains(Region, "Sometimes limbo") && len(Region) > 11 {
-		Region = Region[:20] + "..."
-	}
-	return Region
+	return e.configs.GetRegionName(system)
 }
 
 func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseInfo {
 	var result BaseInfo
-	universe_base, found_universe_base := e.configs.Universe_config.BasesMap[universe_mapped.BaseNickname(base_nickname)]
+	universe_base, found_universe_base := e.configs.Universe.BasesMap[universe_mapped.BaseNickname(base_nickname)]
 
 	if !found_universe_base {
 		return result
@@ -257,7 +245,7 @@ func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseI
 	result.BaseName = e.GetInfocardName(universe_base.StridName.Get(), string(base_nickname))
 	system_nickname := universe_base.System.Get()
 
-	system, system_ok := e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(system_nickname)]
+	system, system_ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(system_nickname)]
 	if system_ok {
 		result.SystemName = e.GetInfocardName(system.Strid_name.Get(), system_nickname)
 		result.Region = e.GetRegionName(system)

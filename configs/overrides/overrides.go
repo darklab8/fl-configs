@@ -14,6 +14,8 @@ type Overrides struct {
 	SystemTravelSpeedMultipliers map[string]float64 `yaml:"system_travel_speed_multilpliers"`
 }
 
+type InfocardRegion string
+
 func (o Overrides) GetSystemSpeedMultiplier(system_nickname string) float64 {
 	if value, ok := o.SystemTravelSpeedMultipliers[system_nickname]; ok {
 		return value

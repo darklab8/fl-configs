@@ -22,13 +22,13 @@ func Example_modifyingConfigs() {
 	configs.Read(freelancer_folder)
 
 	// Modifying files
-	for _, base := range configs.Universe_config.Bases {
+	for _, base := range configs.Universe.Bases {
 		base.Nickname.Set(base.Nickname.Get())
 		base.System.Set(base.System.Get())
 		base.File.Set(base.File.Get())
 	}
 
-	for _, system := range configs.Universe_config.Systems {
+	for _, system := range configs.Universe.Systems {
 		system.Nickname.Set(system.Nickname.Get())
 		system.Msg_id_prefix.Set(system.Msg_id_prefix.Get())
 
