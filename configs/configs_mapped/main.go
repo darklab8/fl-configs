@@ -59,8 +59,8 @@ type DiscoveryConfig struct {
 type MappedConfigs struct {
 	FreelancerINI *exe_mapped.Config
 
-	Universe_config *universe_mapped.Config
-	Systems         *systems_mapped.Config
+	Universe *universe_mapped.Config
+	Systems  *systems_mapped.Config
 
 	Market   *market_mapped.Config
 	Equip    *equip_mapped.Config
@@ -198,8 +198,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 		wg.Add(1)
 		go func() {
 			timeit.NewTimerF(func() {
-				p.Universe_config = universe_mapped.Read(file_universe, filesystem)
-				p.Systems = systems_mapped.Read(p.Universe_config, filesystem)
+				p.Universe = universe_mapped.Read(file_universe, filesystem)
+				p.Systems = systems_mapped.Read(p.Universe, filesystem)
 			}, timeit.WithMsg("map systems"))
 			wg.Done()
 		}()
@@ -312,7 +312,7 @@ func (p *MappedConfigs) Write(is_dry_run IsDruRun) {
 	// write
 	files := []*file.File{}
 
-	files = append(files, p.Universe_config.Write())
+	files = append(files, p.Universe.Write())
 	files = append(files, p.Systems.Write()...)
 	files = append(files, p.Market.Write()...)
 	files = append(files, p.Equip.Write()...)

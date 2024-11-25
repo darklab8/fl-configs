@@ -1,7 +1,6 @@
 package configs_export
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
@@ -311,13 +310,5 @@ func CalculateTechCompat(Discovery *configs_mapped.DiscoveryConfig, ids []Tracto
 }
 
 func (e *Exporter) GetInfocardName(ids_name int, nickname string) string {
-	if configs_settings.Env.FallbackInfonamesToNickname {
-		return fmt.Sprintf("[%s]", nickname)
-	}
-
-	if infoname, ok := e.configs.Infocards.Infonames[ids_name]; ok {
-		return string(infoname)
-	} else {
-		return fmt.Sprintf("[%s]", nickname)
-	}
+	return e.configs.GetInfocardName(ids_name, nickname)
 }

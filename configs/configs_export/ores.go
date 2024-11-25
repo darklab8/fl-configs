@@ -29,7 +29,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 	for _, system := range e.configs.Systems.Systems {
 
-		system_uni, system_uni_ok := e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(system.Nickname)]
+		system_uni, system_uni_ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(system.Nickname)]
 
 		for _, asteroids := range system.Asteroids {
 
@@ -78,7 +78,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			base.SystemNickname = system.Nickname
 			base.SystemNicknameHash = flhash.HashNickname(base.SystemNickname)
-			if system, ok := e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.SystemNickname)]; ok {
+			if system, ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(base.SystemNickname)]; ok {
 				base.System = e.GetInfocardName(system.Strid_name.Get(), base.SystemNickname)
 				base.Region = e.GetRegionName(system)
 				base.SectorCoord = VectorToSectorCoord(system_uni, base.Pos)

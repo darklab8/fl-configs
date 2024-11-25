@@ -87,14 +87,14 @@ func (t *Route) GetPaths() []PathWithNavmap {
 		if jh, ok := t.g.e.configs.Systems.JumpholesByNick[path.NextName]; ok {
 			pos := jh.Pos.Get()
 
-			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(jh.System.Nickname)]
+			system_uni := t.g.e.configs.Universe.SystemMap[universe_mapped.SystemNickname(jh.System.Nickname)]
 			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
 			augmented_path.Pos = pos
 		}
 		if base, ok := t.g.e.configs.Systems.BasesByDockWith[path.NextName]; ok {
 			pos := base.Pos.Get()
 
-			system_uni := t.g.e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Nickname)]
+			system_uni := t.g.e.configs.Universe.SystemMap[universe_mapped.SystemNickname(base.System.Nickname)]
 			augmented_path.SectorCoord = VectorToSectorCoord(system_uni, pos)
 			augmented_path.Pos = pos
 		}

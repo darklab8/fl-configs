@@ -31,16 +31,16 @@ func VectorToSectorCoord(system *universe_mapped.System, pos cfgtype.Vector) str
 }
 
 func (e *Exporter) GetBases() []*Base {
-	results := make([]*Base, 0, len(e.configs.Universe_config.Bases))
+	results := make([]*Base, 0, len(e.configs.Universe.Bases))
 
 	commodities_per_base := e.getMarketGoods()
 
-	for _, base := range e.configs.Universe_config.Bases {
+	for _, base := range e.configs.Universe.Bases {
 		var name string = e.GetInfocardName(base.StridName.Get(), base.Nickname.Get())
 
 		var system_name infocard.Infoname
 		var Region string
-		system, found_system := e.configs.Universe_config.SystemMap[universe_mapped.SystemNickname(base.System.Get())]
+		system, found_system := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(base.System.Get())]
 
 		if found_system {
 
