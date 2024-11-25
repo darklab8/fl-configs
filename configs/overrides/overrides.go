@@ -3,7 +3,6 @@ package overrides
 import (
 	"os"
 
-	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-utils/utils/utils_types"
 	"gopkg.in/yaml.v3"
@@ -13,9 +12,6 @@ const FILENAME = "overrides.fl_configs.yml"
 
 type Overrides struct {
 	SystemTravelSpeedMultipliers map[string]float64 `yaml:"system_travel_speed_multilpliers"`
-
-	SystemOwnersMap     map[cfgtype.SystemOwnerNick]cfgtype.SystemOwner `yaml:"system_owners"`
-	RegionToSystemOwner map[InfocardRegion]cfgtype.SystemOwnerNick      `yaml:"region_to_system_owner"`
 }
 
 type InfocardRegion string
