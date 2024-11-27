@@ -40,11 +40,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 				semantic.NewString(recipe_info, "produced_item", semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(produced_index))))
 		}
 		for produced_index, produced_affiliation_info := range recipe_info.ParamMap["produced_affiliation"] {
-
-			recipe.ProcucedItem = append(recipe.ProcucedItem,
-				semantic.NewString(recipe_info, "produced_affiliation", semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(produced_index))))
-
-			for i := 3; i < len(produced_affiliation_info.Values); i += 3 {
+			for i := 0; i < len(produced_affiliation_info.Values); i += 3 {
 				recipe.ProcucedItem = append(recipe.ProcucedItem,
 					semantic.NewString(recipe_info, "produced_affiliation", semantic.WithLowercaseS(), semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(produced_index), semantic.Order(i))))
 			}
