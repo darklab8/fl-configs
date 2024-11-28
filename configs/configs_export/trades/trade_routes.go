@@ -224,10 +224,9 @@ func MapConfigsToFGraph(
 			// Condition is taken from FLCompanion
 			// https://github.com/Corran-Raisu/FLCompanion/blob/021159e3b3a1b40188c93064f1db136780424ea9/Datas.cpp#L585
 			// Check Aingar Fork for Disco version if necessary.
-			if strings.Contains(jh_archetype, "_fighter") ||
-				strings.Contains(jh_archetype, "_notransport") ||
-				jh_archetype == "dsy_comsat_planetdock" ||
-				jh_archetype == "dsy_hypergate_all" {
+			if strings.Contains(jh_archetype, "_fighter") || // Atmospheric entry points. Dockable only by fighters/freighters
+				strings.Contains(jh_archetype, "_notransport") { // Dockable only by ships with below 650 cargo on board
+				// "dsy_hypergate_all" is one directional hypergate dockable by everything, no need to exclude for freighter only paths
 				if !with_freighter_paths {
 					continue
 				}
