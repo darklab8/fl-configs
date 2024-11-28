@@ -13,6 +13,17 @@ type Solar struct {
 	DockingSpheres []*semantic.String
 }
 
+func (solar *Solar) IsDockableByCaps() bool {
+	for _, docking_sphere := range solar.DockingSpheres {
+		if docking_sphere_name, dockable := docking_sphere.GetValue(); dockable {
+			if docking_sphere_name == "jump" || docking_sphere_name == "moor_large" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 type Config struct {
 	*iniload.IniLoader
 	Solars       []*Solar

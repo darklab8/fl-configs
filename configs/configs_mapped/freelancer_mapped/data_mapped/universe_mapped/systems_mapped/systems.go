@@ -394,7 +394,7 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 					}
 
-					if _, ok := obj.ParamMap["jump_effect"]; ok {
+					if _, ok := obj.ParamMap["goto"]; ok {
 						jumphole := &Jumphole{
 							Archetype: semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 							Nickname:  semantic.NewString(obj, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
