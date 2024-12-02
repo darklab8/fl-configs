@@ -91,7 +91,7 @@ func Read(files []*iniload.IniLoader) *Config {
 				AngularDrag:      semantic.NewVector(section, "angular_drag", semantic.Precision(2)),
 				RotationIntertia: semantic.NewVector(section, "rotation_inertia", semantic.Precision(2)),
 
-				ArmorMult: semantic.NewFloat(section, "armor_mult", semantic.Precision(2), semantic.WithDefaultF(1.0)),
+				ArmorMult: semantic.NewFloat(section, "armor", semantic.Precision(2), semantic.WithDefaultF(1.0)),
 			}
 			ship.Map(section)
 			ship.ShieldLink.Map(section)
