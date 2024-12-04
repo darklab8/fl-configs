@@ -22,8 +22,9 @@ type TechCompatibility struct {
 
 type Faction struct {
 	semantic.Model
-	ID          *semantic.String
-	TechCompats []*TechCompatibility
+	DefaultUnlisted *semantic.Float
+	ID              *semantic.String
+	TechCompats     []*TechCompatibility
 }
 
 type TechGroup struct {
@@ -37,7 +38,7 @@ type Config struct {
 	*iniload.IniLoader
 	General         *General
 	Factions        []*Faction
-	FactionByID     map[string]*Faction
+	FactionByID     map[cfgtype.TractorID]*Faction
 	TechGroups      []*TechGroup
 	TechGroupByName map[string]*TechGroup
 
@@ -59,8 +60,15 @@ func (conf *Config) GetCompatibilty(item_nickname string, id_nickname cfgtype.Tr
 		return conf.General.NoControlItem.Get()
 	}
 
+	faction, is_found_faction := conf.FactionByID[id_nickname]
+
 	item, found_item := conf.CompatByItem[item_nickname]
 	if !found_item {
+		if is_found_faction {
+			if default_unlisted, ok := faction.DefaultUnlisted.GetValue(); ok {
+				return default_unlisted
+			}
+		}
 		// ; Any items not in a [tech] section use this multiplier.
 		// unlisted_tech = smth
 		return conf.General.UnlistedTech.Get()
@@ -85,7 +93,7 @@ func (conf *Config) GetCompatibilty(item_nickname string, id_nickname cfgtype.Tr
 func Read(input_file *iniload.IniLoader) *Config {
 	conf := &Config{
 		IniLoader:       input_file,
-		FactionByID:     make(map[string]*Faction),
+		FactionByID:     make(map[cfgtype.TractorID]*Faction),
 		TechGroupByName: make(map[string]*TechGroup),
 		CompatByItem:    make(map[string]*ItemCompat),
 	}
@@ -106,7 +114,9 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 		faction_nicknames := faction_info.ParamMap["item"][0]
 		for faction_order, _ := range faction_nicknames.Values {
-			faction := &Faction{}
+			faction := &Faction{
+				DefaultUnlisted: semantic.NewFloat(faction_info, "default_unlisted", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(1))),
+			}
 			faction.Map(faction_info)
 			faction.ID = semantic.NewString(faction_info, "item", semantic.OptsS(semantic.Order(faction_order)))
 
@@ -119,7 +129,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 			}
 
 			conf.Factions = append(conf.Factions, faction)
-			conf.FactionByID[faction.ID.Get()] = faction
+			conf.FactionByID[cfgtype.TractorID(faction.ID.Get())] = faction
 		}
 	}
 
