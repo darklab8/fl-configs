@@ -115,7 +115,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 		faction_nicknames := faction_info.ParamMap["item"][0]
 		for faction_order, _ := range faction_nicknames.Values {
 			faction := &Faction{
-				DefaultUnlisted: semantic.NewFloat(faction_info, "default_unlisted", semantic.Precision(2), semantic.OptsF(semantic.Index(index), semantic.Order(1))),
+				DefaultUnlisted: semantic.NewFloat(faction_info, "default_unlisted", semantic.Precision(2)),
 			}
 			faction.Map(faction_info)
 			faction.ID = semantic.NewString(faction_info, "item", semantic.OptsS(semantic.Order(faction_order)))
