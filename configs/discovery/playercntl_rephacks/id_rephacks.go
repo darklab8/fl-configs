@@ -12,13 +12,13 @@ type RepType int
 func (r RepType) ToStr() string {
 	switch r {
 	case MODE_REP_LESSTHAN:
-		return "MODE_REP_LESSTHAN"
+		return "<= Maximum possible rep (not greater than)"
 	case MODE_REP_GREATERTHAN:
-		return "MODE_REP_GREATERTHAN"
+		return ">= Minimum possible rep (not less than)"
 	case MODE_REP_NO_CHANGE:
-		return "MODE_REP_NO_CHANGE"
+		return "? Not identified, MODE_REP_NO_CHANGE"
 	case MODE_REP_STATIC:
-		return "MODE_REP_STATIC"
+		return "= Fixed value rep (forced static rep)"
 	}
 	return "undefined"
 }
