@@ -225,33 +225,6 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 	return ships
 }
 
-func GetOrederedTechCompat(TractorsByID map[cfgtype.TractorID]Tractor, DiscoveryTechCompat *DiscoveryTechCompat) []CompatibleIDsForTractor {
-	var DiscoIDsCompatsOrdered []CompatibleIDsForTractor
-
-	if DiscoveryTechCompat == nil {
-		return DiscoIDsCompatsOrdered
-	}
-
-	for tractor_id, tech_tecompability := range DiscoveryTechCompat.TechcompatByID {
-		if tech_tecompability < 11.0/100.0 {
-			continue
-		}
-
-		if tractor, ok := TractorsByID[tractor_id]; ok {
-			DiscoIDsCompatsOrdered = append(DiscoIDsCompatsOrdered, CompatibleIDsForTractor{
-				TechCompat: tech_tecompability,
-				Tractor:    tractor,
-			})
-		}
-	}
-
-	sort.Slice(DiscoIDsCompatsOrdered, func(i, j int) bool {
-		return DiscoIDsCompatsOrdered[i].Tractor.Name < DiscoIDsCompatsOrdered[j].Tractor.Name
-	})
-
-	return DiscoIDsCompatsOrdered
-}
-
 type EquipmentSlot struct {
 	SlotName     string
 	AllowedEquip []string
