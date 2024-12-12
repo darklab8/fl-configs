@@ -91,7 +91,7 @@ func (e *Exporter) GetCommodities() []*Commodity {
 					commodity.PriceBestBaseBuysFor = base_info.PriceBaseBuysFor
 				}
 				if base_info.PriceBaseSellsFor < commodity.PriceBestBaseSellsFor || commodity.PriceBestBaseSellsFor == 0 {
-					if base_info.BaseSells {
+					if base_info.BaseSells && base_info.PriceBaseSellsFor > 0 {
 						commodity.PriceBestBaseSellsFor = base_info.PriceBaseSellsFor
 					}
 
