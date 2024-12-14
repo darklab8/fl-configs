@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -40,11 +41,12 @@ type Tractor struct {
 	MaxLength  int
 	ReachSpeed int
 
-	Lootable     bool
-	Nickname     cfgtype.TractorID
-	NicknameHash flhash.HashCode
-	NameID       int
-	InfoID       int
+	Lootable      bool
+	Nickname      cfgtype.TractorID
+	NicknameHash  flhash.HashCode
+	ShortNickname string
+	NameID        int
+	InfoID        int
 
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 	DiscoveryIDRephacks
@@ -60,8 +62,9 @@ func (e *Exporter) GetFactionName(nickname cfgtype.FactionNick) string {
 func (e *Exporter) GetTractors() []Tractor {
 	var tractors []Tractor
 
-	for _, tractor_info := range e.configs.Equip.Tractors {
+	for tractor_id, tractor_info := range e.configs.Equip.Tractors {
 		tractor := Tractor{
+			ShortNickname: fmt.Sprintf("i%d", tractor_id),
 			DiscoveryIDRephacks: DiscoveryIDRephacks{
 				Rephacks: make(map[cfgtype.FactionNick]Rephack),
 			},
