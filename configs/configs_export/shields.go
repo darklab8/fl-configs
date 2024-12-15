@@ -10,6 +10,9 @@ import (
 	"github.com/darklab8/go-typelog/typelog"
 )
 
+func (g Shield) GetNickname() string                 { return g.Nickname }
+func (g Shield) GetTechCompat() *DiscoveryTechCompat { return g.DiscoveryTechCompat }
+
 type Shield struct {
 	Name string
 

@@ -6,6 +6,9 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 )
 
+func (g Engine) GetNickname() string                 { return g.Nickname }
+func (g Engine) GetTechCompat() *DiscoveryTechCompat { return g.DiscoveryTechCompat }
+
 type Engine struct {
 	Name  string
 	Price int

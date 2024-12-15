@@ -22,6 +22,9 @@ type GunDetailed struct {
 	MunitionHitEffect string
 }
 
+func (g Gun) GetNickname() string                 { return g.Nickname }
+func (g Gun) GetTechCompat() *DiscoveryTechCompat { return g.DiscoveryTechCompat }
+
 type Gun struct {
 	Nickname     string
 	NicknameHash flhash.HashCode

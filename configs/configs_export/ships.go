@@ -11,6 +11,9 @@ import (
 	"github.com/darklab8/go-typelog/typelog"
 )
 
+func (g Ship) GetNickname() string                 { return g.Nickname }
+func (g Ship) GetTechCompat() *DiscoveryTechCompat { return g.DiscoveryTechCompat }
+
 type Ship struct {
 	Nickname     string
 	NicknameHash flhash.HashCode
