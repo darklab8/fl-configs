@@ -288,8 +288,18 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, gun.Nickname)
 
 	if e.configs.Discovery != nil {
-		armor_pen, _ := munition.ArmorPen.GetValue()
-		gun.DiscoGun = &DiscoGun{ArmorPen: armor_pen}
+		gun.DiscoGun = &DiscoGun{}
+		if armor_pen, ok := munition.ArmorPen.GetValue(); ok {
+			gun.DiscoGun.ArmorPen = armor_pen
+		}
+
+		if explosion_arch, ok := munition.ExplosionArch.GetValue(); ok {
+			// rocket launcher
+			explosion := e.configs.Equip.ExplosionMap[explosion_arch]
+			if armor_pen, ok := explosion.ArmorPen.GetValue(); ok {
+				gun.DiscoGun.ArmorPen = armor_pen
+			}
+		}
 	}
 
 	e.Hashes[gun.Nickname] = gun.NicknameHash

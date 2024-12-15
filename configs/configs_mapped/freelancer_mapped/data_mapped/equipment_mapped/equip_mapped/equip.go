@@ -85,6 +85,8 @@ type Explosion struct {
 	HullDamage    *semantic.Int
 	EnergyDamange *semantic.Int
 	Radius        *semantic.Int
+
+	ArmorPen *semantic.Float // Disco only
 }
 
 type Gun struct {
@@ -419,7 +421,9 @@ func Read(files []*iniload.IniLoader) *Config {
 				frelconfig.Munitions = append(frelconfig.Munitions, munition)
 				frelconfig.MunitionMap[munition.Nickname.Get()] = munition
 			case "[explosion]":
-				explosion := &Explosion{}
+				explosion := &Explosion{
+					ArmorPen: semantic.NewFloat(section, "armor_pen", semantic.Precision(2), semantic.WithDefaultF(0)),
+				}
 				explosion.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				explosion.HullDamage = semantic.NewInt(section, "hull_damage")
 				explosion.EnergyDamange = semantic.NewInt(section, "energy_damage")
