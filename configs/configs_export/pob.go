@@ -2,6 +2,7 @@ package configs_export
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
@@ -91,7 +92,7 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		var infocard_addition []string
 		if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
 
-			infocard_addition = append(infocard_addition, "CRAFTING RECIPES:")
+			infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
 
 			for _, recipe := range recipes {
 				sector := recipe.Model.RenderModel()
@@ -107,6 +108,33 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		if value, ok := e.Infocards[market_good.Infocard]; ok {
 			info = value
 		}
+
+		add_line_about_recipes := func(info Infocard) Infocard {
+			add_line := func(index int, line string) {
+				info = append(info[:index+1], info[index:]...)
+				info[index] = line
+			}
+			strip_line := func(line string) string {
+				return strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "\u00a0", "")
+			}
+			if len(infocard_addition) > 0 {
+				line_position := 1
+				add_line(line_position, `<b>Item has crafting recipes below</b>`)
+				if strip_line(info[0]) != "" {
+					add_line(1, "")
+					line_position += 1
+				}
+				if strip_line(info[line_position+1]) != "" {
+					add_line(line_position+1, "")
+				}
+			}
+			return info
+		}
+		if market_good.Nickname == "commodity_gold" {
+			fmt.Println()
+		}
+		info = add_line_about_recipes(info)
+
 		e.Infocards[market_good.Infocard] = append(info, infocard_addition...)
 
 		if ship_nickname != "" {
@@ -114,6 +142,7 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 			if value, ok := e.Infocards[InfocardKey(ship_nickname)]; ok {
 				info = value
 			}
+			info = add_line_about_recipes(info)
 			e.Infocards[InfocardKey(ship_nickname)] = append(info, infocard_addition...)
 		}
 	}
