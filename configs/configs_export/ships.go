@@ -6,13 +6,20 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/ship_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 )
 
 func (g Ship) GetNickname() string                 { return g.Nickname }
 func (g Ship) GetTechCompat() *DiscoveryTechCompat { return g.DiscoveryTechCompat }
+
+type ShipPackage struct {
+	Nickname           string
+	equipped_thrusters []*equip_mapped.Thruster
+}
 
 type Ship struct {
 	Nickname     string
@@ -31,7 +38,9 @@ type Ship struct {
 	PowerCapacity     int
 	PowerRechargeRate int
 	CruiseSpeed       int
+	LinearDrag        float64
 	ImpulseSpeed      float64
+	ThrusterSpeed     []int
 	ReverseFraction   float64
 	ThrustCapacity    int
 	ThrustRecharge    int
@@ -48,18 +57,133 @@ type Ship struct {
 	Bases            map[cfgtype.BaseUniNick]*GoodAtBase
 	Slots            []EquipmentSlot
 	BiggestHardpoint []string
+	ShipPackages     []ShipPackage
 
 	*DiscoveryTechCompat
 
 	DiscoShip *DiscoShip
 }
 
+/*
+For each ship
+
+	ship_packages = find buyable/craftable ship packages
+*/
+func remove(s []int, i int) []int {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func is_thruster_slot(slot EquipmentSlot) bool {
+	for _, smth := range slot.AllowedEquip {
+		if smth == "hp_thruster" {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Ship) getThrusterSpeed(
+	e *Exporter,
+	equipped_thrusters []*equip_mapped.Thruster,
+	linear_drag float64,
+	ship_info *ship_mapped.Ship,
+	ThrustCapacity float64,
+	ThrustRecharge float64,
+	Slots []EquipmentSlot,
+	ThrusterMap map[string]*Thruster,
+) float64 {
+	// find amount of thrusters
+	thruster_amount := 0
+	for _, slot := range Slots {
+		if is_thruster_slot(slot) {
+			thruster_amount++
+		}
+	}
+
+	total_thruster_force := 0
+
+	// find_max_forced_compatible_thruster
+	max_thruster_force := 0
+	// var found_thruster1 *equip_mapped.Thruster # debug data
+	// var found_thruster2 *Thruster # debug data
+
+	for _, thruster := range e.configs.Equip.Thrusters {
+		thrust_usage := thruster.PowerUsage.Get()
+
+		seconds_thrust_usage := int(ThrustCapacity / (float64(thrust_usage*thruster_amount) - ThrustRecharge))
+		// 2000 / (2*120000 - 200)
+		if seconds_thrust_usage < 0 {
+			seconds_thrust_usage = 9999
+		}
+
+		// exclude not usable. if they are usable less than 3 seconds
+		if seconds_thrust_usage >= 0 && seconds_thrust_usage < 3 {
+			continue
+		}
+
+		// add check if item is buyable or craftable
+		thruster_info, found_thruster := ThrusterMap[thruster.Nickname.Get()]
+		if !found_thruster {
+			continue
+		}
+		if !e.Buyable(thruster_info.Bases) {
+			continue
+		}
+
+		thruster_force := thruster.MaxForce.Get()
+
+		// no point to select weak
+		if thruster_force < max_thruster_force {
+			continue
+		}
+
+		max_thruster_force = thruster_force
+		// found_thruster1 = thruster
+		// found_thruster2 = thruster_info
+	}
+
+	// _ = found_thruster2
+	// _ = found_thruster1
+
+	// for each thruster at a ship
+	for i := 0; i < thruster_amount; i++ {
+
+		//   if already installed zero price thrustre is installed and has zero price and it is disco
+		// 	  add its force
+		if i < len(equipped_thrusters) {
+			thruster := equipped_thrusters[i]
+			thruster_price := 0
+			if good_info, ok := e.configs.Goods.GoodsMap[thruster.Nickname.Get()]; ok {
+				if price, ok := good_info.Price.GetValue(); ok {
+					thruster_price = price
+				}
+			}
+			if e.configs.Discovery != nil && thruster_price == 0 {
+				total_thruster_force += thruster.MaxForce.Get()
+				continue
+			}
+		}
+
+		//   else:
+		// 	  add max forced compatible thruster
+		total_thruster_force += max_thruster_force
+	}
+
+	return s.ImpulseSpeed + float64(total_thruster_force)/linear_drag
+}
+
 type DiscoShip struct {
 	ArmorMult float64
 }
 
-func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tractor) []Ship {
+func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tractor, Thrusters []Thruster) []Ship {
 	var ships []Ship
+
+	var ThrusterMap map[string]*Thruster = make(map[string]*Thruster)
+	for _, thruster := range Thrusters {
+		ThrusterMap[thruster.Nickname] = &thruster
+	}
 
 	for _, ship_info := range e.configs.Shiparch.Ships {
 		ship := Ship{
@@ -111,6 +235,7 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 			if ship_package_goods, ok := e.configs.Goods.ShipsMapByHull[ship_hull_nickname]; ok {
 
 				for _, ship_package_good := range ship_package_goods {
+					var equipped_thrusters []*equip_mapped.Thruster
 					for _, addon := range ship_package_good.Addons {
 
 						// can be Power or Engine or Smth else
@@ -124,7 +249,9 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 								ship.Price += addon_price
 							}
 						}
-
+						if thruster, ok := e.configs.Equip.ThrusterMap[addon_nickname]; ok {
+							equipped_thrusters = append(equipped_thrusters, thruster)
+						}
 						if power, ok := e.configs.Equip.PowersMap[addon_nickname]; ok {
 							ship.PowerCapacity = power.Capacity.Get()
 							ship.PowerRechargeRate = power.ChargeRate.Get()
@@ -137,7 +264,8 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 							engine_linear_drag, _ := engine.LinearDrag.GetValue()
 							ship_linear_drag, _ := ship_info.LinearDrag.GetValue()
 							engine_max_force, _ := engine.MaxForce.GetValue()
-							ship.ImpulseSpeed = float64(engine_max_force) / (float64(engine_linear_drag) + float64(ship_linear_drag))
+							ship.LinearDrag = (float64(engine_linear_drag) + float64(ship_linear_drag))
+							ship.ImpulseSpeed = float64(engine_max_force) / ship.LinearDrag
 
 							ship.ReverseFraction = engine.ReverseFraction.Get()
 
@@ -161,6 +289,14 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 					for key, value := range ships_at_bases {
 						ship.Bases[key] = value
 					}
+
+					ship.ShipPackages = append(ship.ShipPackages,
+						ShipPackage{
+							Nickname:           ship_package_good.Nickname.Get(),
+							equipped_thrusters: equipped_thrusters,
+						},
+					)
+
 				}
 
 			}
@@ -220,6 +356,24 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 		if e.configs.Discovery != nil {
 			armor_mult, _ := ship_info.ArmorMult.GetValue()
 			ship.DiscoShip = &DiscoShip{ArmorMult: armor_mult}
+		}
+
+		var thruster_speeds map[int]bool = make(map[int]bool)
+		for _, ship_package := range ship.ShipPackages {
+
+			thrust_speed := ship.getThrusterSpeed(e,
+				ship_package.equipped_thrusters,
+				ship.LinearDrag,
+				ship_info,
+				float64(ship.ThrustCapacity),
+				float64(ship.ThrustRecharge),
+				ship.Slots,
+				ThrusterMap,
+			)
+			thruster_speeds[int(thrust_speed)] = true
+		}
+		for thrust_speed, _ := range thruster_speeds {
+			ship.ThrusterSpeed = append(ship.ThrusterSpeed, thrust_speed)
 		}
 
 		ships = append(ships, ship)

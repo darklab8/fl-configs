@@ -162,7 +162,7 @@ func (e *Exporter) Export() *Exporter {
 	e.Mines = e.GetMines(e.Tractors)
 
 	e.Thrusters = e.GetThrusters(e.Tractors)
-	e.Ships = e.GetShips(e.Tractors, e.TractorsByID)
+	e.Ships = e.GetShips(e.Tractors, e.TractorsByID, e.Thrusters)
 	e.Engines = e.GetEngines(e.Tractors)
 	e.CMs = e.GetCounterMeasures(e.Tractors)
 	e.Scanners = e.GetScanners(e.Tractors)

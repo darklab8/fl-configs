@@ -14,12 +14,13 @@ func TestGetShips(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
 	ids := exporter.GetTractors()
+	thrusters := exporter.GetThrusters(ids)
 
 	var TractorsByID map[cfgtype.TractorID]Tractor = make(map[cfgtype.TractorID]Tractor)
 	for _, tractor := range ids {
 		TractorsByID[tractor.Nickname] = tractor
 	}
-	items := exporter.GetShips(ids, TractorsByID)
+	items := exporter.GetShips(ids, TractorsByID, thrusters)
 	assert.Greater(t, len(items), 0)
 
 	for _, item := range items {
