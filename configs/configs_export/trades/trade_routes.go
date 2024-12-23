@@ -139,7 +139,7 @@ func MapConfigsToFGraph(
 
 		for _, system_obj := range system.Bases {
 
-			system_base_base := system_obj.Base.Get()
+			system_base_base := system_obj.DockWith.Get()
 			object := SystemObject{
 				nickname: system_base_base,
 				pos:      system_obj.Pos.Get(),

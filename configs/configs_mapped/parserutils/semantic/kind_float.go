@@ -42,10 +42,20 @@ func NewFloat(section *inireader.Section, key string, precision Precision, opts 
 }
 
 func (s *Float) get() float64 {
-	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
+	var section *inireader.Section = s.section
+	if _, ok := s.section.ParamMap[s.key]; !ok {
+		if inherit_value, ok := s.section.ParamMap[InheritKey]; ok {
+			inherit_nick := inherit_value[0].First.AsString()
+			if found_section, ok := s.section.INIFile.SectionMapByNick[inherit_nick]; ok {
+				section = found_section
+			}
+		}
+	}
+
+	if s.optional && len(section.ParamMap[s.key]) == 0 {
 		return 0
 	}
-	return s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value
+	return section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value
 }
 
 func (s *Float) Get() float64 {

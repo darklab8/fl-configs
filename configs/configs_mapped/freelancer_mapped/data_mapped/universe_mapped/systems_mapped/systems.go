@@ -348,7 +348,9 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 					system_to_add.Objects = append(system_to_add.Objects, object_to_add)
 
 					// check if it is base object
-					if _, ok := obj.ParamMap[KEY_BASE]; ok {
+					_, has_base := obj.ParamMap[KEY_BASE]
+					_, has_dock_with := obj.ParamMap["dock_with"]
+					if has_base || has_dock_with {
 						base_to_add := &Base{
 							Archetype: semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 							Parent:    semantic.NewString(obj, "parent", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
@@ -369,10 +371,12 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 						system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
 
-						if _, ok := system_to_add.BasesByBases[base_to_add.Base.Get()]; !ok {
-							system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						if base, ok := base_to_add.Base.GetValue(); ok {
+							if _, ok := system_to_add.BasesByBases[base]; !ok {
+								system_to_add.BasesByBases[base] = base_to_add
+							}
+							system_to_add.AllBasesByBases[base] = append(system_to_add.AllBasesByBases[base], base_to_add)
 						}
-						system_to_add.AllBasesByBases[base_to_add.Base.Get()] = append(system_to_add.AllBasesByBases[base_to_add.Base.Get()], base_to_add)
 
 						if _, ok := system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()]; !ok {
 							system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()] = append(system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()], base_to_add)
@@ -381,9 +385,12 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
 
-						if _, ok := frelconfig.BasesByBases[base_to_add.Base.Get()]; !ok {
-							frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
+						if base, ok := base_to_add.Base.GetValue(); ok {
+							if _, ok := frelconfig.BasesByBases[base]; !ok {
+								frelconfig.BasesByBases[base] = base_to_add
+							}
 						}
+
 						if _, ok := frelconfig.BasesByDockWith[base_to_add.DockWith.Get()]; !ok {
 							frelconfig.BasesByDockWith[base_to_add.DockWith.Get()] = base_to_add
 						}

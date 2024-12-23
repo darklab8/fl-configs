@@ -24,7 +24,8 @@ type INIFile struct {
 	Sections []*Section
 
 	// denormalization
-	SectionMap map[inireader_types.IniHeader][]*Section
+	SectionMap       map[inireader_types.IniHeader][]*Section
+	SectionMapByNick map[string]*Section
 }
 
 func (config *INIFile) AddSection(key inireader_types.IniHeader, section *Section) {
@@ -50,6 +51,8 @@ type Section struct {
 	Params       []*Param
 	// denormialization of Param list due to being more comfortable
 	ParamMap map[string][]*Param
+
+	INIFile *INIFile
 }
 
 const (
@@ -266,7 +269,7 @@ var regexParam *regexp.Regexp
 var regexLetter *regexp.Regexp
 
 func init() {
-	InitRegexExpression(&regexNumber, `^[0-9\-]+(?:\.)?([0-9\-]*)(?:E[-0-9]+)?$`)
+	InitRegexExpression(&regexNumber, `^[0-9\-]+(?:\.)?(?:e)?([0-9\-]*)(?:E[-0-9]+)?$`)
 	InitRegexExpression(&regexComment, `;(.*)`)
 	InitRegexExpression(&regexSection, regexSectionRegExp)
 	InitRegexExpression(&regexLetter, `[a-zA-Z]`)
@@ -333,7 +336,9 @@ func Read(fileref *file.File) *INIFile {
 			param := Param{Key: key, First: first_value, Values: values, IsComment: isComment}
 			cur_section.AddParam(key, &param)
 		} else if len(section_match) > 0 {
-			cur_section = &Section{} // create new
+			cur_section = &Section{
+				INIFile: config,
+			} // create new
 			cur_section.OriginalType = inireader_types.IniHeader(section_match[0])
 			cur_section.Type = inireader_types.IniHeader(strings.ToLower(string(cur_section.OriginalType)))
 			config.AddSection(cur_section.Type, cur_section)
@@ -346,6 +351,14 @@ func Read(fileref *file.File) *INIFile {
 			}
 		}
 
+	}
+
+	config.SectionMapByNick = make(map[string]*Section)
+	for _, section := range config.Sections {
+		if value, ok := section.ParamMap["nickname"]; ok {
+			nickname := value[0].First.AsString()
+			config.SectionMapByNick[nickname] = section
+		}
 	}
 
 	return config
