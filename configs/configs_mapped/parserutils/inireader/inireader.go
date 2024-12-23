@@ -205,7 +205,6 @@ func (v ValueNumber) AsString() string {
 }
 
 func UniParse(input string) (UniValue, error) {
-
 	letterMatch := regexLetter.FindAllString(input, -1)
 	if len(letterMatch) == 0 {
 		input = strings.ReplaceAll(input, " ", "")
@@ -269,12 +268,12 @@ var regexParam *regexp.Regexp
 var regexLetter *regexp.Regexp
 
 func init() {
-	InitRegexExpression(&regexNumber, `^[0-9\-]+(?:\.)?(?:e)?([0-9\-]*)(?:E[-0-9]+)?$`)
+	InitRegexExpression(&regexNumber, `^[0-9\-]+(?:\.)?(?:e)?(?:\+)?([0-9\-]*)(?:E[-0-9]+)?$`)
 	InitRegexExpression(&regexComment, `;(.*)`)
 	InitRegexExpression(&regexSection, regexSectionRegExp)
 	InitRegexExpression(&regexLetter, `[a-zA-Z]`)
 	// param or commented out param
-	InitRegexExpression(&regexParam, `(;%|^)[ 	]*([a-zA-Z_][a-zA-Z_0-9]+)\s*=\s*([a-zA-Z_, 0-9-.\/\\]+)`)
+	InitRegexExpression(&regexParam, `(;%|^)[ 	]*([a-zA-Z_][a-zA-Z_0-9]+)\s*=\s*([+a-zA-Z_, 0-9-.\/\\]+)`)
 }
 
 var CASE_SENSETIVE_KEYS = [...]string{"BGCS_base_run_by", "NavMapScale"}
@@ -320,16 +319,13 @@ func Read(fileref *file.File) *INIFile {
 			}
 			splitted_values := strings.Split(line_to_read, ",")
 			first_value, err := UniParse(splitted_values[0])
-			if err != nil {
-				logus.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, utils_logus.FilePath(fileref.GetFilepath()))
-			}
+			logus.Log.CheckFatal(err, "ini reader, failing to parse line because of UniParse, line="+line, utils_logus.FilePath(fileref.GetFilepath()))
 
 			var values []UniValue
 			for _, value := range splitted_values {
 				univalue, err := UniParse(value)
-				if err != nil {
-					logus.Log.Fatal("ini reader, failing to parse line because of UniParse, line="+line, utils_logus.FilePath(fileref.GetFilepath()))
-				}
+				logus.Log.CheckFatal(err, "ini reader, failing to parse line because of UniParse #2, line="+line, utils_logus.FilePath(fileref.GetFilepath()))
+
 				values = append(values, univalue)
 			}
 
