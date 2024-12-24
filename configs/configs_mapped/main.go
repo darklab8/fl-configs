@@ -48,6 +48,9 @@ import (
 	"github.com/darklab8/go-utils/utils/utils_types"
 )
 
+type SiriusRevivalConfig struct {
+}
+
 type DiscoveryConfig struct {
 	Techcompat         *techcompat.Config
 	Prices             *discoprices.Config
@@ -83,6 +86,7 @@ type MappedConfigs struct {
 	Solararch    *solar_mapped.Config
 
 	Discovery *DiscoveryConfig
+	FLSR      *SiriusRevivalConfig
 
 	Overrides overrides.Overrides
 }
@@ -143,6 +147,9 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	var file_prices *iniload.IniLoader
 	var file_base_recipe_items *iniload.IniLoader
 	var file_playercntl_rephacks *iniload.IniLoader
+	if flsr_config := filesystem.GetFile("FLSR-Launcher.ini"); flsr_config != nil {
+		p.FLSR = &SiriusRevivalConfig{}
+	}
 	if techcom := filesystem.GetFile("launcherconfig.xml"); techcom != nil {
 		p.Discovery = &DiscoveryConfig{}
 		file_techcompat = iniload.NewLoader(file.NewWebFile("https://discoverygc.com/gameconfigpublic/techcompat.cfg"))
