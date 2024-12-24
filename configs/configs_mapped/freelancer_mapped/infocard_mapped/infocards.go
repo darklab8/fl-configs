@@ -84,10 +84,6 @@ func ReadFromDiscoServerConfig(input_file *file.File) (*infocard.Config, error) 
 			continue
 		}
 
-		// if id == 531454 {
-		// 	fmt.Println()
-		// }
-
 		content := line_match[2]
 
 		var kind infocard.RecordKind = infocard.TYPE_NAME

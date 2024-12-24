@@ -1,7 +1,6 @@
 package configs_export
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
@@ -46,10 +45,6 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 
 	for _, base_good := range e.configs.Market.BaseGoods {
 		base_nickname := cfgtype.BaseUniNick(base_good.Base.Get())
-
-		if base_nickname == "li01_01_base" {
-			fmt.Println()
-		}
 
 		var MarketGoods map[CommodityKey]MarketGood
 		if market_goods, ok := goods_per_base[base_nickname]; ok {

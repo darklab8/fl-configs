@@ -1,7 +1,6 @@
 package trades
 
 import (
-	"fmt"
 	"math"
 	"strings"
 
@@ -106,10 +105,6 @@ func MapConfigsToFGraph(
 ) *GameGraph {
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
 	for _, system := range configs.Systems.Systems {
-
-		if system.Nickname == "iw05" {
-			fmt.Println()
-		}
 		system_speed_multiplier := configs.Overrides.GetSystemSpeedMultiplier(system.Nickname)
 
 		var system_objects []SystemObject = make([]SystemObject, 0, 50)

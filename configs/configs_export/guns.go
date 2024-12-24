@@ -271,10 +271,6 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire * float64(num_barrels)
 	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire * float64(num_barrels)
 
-	if gun.Nickname == "fc_c_gun03_mark01" {
-		fmt.Println()
-	}
-
 	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire * float64(num_barrels)
 
 	if gun.BurstFire != nil {
