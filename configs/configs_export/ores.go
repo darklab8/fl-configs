@@ -86,10 +86,6 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			logus.Log.Debug("GetOres", typelog.String("commodity=", commodity))
 
-			if commodity == "commodity_molybdenum_ore" {
-				fmt.Println()
-			}
-
 			equipment := e.configs.Equip.CommoditiesMap[commodity]
 			for _, volume_info := range equipment.Volumes {
 

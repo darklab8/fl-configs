@@ -348,45 +348,51 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 					system_to_add.Objects = append(system_to_add.Objects, object_to_add)
 
 					// check if it is base object
-					if _, ok := obj.ParamMap[KEY_BASE]; ok {
+					_, has_base := obj.ParamMap[KEY_BASE]
+					_, has_dock_with := obj.ParamMap["dock_with"]
+					_ = has_dock_with
+					if has_base || has_dock_with { // || has_dock_with
 						base_to_add := &Base{
-							Archetype: semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-							Parent:    semantic.NewString(obj, "parent", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
-
-							System: system_to_add,
+							Archetype:   semantic.NewString(obj, "archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Parent:      semantic.NewString(obj, "parent", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Nickname:    semantic.NewString(obj, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Base:        semantic.NewString(obj, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							DockWith:    semantic.NewString(obj, "dock_with", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							RepNickname: semantic.NewString(obj, "reputation", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							IDsInfo:     semantic.NewInt(obj, "ids_info", semantic.Optional()),
+							IdsName:     semantic.NewInt(obj, "ids_name", semantic.Optional()),
+							Pos:         semantic.NewVector(obj, "pos", semantic.Precision(0)),
+							System:      system_to_add,
 						}
 						base_to_add.Map(obj)
 
-						base_to_add.Nickname = semantic.NewString(obj, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-						base_to_add.Base = semantic.NewString(obj, KEY_BASE, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-						base_to_add.DockWith = semantic.NewString(obj, "dock_with", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-						base_to_add.RepNickname = semantic.NewString(obj, "reputation", semantic.OptsS(semantic.Optional()), semantic.WithLowercaseS(), semantic.WithoutSpacesS())
-
-						base_to_add.IDsInfo = semantic.NewInt(obj, "ids_info", semantic.Optional())
-						base_to_add.IdsName = semantic.NewInt(obj, "ids_name", semantic.Optional())
-
-						base_to_add.Pos = semantic.NewVector(obj, "pos", semantic.Precision(0))
-
 						system_to_add.BasesByNick[base_to_add.Nickname.Get()] = base_to_add
 
-						if _, ok := system_to_add.BasesByBases[base_to_add.Base.Get()]; !ok {
-							system_to_add.BasesByBases[base_to_add.Base.Get()] = base_to_add
-						}
-						system_to_add.AllBasesByBases[base_to_add.Base.Get()] = append(system_to_add.AllBasesByBases[base_to_add.Base.Get()], base_to_add)
+						if base, ok := base_to_add.Base.GetValue(); ok {
+							if _, ok := system_to_add.BasesByBases[base]; !ok {
+								system_to_add.BasesByBases[base] = base_to_add
+							}
+							system_to_add.AllBasesByBases[base] = append(system_to_add.AllBasesByBases[base], base_to_add)
 
-						if _, ok := system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()]; !ok {
-							system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()] = append(system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()], base_to_add)
+							if _, ok := frelconfig.BasesByBases[base]; !ok {
+								frelconfig.BasesByBases[base] = base_to_add
+							}
+
 						}
-						system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()] = append(system_to_add.AllBasesByDockWith[base_to_add.DockWith.Get()], base_to_add)
+
+						if dock_with_base, ok := base_to_add.DockWith.GetValue(); ok {
+							if _, ok := system_to_add.AllBasesByDockWith[dock_with_base]; !ok {
+								system_to_add.AllBasesByDockWith[dock_with_base] = append(system_to_add.AllBasesByDockWith[dock_with_base], base_to_add)
+							}
+							system_to_add.AllBasesByDockWith[dock_with_base] = append(system_to_add.AllBasesByDockWith[dock_with_base], base_to_add)
+
+							if _, ok := frelconfig.BasesByDockWith[dock_with_base]; !ok {
+								frelconfig.BasesByDockWith[dock_with_base] = base_to_add
+							}
+
+						}
 
 						system_to_add.Bases = append(system_to_add.Bases, base_to_add)
-
-						if _, ok := frelconfig.BasesByBases[base_to_add.Base.Get()]; !ok {
-							frelconfig.BasesByBases[base_to_add.Base.Get()] = base_to_add
-						}
-						if _, ok := frelconfig.BasesByDockWith[base_to_add.DockWith.Get()]; !ok {
-							frelconfig.BasesByDockWith[base_to_add.DockWith.Get()] = base_to_add
-						}
 
 						if base_nickname, ok := base_to_add.Nickname.GetValue(); ok {
 							frelconfig.BasesByNick[base_nickname] = base_to_add

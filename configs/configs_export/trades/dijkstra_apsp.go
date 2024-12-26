@@ -2,7 +2,6 @@ package trades
 
 import (
 	"container/heap"
-	"fmt"
 	"math"
 )
 
@@ -76,10 +75,6 @@ func NewDijkstraApspFromGraph(graph *GameGraph, opts ...DijkstraOption) *Dijkstr
 
 	index := 0
 	for vertex, _ := range graph.matrix {
-		if vertex == "li01_01_base" {
-			fmt.Println()
-		}
-
 		graph.IndexByNick[vertex] = index
 		graph.NicknameByIndex[index] = vertex
 		index++

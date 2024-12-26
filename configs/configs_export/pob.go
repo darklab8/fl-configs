@@ -130,9 +130,6 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 			}
 			return info
 		}
-		if market_good.Nickname == "commodity_gold" {
-			fmt.Println()
-		}
 		info = add_line_about_recipes(info)
 
 		e.Infocards[market_good.Infocard] = append(info, infocard_addition...)
