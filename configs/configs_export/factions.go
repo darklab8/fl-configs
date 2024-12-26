@@ -130,6 +130,19 @@ func FilterToUsefulFactions(factions []Faction) []Faction {
 		if Empty(item.Name) || strings.Contains(item.Name, "_grp") {
 			continue
 		}
+
+		useful_factions = append(useful_factions, item)
+	}
+	return useful_factions
+}
+
+func FilterToUsefulBribes(factions []Faction) []Faction {
+	var useful_factions []Faction = make([]Faction, 0, len(factions))
+	for _, item := range factions {
+		if len(item.Bribes) == 0 {
+			continue
+		}
+
 		useful_factions = append(useful_factions, item)
 	}
 	return useful_factions
