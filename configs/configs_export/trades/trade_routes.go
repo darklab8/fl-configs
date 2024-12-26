@@ -103,6 +103,11 @@ func MapConfigsToFGraph(
 	with_freighter_paths WithFreighterPaths,
 	extra_bases_by_system map[string][]ExtraBase,
 ) *GameGraph {
+	average_trade_lane_speed := AvgTradeLaneSpeed
+	if configs.FLSR != nil {
+		// make this value part of config files some day
+		average_trade_lane_speed = 5000
+	}
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
 	for _, system := range configs.Systems.Systems {
 		system_speed_multiplier := configs.Overrides.GetSystemSpeedMultiplier(system.Nickname)
@@ -302,14 +307,14 @@ func MapConfigsToFGraph(
 				}
 
 				distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-				distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
+				distance_inside_tradelane := distance * PrecisionMultipiler / float64(average_trade_lane_speed)
 				graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 			} else {
 				// in production every trade lane ring will work as separate entity
 				if next_exists {
 					if last_tradelane, ok := system.TradelaneByNick[next_tradelane]; ok {
 						distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-						distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
+						distance_inside_tradelane := distance * PrecisionMultipiler / float64(average_trade_lane_speed)
 						graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 					}
 				}
@@ -317,7 +322,7 @@ func MapConfigsToFGraph(
 				if prev_exists {
 					if last_tradelane, ok := system.TradelaneByNick[prev_tradelane]; ok {
 						distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
-						distance_inside_tradelane := distance * PrecisionMultipiler / float64(AvgTradeLaneSpeed)
+						distance_inside_tradelane := distance * PrecisionMultipiler / float64(average_trade_lane_speed)
 						graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)
 					}
 				}
