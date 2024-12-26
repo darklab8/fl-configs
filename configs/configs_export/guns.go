@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
+	"github.com/darklab8/go-typelog/typelog"
 	"github.com/darklab8/go-utils/utils/ptr"
 )
 
@@ -113,7 +116,7 @@ func getGunClass(gun_info *equip_mapped.Gun) string {
 	return gun_class
 }
 
-func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable_ship_tech map[string]bool) Gun {
+func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable_ship_tech map[string]bool) (Gun, error) {
 	gun_nickname := gun_info.Nickname.Get()
 	defer func() {
 		if r := recover(); r != nil {
@@ -161,7 +164,15 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.HpType, _ = gun_info.HPGunType.GetValue()
 	gun.HpTypeHash = flhash.HashNickname(gun.HpType)
 
-	munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
+	munition, found_munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
+
+	if e.configs.FLSR != nil && !found_munition && gun.Nickname == "gd_ww_turret_laser_light02" && gun_info.ProjectileArchetype.Get() == "gd_ww_laser_light02_ammo" {
+		logus.Log.Error("gun does not have defined munition",
+			typelog.Any("nickname", gun.Nickname),
+			typelog.Any("projectile_archetype", gun_info.ProjectileArchetype.Get()))
+		return gun, errors.New("not defined munition")
+	}
+
 	gun.MunitionHash = flhash.HashNickname(munition.Nickname.Get())
 	gun.FlashParticleName, _ = gun_info.FlashParticleName.GetValue()
 	gun.ConstEffect, _ = munition.ConstEffect.GetValue()
@@ -261,10 +272,6 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.EnergyDamagePerSec = float64(gun.EnergyDamage) * gun.Refire * float64(num_barrels)
 	gun.AvgShieldDamagePerSec = float64(gun.AvgShieldDamage) * gun.Refire * float64(num_barrels)
 
-	if gun.Nickname == "fc_c_gun03_mark01" {
-		fmt.Println()
-	}
-
 	gun.PowerUsagePerSec = float64(gun.PowerUsage) * gun.Refire * float64(num_barrels)
 
 	if gun.BurstFire != nil {
@@ -309,7 +316,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	e.Hashes[munition.Nickname.Get()] = gun.MunitionHash
 	e.Hashes[gun.HpType] = gun.HpTypeHash
 
-	return gun
+	return gun, nil
 }
 
 func (e *Exporter) GetBuyableShields(shields []Shield) map[string]bool {
@@ -327,7 +334,11 @@ func (e *Exporter) GetGuns(ids []Tractor, buyable_ship_tech map[string]bool) []G
 	var guns []Gun
 
 	for _, gun_info := range e.configs.Equip.Guns {
-		gun := e.getGunInfo(gun_info, ids, buyable_ship_tech)
+		gun, err := e.getGunInfo(gun_info, ids, buyable_ship_tech)
+
+		if err != nil {
+			continue
+		}
 
 		munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
 		if _, ok := munition.Motor.GetValue(); ok {

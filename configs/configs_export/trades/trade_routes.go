@@ -1,7 +1,6 @@
 package trades
 
 import (
-	"fmt"
 	"math"
 	"strings"
 
@@ -106,10 +105,6 @@ func MapConfigsToFGraph(
 ) *GameGraph {
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
 	for _, system := range configs.Systems.Systems {
-
-		if system.Nickname == "iw05" {
-			fmt.Println()
-		}
 		system_speed_multiplier := configs.Overrides.GetSystemSpeedMultiplier(system.Nickname)
 
 		var system_objects []SystemObject = make([]SystemObject, 0, 50)
@@ -138,8 +133,12 @@ func MapConfigsToFGraph(
 		}
 
 		for _, system_obj := range system.Bases {
+			// system_base_base := system_obj.Base.Get()
+			system_base_base, dockable := system_obj.DockWith.GetValue()
 
-			system_base_base := system_obj.Base.Get()
+			if !dockable {
+				continue
+			}
 			object := SystemObject{
 				nickname: system_base_base,
 				pos:      system_obj.Pos.Get(),
@@ -213,6 +212,10 @@ func MapConfigsToFGraph(
 			// Check locked_gate if it is enterable.
 			hash_id := flhash.HashNickname(object.nickname)
 			if _, ok := configs.InitialWorld.LockedGates[hash_id]; ok {
+				continue
+			}
+
+			if strings.Contains(jh_archetype, "invisible") {
 				continue
 			}
 

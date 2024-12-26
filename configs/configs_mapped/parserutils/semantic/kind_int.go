@@ -20,11 +20,23 @@ func NewInt(section *inireader.Section, key string, opts ...ValueOption) *Int {
 	return s
 }
 
+const InheritKey = "inherit"
+
 func (s *Int) get() int {
-	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
+	var section *inireader.Section = s.section
+	if _, ok := s.section.ParamMap[s.key]; !ok {
+		if inherit_value, ok := s.section.ParamMap[InheritKey]; ok {
+			inherit_nick := inherit_value[0].First.AsString()
+			if found_section, ok := s.section.INIFile.SectionMapByNick[inherit_nick]; ok {
+				section = found_section
+			}
+		}
+	}
+
+	if s.optional && len(section.ParamMap[s.key]) == 0 {
 		return 0
 	}
-	return int(s.section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value)
+	return int(section.ParamMap[s.key][s.index].Values[s.order].(inireader.ValueNumber).Value)
 }
 
 func (s *Int) Get() int {

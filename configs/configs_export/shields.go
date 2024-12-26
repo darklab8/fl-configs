@@ -74,7 +74,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		shield.RegenerationRate = shield_gen.RegenerationRate.Get()
 		shield.ConstantPowerDraw = shield_gen.ConstPowerDraw.Get()
 		shield.RebuildPowerDraw = shield_gen.RebuildPowerDraw.Get()
-		shield.OffRebuildTime = shield_gen.OfflineRebuildTime.Get()
+		shield.OffRebuildTime, _ = shield_gen.OfflineRebuildTime.GetValue()
 
 		shield.Lootable, _ = shield_gen.Lootable.GetValue()
 		shield.Toughness, _ = shield_gen.Toughness.GetValue()

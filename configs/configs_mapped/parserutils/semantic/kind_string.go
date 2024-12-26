@@ -43,10 +43,20 @@ func NewString(section *inireader.Section, key string, opts ...StringOption) *St
 }
 
 func (s *String) get() string {
-	if s.optional && len(s.section.ParamMap[s.key]) == 0 {
+	var section *inireader.Section = s.section
+	if _, ok := s.section.ParamMap[s.key]; !ok {
+		if inherit_value, ok := s.section.ParamMap[InheritKey]; ok {
+			inherit_nick := inherit_value[0].First.AsString()
+			if found_section, ok := s.section.INIFile.SectionMapByNick[inherit_nick]; ok {
+				section = found_section
+			}
+		}
+	}
+
+	if s.optional && len(section.ParamMap[s.key]) == 0 {
 		return ""
 	}
-	value := s.section.ParamMap[s.key][s.index].Values[s.order].AsString()
+	value := section.ParamMap[s.key][s.index].Values[s.order].AsString()
 	if s.remove_spaces {
 		value = strings.ReplaceAll(value, " ", "")
 	}
