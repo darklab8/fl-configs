@@ -31,6 +31,7 @@ func FindConfigs(folderpath utils_types.FilePath) *Filesystem {
 
 		if !strings.Contains(path, ".ini") &&
 			!strings.Contains(path, ".txt") &&
+			!strings.Contains(path, ".cfg") &&
 			!strings.Contains(path, ".xml") &&
 			!strings.Contains(path, ".dll") &&
 			!strings.Contains(path, ".yml") &&

@@ -28,14 +28,7 @@ func (e *Exporter) findable_in_loot() map[string]bool {
 	}
 
 	for _, npc_arch := range e.configs.NpcShips.NpcShips {
-		if npc_arch.Nickname.Get() == "fc_n_no2_artillery" {
-			fmt.Println()
-		}
-
 		loadout_nickname := npc_arch.Loadout.Get()
-		if loadout_nickname == "fc_n_no2_artillery" {
-			fmt.Println()
-		}
 		if loadout, ok := e.configs.Loadouts.LoadoutsByNick[loadout_nickname]; ok {
 			for _, cargo := range loadout.Cargos {
 				findable_in_loot[cargo.Nickname.Get()] = true

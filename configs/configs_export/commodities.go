@@ -200,6 +200,8 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 			goods_per_base[item.BaseNickname] = item
 		}
 
+	}
+	if e.configs.Discovery != nil || e.configs.FLSR != nil {
 		pob_produced := e.pob_produced()
 		if _, ok := pob_produced[commodity.Nickname]; ok {
 			good_to_add := &GoodAtBase{
@@ -207,7 +209,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 				BaseSells:            true,
 				IsServerSideOverride: true,
 				BaseInfo: BaseInfo{
-					BaseName:    "PoB Crafts",
+					BaseName:    e.CraftableBaseName(),
 					SystemName:  "Neverwhere",
 					Region:      "Neverwhere",
 					FactionName: "Neverwhere",

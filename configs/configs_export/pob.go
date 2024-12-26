@@ -8,41 +8,59 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 )
 
-var pob_produced_cached map[string]bool
+var craftable_cached map[string]bool
 
 func (e *Exporter) pob_produced() map[string]bool {
-	if pob_produced_cached != nil {
-		return pob_produced_cached
+	if craftable_cached != nil {
+		return craftable_cached
 	}
 
-	pob_produced_cached = make(map[string]bool)
+	craftable_cached = make(map[string]bool)
 
-	if e.configs.Discovery == nil {
-		return pob_produced_cached
-	}
-
-	for _, recipe := range e.configs.Discovery.BaseRecipeItems.Recipes {
-		for _, produced := range recipe.ProcucedItem {
-			pob_produced_cached[produced.Get()] = true
+	if e.configs.Discovery != nil {
+		for _, recipe := range e.configs.Discovery.BaseRecipeItems.Recipes {
+			for _, produced := range recipe.ProcucedItem {
+				craftable_cached[produced.Get()] = true
+			}
 		}
 	}
-	return pob_produced_cached
+
+	if e.configs.FLSR != nil {
+		for _, recipe := range e.configs.FLSR.FLSRRecipes.Products {
+			craftable_cached[recipe.Product.Get()] = true
+		}
+	}
+
+	return craftable_cached
 }
 
-const pob_crafts_nickname = "pob_crafts"
+const (
+	pob_crafts_nickname = "crafts"
+)
+
+func (e *Exporter) CraftableBaseName() string {
+	if e.configs.Discovery != nil {
+		return "PoB crafts"
+	}
+	if e.configs.FLSR != nil {
+		return "Craftable"
+	}
+
+	panic("craftable base not is not available")
+}
 
 func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 	pob_produced := e.pob_produced()
 
 	base := &Base{
-		Name:               "PoB Crafts",
+		Name:               e.CraftableBaseName(),
 		MarketGoodsPerNick: make(map[CommodityKey]MarketGood),
 		Nickname:           cfgtype.BaseUniNick(pob_crafts_nickname),
 		Infocard:           InfocardKey(pob_crafts_nickname),
 		SystemNickname:     "neverwhere",
 		System:             "Neverwhere",
 		Region:             "Neverwhere",
-		FactionName:        "Player Base Crafts",
+		FactionName:        "Player Crafts",
 	}
 
 	base.Archetypes = append(base.Archetypes, pob_crafts_nickname)
@@ -90,18 +108,34 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		base.MarketGoodsPerNick[market_good_key] = market_good
 
 		var infocard_addition []string
-		if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
-
-			infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
-
-			for _, recipe := range recipes {
-				sector := recipe.Model.RenderModel()
-				infocard_addition = append(infocard_addition, string(sector.OriginalType))
-				for _, param := range sector.Params {
-					infocard_addition = append(infocard_addition, string(param.ToString()))
+		if e.configs.Discovery != nil {
+			if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
+				infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
+				for _, recipe := range recipes {
+					sector := recipe.Model.RenderModel()
+					infocard_addition = append(infocard_addition, string(sector.OriginalType))
+					for _, param := range sector.Params {
+						infocard_addition = append(infocard_addition, string(param.ToString()))
+					}
+					infocard_addition = append(infocard_addition, "")
 				}
-				infocard_addition = append(infocard_addition, "")
 			}
+		}
+		if e.configs.FLSR != nil {
+			if e.configs.FLSR.FLSRRecipes != nil {
+				if recipes, ok := e.configs.FLSR.FLSRRecipes.ProductsByNick[market_good.Nickname]; ok {
+					infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
+					for _, recipe := range recipes {
+						sector := recipe.Model.RenderModel()
+						infocard_addition = append(infocard_addition, string(sector.OriginalType))
+						for _, param := range sector.Params {
+							infocard_addition = append(infocard_addition, string(param.ToString()))
+						}
+						infocard_addition = append(infocard_addition, "")
+					}
+				}
+			}
+
 		}
 
 		var info Infocard
@@ -146,7 +180,7 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 
 	var sb []string
 	sb = append(sb, base.Name)
-	sb = append(sb, `This is only pseudo base to show availability of player base crafts`)
+	sb = append(sb, `This is only pseudo base to show availability of player crafts`)
 	sb = append(sb, ``)
 	sb = append(sb, `At the bottom of each item infocard it shows CRAFTING RECIPES`)
 

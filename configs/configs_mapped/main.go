@@ -9,6 +9,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/darklab8/fl-configs/configs/configs_mapped/flsr/flsr_recipes"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/const_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
@@ -50,6 +51,7 @@ import (
 )
 
 type SiriusRevivalConfig struct {
+	FLSRRecipes *flsr_recipes.Config
 }
 
 type DiscoveryConfig struct {
@@ -153,6 +155,10 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	var file_playercntl_rephacks *iniload.IniLoader
 	if flsr_config := filesystem.GetFile("flsr-launcher.ini"); flsr_config != nil {
 		p.FLSR = &SiriusRevivalConfig{}
+		flsr_recipes_file := filesystem.GetFile(flsr_recipes.FILENAME)
+		if flsr_recipes_file != nil {
+			p.FLSR.FLSRRecipes = flsr_recipes.Read(iniload.NewLoader(flsr_recipes_file).Scan())
+		}
 	}
 	if techcom := filesystem.GetFile("launcherconfig.xml"); techcom != nil {
 		p.Discovery = &DiscoveryConfig{}
