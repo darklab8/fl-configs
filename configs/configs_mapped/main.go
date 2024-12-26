@@ -147,7 +147,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	var file_prices *iniload.IniLoader
 	var file_base_recipe_items *iniload.IniLoader
 	var file_playercntl_rephacks *iniload.IniLoader
-	if flsr_config := filesystem.GetFile("FLSR-Launcher.ini"); flsr_config != nil {
+	if flsr_config := filesystem.GetFile("flsr-launcher.ini"); flsr_config != nil {
 		p.FLSR = &SiriusRevivalConfig{}
 	}
 	if techcom := filesystem.GetFile("launcherconfig.xml"); techcom != nil {

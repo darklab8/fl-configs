@@ -30,6 +30,11 @@ func (t *TradeRoute) GetProffitPerV() float64 {
 	if t.Route.is_disabled {
 		return 0
 	}
+
+	if t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor == 0 {
+		return 0
+	}
+
 	return float64(t.SellingGood.PriceBaseBuysFor-t.BuyingGood.PriceBaseSellsFor) / float64(t.Commodity.Volume)
 }
 
