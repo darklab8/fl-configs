@@ -46,7 +46,7 @@ func (e *Exporter) CraftableBaseName() string {
 		return "Craftable"
 	}
 
-	panic("craftable base not is not available")
+	return "NoCrafts"
 }
 
 func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
