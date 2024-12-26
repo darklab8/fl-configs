@@ -50,6 +50,7 @@ type Tractor struct {
 
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 	DiscoveryIDRephacks
+	Mass float64
 }
 
 func (e *Exporter) GetFactionName(nickname cfgtype.FactionNick) string {
@@ -70,6 +71,8 @@ func (e *Exporter) GetTractors() []Tractor {
 			},
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		tractor.Mass, _ = tractor_info.Mass.GetValue()
+
 		tractor.Nickname = cfgtype.TractorID(tractor_info.Nickname.Get())
 		tractor.NicknameHash = flhash.HashNickname(string(tractor.Nickname))
 		e.Hashes[string(tractor.Nickname)] = tractor.NicknameHash

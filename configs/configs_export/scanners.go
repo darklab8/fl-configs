@@ -21,6 +21,7 @@ type Scanner struct {
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
+	Mass float64
 }
 
 func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
@@ -30,6 +31,8 @@ func (e *Exporter) GetScanners(ids []Tractor) []Scanner {
 		item := Scanner{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		item.Mass, _ = scanner_info.Mass.GetValue()
+
 		item.Nickname = scanner_info.Nickname.Get()
 		item.NicknameHash = flhash.HashNickname(item.Nickname)
 		e.Hashes[item.Nickname] = item.NicknameHash

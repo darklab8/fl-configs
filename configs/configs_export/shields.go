@@ -42,6 +42,7 @@ type Shield struct {
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
+	Mass float64
 }
 
 func (e *Exporter) GetShields(ids []Tractor) []Shield {
@@ -51,6 +52,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		shield := Shield{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		shield.Mass, _ = shield_gen.Mass.GetValue()
 
 		shield.Nickname = shield_gen.Nickname.Get()
 		shield.NicknameHash = flhash.HashNickname(shield.Nickname)

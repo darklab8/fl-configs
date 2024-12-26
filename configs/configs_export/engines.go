@@ -34,6 +34,7 @@ type Engine struct {
 
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 	*DiscoveryTechCompat
+	Mass float64
 }
 
 func (e *Exporter) GetEngineSpeed(engine_info *equip_mapped.Engine) int {
@@ -54,6 +55,8 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 		engine := Engine{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		engine.Mass, _ = engine_info.Mass.GetValue()
+
 		engine.Nickname = engine_info.Nickname.Get()
 		engine.CruiseSpeed = e.GetEngineSpeed(engine_info)
 		engine.CruiseChargeTime, _ = engine_info.CruiseChargeTime.GetValue()

@@ -41,6 +41,7 @@ type Commodity struct {
 	PriceBestBaseSellsFor int
 	ProffitMargin         int
 	BaseAllTradeRoutes
+	Mass float64
 }
 
 func GetPricePerVoume(price int, volume float64) float64 {
@@ -61,6 +62,8 @@ func (e *Exporter) GetCommodities() []*Commodity {
 			commodity := &Commodity{
 				Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 			}
+			commodity.Mass, _ = equipment.Mass.GetValue()
+
 			commodity.Nickname = comm.Nickname.Get()
 			commodity.NicknameHash = flhash.HashNickname(commodity.Nickname)
 			e.Hashes[commodity.Nickname] = commodity.NicknameHash

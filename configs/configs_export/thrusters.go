@@ -23,6 +23,7 @@ type Thruster struct {
 	Bases map[cfgtype.BaseUniNick]*GoodAtBase
 
 	*DiscoveryTechCompat
+	Mass float64
 }
 
 func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
@@ -32,6 +33,8 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 		thruster := Thruster{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		thruster.Mass, _ = thruster_info.Mass.GetValue()
+
 		thruster.Nickname = thruster_info.Nickname.Get()
 		thruster.NicknameHash = flhash.HashNickname(thruster.Nickname)
 		e.Hashes[thruster.Nickname] = thruster.NicknameHash

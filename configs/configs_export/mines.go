@@ -44,6 +44,7 @@ type Mine struct {
 	*DiscoveryTechCompat
 
 	AmmoLimit AmmoLimit
+	Mass      float64
 }
 
 type AmmoLimit struct {
@@ -59,6 +60,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine := Mine{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		mine.Mass, _ = mine_dropper.Mass.GetValue()
 
 		mine.Nickname = mine_dropper.Nickname.Get()
 		mine.MineDropperHash = flhash.HashNickname(mine.Nickname)

@@ -27,6 +27,7 @@ type CounterMeasure struct {
 	*DiscoveryTechCompat
 
 	AmmoLimit AmmoLimit
+	Mass      float64
 }
 
 func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
@@ -36,6 +37,8 @@ func (e *Exporter) GetCounterMeasures(ids []Tractor) []CounterMeasure {
 		cm := CounterMeasure{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		cm.Mass, _ = cm_info.Mass.GetValue()
+
 		cm.Nickname = cm_info.Nickname.Get()
 		cm.NicknameHash = flhash.HashNickname(cm.Nickname)
 		e.Hashes[cm.Nickname] = cm.NicknameHash

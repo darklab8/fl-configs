@@ -27,6 +27,7 @@ type Ammo struct {
 	*DiscoveryTechCompat
 
 	AmmoLimit AmmoLimit
+	Mass      float64
 }
 
 func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
@@ -36,6 +37,8 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		munition := Ammo{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
+		munition.Mass, _ = munition_info.Mass.GetValue()
+
 		munition.Nickname = munition_info.Nickname.Get()
 		munition.NicknameHash = flhash.HashNickname(munition.Nickname)
 		e.Hashes[munition.Nickname] = munition.NicknameHash

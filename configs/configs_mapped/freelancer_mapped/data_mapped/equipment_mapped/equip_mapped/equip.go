@@ -30,6 +30,7 @@ type Commodity struct {
 	LootAppearance    *semantic.String
 	DecayPerSecond    *semantic.Int
 	HitPts            *semantic.Int
+	Mass              *semantic.Float
 
 	Volumes []*Volume
 }
@@ -56,7 +57,6 @@ type Munition struct {
 	EnergyDamange      *semantic.Int
 	HealintAmount      *semantic.Int
 	WeaponType         *semantic.String
-	Mass               *semantic.Int
 	Motor              *semantic.String
 	MaxAngularVelocity *semantic.Float
 
@@ -75,6 +75,7 @@ type Munition struct {
 	SeekerType   *semantic.String
 	SeekerRange  *semantic.Int
 	SeekerFovDeg *semantic.Int
+	Mass         *semantic.Float
 
 	ArmorPen *semantic.Float // Disco only
 }
@@ -106,6 +107,7 @@ type Gun struct {
 	Lootable            *semantic.Bool
 	DispersionAngle     *semantic.Float
 	Volume              *semantic.Float
+	Mass                *semantic.Float
 
 	FlashParticleName *semantic.String
 
@@ -130,6 +132,7 @@ type Mine struct {
 	OwnerSafeTime             *semantic.Int
 	DetonationDistance        *semantic.Int
 	LinearDrag                *semantic.Float
+	Mass                      *semantic.Float
 }
 
 type MineDropper struct {
@@ -146,6 +149,7 @@ type MineDropper struct {
 	Toughness           *semantic.Float
 	ProjectileArchetype *semantic.String
 	Lootable            *semantic.Bool
+	Mass                *semantic.Float
 }
 
 type ShieldGenerator struct {
@@ -165,6 +169,7 @@ type ShieldGenerator struct {
 	OfflineRebuildTime *semantic.Int
 	Lootable           *semantic.Bool
 	ShieldType         *semantic.String
+	Mass               *semantic.Float
 }
 
 type Thruster struct {
@@ -178,6 +183,7 @@ type Thruster struct {
 
 	MaxForce   *semantic.Int
 	PowerUsage *semantic.Int
+	Mass       *semantic.Float
 }
 
 type Engine struct {
@@ -194,6 +200,7 @@ type Engine struct {
 	FlameEffect      *semantic.String
 	TrailEffect      *semantic.String
 	CruiseChargeTime *semantic.Int
+	Mass             *semantic.Float
 }
 
 type Power struct {
@@ -205,6 +212,7 @@ type Power struct {
 	ChargeRate     *semantic.Int
 	ThrustCapacity *semantic.Int
 	ThrustRecharge *semantic.Int
+	Mass           *semantic.Float
 }
 
 type Tractor struct {
@@ -215,6 +223,7 @@ type Tractor struct {
 	MaxLength  *semantic.Int
 	ReachSpeed *semantic.Int
 	Lootable   *semantic.Bool
+	Mass       *semantic.Float
 }
 
 type CounterMeasureDropper struct {
@@ -227,6 +236,7 @@ type CounterMeasureDropper struct {
 	ProjectileArchetype *semantic.String
 	HitPts              *semantic.Int
 	AIRange             *semantic.Int
+	Mass                *semantic.Float
 }
 
 type CounterMeasure struct {
@@ -239,6 +249,7 @@ type CounterMeasure struct {
 	Lifetime                  *semantic.Int
 	Range                     *semantic.Int
 	DiversionPctg             *semantic.Int
+	Mass                      *semantic.Float
 }
 
 type Scanner struct {
@@ -249,6 +260,7 @@ type Scanner struct {
 	Range          *semantic.Int
 	CargoScanRange *semantic.Int
 	Lootable       *semantic.Bool
+	Mass           *semantic.Float
 }
 
 type Config struct {
@@ -329,7 +341,9 @@ func Read(files []*iniload.IniLoader) *Config {
 
 			switch section.Type {
 			case "[commodity]":
-				commodity := &Commodity{}
+				commodity := &Commodity{
+					Mass: semantic.NewFloat(section, "mass", semantic.Precision(2)),
+				}
 				commodity.Map(section)
 				commodity.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				commodity.IdsName = semantic.NewInt(section, "ids_name")
@@ -369,6 +383,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					BurstAmmo:   semantic.NewInt(section, "burst_fire"),
 					BurstReload: semantic.NewFloat(section, "burst_fire", semantic.Precision(2), semantic.OptsF(semantic.Order(1))),
 					NumBarrels:  semantic.NewInt(section, "num_barrels"),
+					Mass:        semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				gun.Map(section)
 
@@ -397,6 +412,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					SeekerFovDeg: semantic.NewInt(section, "seeker_fov_deg"),
 
 					ArmorPen: semantic.NewFloat(section, "armor_pen", semantic.Precision(2), semantic.WithDefaultF(0)),
+					Mass:     semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				munition.Map(section)
 				munition.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
@@ -409,7 +425,6 @@ func Read(files []*iniload.IniLoader) *Config {
 				munition.HealintAmount = semantic.NewInt(section, "damage")
 				munition.WeaponType = semantic.NewString(section, "weapon_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				munition.LifeTime = semantic.NewFloat(section, "lifetime", semantic.Precision(2))
-				munition.Mass = semantic.NewInt(section, "mass")
 				munition.Motor = semantic.NewString(section, "motor", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 				munition.MaxAngularVelocity = semantic.NewFloat(section, "max_angular_velocity", semantic.Precision(4))
 
@@ -443,6 +458,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					Toughness:           semantic.NewFloat(section, "toughness", semantic.Precision(2)),
 					ProjectileArchetype: semantic.NewString(section, "projectile_archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					Lootable:            semantic.NewBool(section, "lootable", semantic.StrBool),
+					Mass:                semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 
 				frelconfig.MineDroppers = append(frelconfig.MineDroppers, mine_dropper)
@@ -463,6 +479,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					OwnerSafeTime:      semantic.NewInt(section, "owner_safe_time"),
 					DetonationDistance: semantic.NewInt(section, "detonation_dist"),
 					LinearDrag:         semantic.NewFloat(section, "linear_drag", semantic.Precision(6)),
+					Mass:               semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Mines = append(frelconfig.Mines, mine)
 				frelconfig.MinesMap[mine.Nickname.Get()] = mine
@@ -482,6 +499,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					OfflineRebuildTime: semantic.NewInt(section, "offline_rebuild_time"),
 					Lootable:           semantic.NewBool(section, "lootable", semantic.StrBool),
 					ShieldType:         semantic.NewString(section, "shield_type", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+					Mass:               semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.ShieldGens = append(frelconfig.ShieldGens, shield)
 				frelconfig.ShidGenMap[shield.Nickname.Get()] = shield
@@ -494,6 +512,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					Lootable:   semantic.NewBool(section, "lootable", semantic.StrBool),
 					MaxForce:   semantic.NewInt(section, "max_force"),
 					PowerUsage: semantic.NewInt(section, "power_usage"),
+					Mass:       semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Thrusters = append(frelconfig.Thrusters, thruster)
 				frelconfig.ThrusterMap[thruster.Nickname.Get()] = thruster
@@ -506,6 +525,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					ChargeRate:     semantic.NewInt(section, "charge_rate"),
 					ThrustCapacity: semantic.NewInt(section, "thrust_capacity"),
 					ThrustRecharge: semantic.NewInt(section, "thrust_charge_rate"),
+					Mass:           semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Powers = append(frelconfig.Powers, power)
 				frelconfig.PowersMap[power.Nickname.Get()] = power
@@ -523,6 +543,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					FlameEffect:      semantic.NewString(section, "flame_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					TrailEffect:      semantic.NewString(section, "trail_effect", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					CruiseChargeTime: semantic.NewInt(section, "cruise_charge_time"),
+					Mass:             semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Engines = append(frelconfig.Engines, engine)
 				frelconfig.EnginesMap[engine.Nickname.Get()] = engine
@@ -534,6 +555,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					MaxLength:  semantic.NewInt(section, "max_length"),
 					ReachSpeed: semantic.NewInt(section, "reach_speed"),
 					Lootable:   semantic.NewBool(section, "lootable", semantic.StrBool),
+					Mass:       semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Tractors = append(frelconfig.Tractors, tractor)
 			case "[countermeasuredropper]":
@@ -546,6 +568,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					ProjectileArchetype: semantic.NewString(section, "projectile_archetype", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
 					HitPts:              semantic.NewInt(section, "hit_pts"),
 					AIRange:             semantic.NewInt(section, "ai_range"),
+					Mass:                semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.CounterMeasureDroppers = append(frelconfig.CounterMeasureDroppers, item)
 			case "[countermeasure]":
@@ -558,6 +581,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					AmmoLimitMaxCatridges:     semantic.NewInt(section, "ammo_limit", semantic.Order(1)), Lifetime: semantic.NewInt(section, "lifetime"),
 					Range:         semantic.NewInt(section, "range"),
 					DiversionPctg: semantic.NewInt(section, "diversion_pctg"),
+					Mass:          semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.CounterMeasure = append(frelconfig.CounterMeasure, item)
 				frelconfig.CounterMeasureMap[item.Nickname.Get()] = item
@@ -570,6 +594,7 @@ func Read(files []*iniload.IniLoader) *Config {
 					Range:          semantic.NewInt(section, "range"),
 					CargoScanRange: semantic.NewInt(section, "cargo_scan_range"),
 					Lootable:       semantic.NewBool(section, "lootable", semantic.StrBool),
+					Mass:           semantic.NewFloat(section, "mass", semantic.Precision(2)),
 				}
 				frelconfig.Scanners = append(frelconfig.Scanners, item)
 			}

@@ -84,6 +84,8 @@ type Gun struct {
 	BurstFire  *BurstFire
 	AmmoLimit  AmmoLimit
 
+	Mass float64
+
 	DiscoGun *DiscoGun
 }
 
@@ -140,6 +142,8 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		Lootable:     gun_info.Lootable.Get(),
 		Bases:        make(map[cfgtype.BaseUniNick]*GoodAtBase),
 	}
+
+	gun.Mass, _ = gun_info.Mass.GetValue()
 
 	num_barrels := 1
 	if num_barrels_value, ok := gun_info.NumBarrels.GetValue(); ok {
