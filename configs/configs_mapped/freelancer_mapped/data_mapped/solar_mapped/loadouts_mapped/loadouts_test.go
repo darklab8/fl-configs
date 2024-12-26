@@ -1,4 +1,4 @@
-package solar_mapped
+package loadouts_mapped
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ import (
 func TestReader(t *testing.T) {
 	fileref := tests.FixtureFileFind().GetFile(FILENAME)
 
-	loaded_market_ships := Read(iniload.NewLoader(fileref).Scan())
+	loaded_market_ships := Read([]*iniload.IniLoader{iniload.NewLoader(fileref).Scan()})
 
-	assert.Greater(t, len(loaded_market_ships.Solars), 0, "expected finding some elements")
+	assert.Greater(t, len(loaded_market_ships.Loadouts), 0, "expected finding some elements")
 }

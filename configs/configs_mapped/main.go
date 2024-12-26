@@ -20,7 +20,8 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/rnd_msns_mapped/diff2money"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/rnd_msns_mapped/npcranktodiff"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/ship_mapped"
-	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/solar_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/solar_mapped/loadouts_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/solar_mapped/solararch_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/exe_mapped"
@@ -83,7 +84,8 @@ type MappedConfigs struct {
 
 	FactionProps *faction_props_mapped.Config
 	NpcShips     *npc_ships.Config
-	Solararch    *solar_mapped.Config
+	Solararch    *solararch_mapped.Config
+	Loadouts     *loadouts_mapped.Config
 
 	Discovery *DiscoveryConfig
 	FLSR      *SiriusRevivalConfig
@@ -110,6 +112,7 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	files_market := getConfigs(filesystem, p.FreelancerINI.Markets)
 	files_equip := getConfigs(filesystem, p.FreelancerINI.Equips)
 	files_shiparch := getConfigs(filesystem, p.FreelancerINI.Ships)
+	files_loadouts := getConfigs(filesystem, p.FreelancerINI.Loadouts)
 	file_universe := iniload.NewLoader(filesystem.GetFile(universe_mapped.FILENAME))
 	file_interface := iniload.NewLoader(filesystem.GetFile(interface_mapped.FILENAME_FL_INI))
 	file_initialworld := iniload.NewLoader(filesystem.GetFile(initialworld.FILENAME))
@@ -123,11 +126,12 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 
 	file_faction_props := iniload.NewLoader(filesystem.GetFile(faction_props_mapped.FILENAME))
 	file_npc_ships := iniload.NewLoader(filesystem.GetFile(npc_ships.FILENAME))
-	file_solararch := iniload.NewLoader(filesystem.GetFile(solar_mapped.FILENAME))
+	file_solararch := iniload.NewLoader(filesystem.GetFile(solararch_mapped.FILENAME))
 
 	all_files := append(files_goods, files_market...)
 	all_files = append(all_files, files_equip...)
 	all_files = append(all_files, files_shiparch...)
+	all_files = append(all_files, files_loadouts...)
 	all_files = append(all_files,
 		file_universe,
 		file_interface,
@@ -282,7 +286,13 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 
 		wg.Add(1)
 		go func() {
-			p.Solararch = solar_mapped.Read(file_solararch)
+			p.Solararch = solararch_mapped.Read(file_solararch)
+			wg.Done()
+		}()
+
+		wg.Add(1)
+		go func() {
+			p.Loadouts = loadouts_mapped.Read(files_loadouts)
 			wg.Done()
 		}()
 

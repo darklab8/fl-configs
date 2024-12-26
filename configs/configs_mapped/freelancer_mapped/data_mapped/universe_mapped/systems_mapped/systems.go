@@ -162,6 +162,12 @@ type Object struct {
 	Nickname *semantic.String
 }
 
+type Wreck struct {
+	semantic.Model
+	Nickname *semantic.String
+	Loadout  *semantic.String
+}
+
 type Asteroids struct {
 	semantic.Model
 	File         *semantic.Path
@@ -209,6 +215,7 @@ type System struct {
 	Asteroids   []*Asteroids
 	ZonesByNick map[string]*Zone
 	Objects     []*Object
+	Wrecks      []*Wreck
 }
 
 type Config struct {
@@ -412,6 +419,15 @@ func Read(universe_config *universe_mapped.Config, filesystem *filefind.Filesyst
 
 						system_to_add.Jumpholes = append(system_to_add.Jumpholes, jumphole)
 						frelconfig.JumpholesByNick[jumphole.Nickname.Get()] = jumphole
+					}
+
+					if _, ok := obj.ParamMap["loadout"]; ok {
+						wreck := &Wreck{
+							Nickname: semantic.NewString(obj, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+							Loadout:  semantic.NewString(obj, "loadout", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+						}
+
+						system_to_add.Wrecks = append(system_to_add.Wrecks, wreck)
 					}
 
 					_, is_trade_lane1 := obj.ParamMap["next_ring"]

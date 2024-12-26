@@ -1,4 +1,4 @@
-package solar_mapped
+package solararch_mapped
 
 import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"

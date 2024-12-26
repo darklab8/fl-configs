@@ -218,6 +218,23 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 		}
 	}
 
+	loot_findable := e.findable_in_loot()
+	if _, ok := loot_findable[commodity.Nickname]; ok {
+		good_to_add := &GoodAtBase{
+			BaseNickname:         BaseLootableNickname,
+			BaseSells:            true,
+			IsServerSideOverride: false,
+			BaseInfo: BaseInfo{
+				BaseName:    BaseLootableName,
+				SystemName:  "Neverwhere",
+				Region:      "Neverwhere",
+				FactionName: BaseLootableFaction,
+			},
+		}
+		goods_per_base[pob_crafts_nickname] = good_to_add
+
+	}
+
 	return goods_per_base
 }
 

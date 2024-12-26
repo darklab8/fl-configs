@@ -135,7 +135,7 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 		for _, base_location := range commodity.Bases {
 
 			// no idea why :) but crashes otherwise
-			if base_location.BaseNickname == pob_crafts_nickname {
+			if base_location.BaseNickname == pob_crafts_nickname || base_location.BaseNickname == BaseLootableNickname {
 				continue
 			}
 

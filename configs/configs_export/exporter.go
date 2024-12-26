@@ -113,6 +113,7 @@ func (e *Exporter) Export() *Exporter {
 		e.useful_bases_by_nick[base.Nickname] = true
 	}
 	e.useful_bases_by_nick[pob_crafts_nickname] = true
+	e.useful_bases_by_nick[BaseLootableNickname] = true
 
 	e.Commodities = e.GetCommodities()
 	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
@@ -189,6 +190,7 @@ func (e *Exporter) Export() *Exporter {
 
 	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
 	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
+	e.Bases = e.EnhanceBasesWithLoot(e.Bases)
 
 	return e
 }

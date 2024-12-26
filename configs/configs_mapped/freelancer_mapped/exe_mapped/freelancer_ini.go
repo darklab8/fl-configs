@@ -27,6 +27,7 @@ type Config struct {
 	Equips   []*semantic.Path
 	Universe []*semantic.Path
 	Ships    []*semantic.Path
+	Loadouts []*semantic.Path
 }
 
 func Read(input_file *iniload.IniLoader) *Config {
@@ -45,6 +46,11 @@ func Read(input_file *iniload.IniLoader) *Config {
 		for equipment_index, _ := range resources[0].ParamMap["equipment"] {
 			frelconfig.Equips = append(frelconfig.Equips,
 				semantic.NewPath(resources[0], "equipment", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(equipment_index))),
+			)
+		}
+		for index, _ := range resources[0].ParamMap["loadouts"] {
+			frelconfig.Loadouts = append(frelconfig.Loadouts,
+				semantic.NewPath(resources[0], "loadouts", semantic.WithoutSpacesP(), semantic.WithLowercaseP(), semantic.OptsP(semantic.Index(index))),
 			)
 		}
 		for equipment_index, _ := range resources[0].ParamMap["markets"] {

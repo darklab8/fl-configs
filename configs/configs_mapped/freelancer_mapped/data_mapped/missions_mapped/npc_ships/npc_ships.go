@@ -15,6 +15,7 @@ type NPCShipArch struct {
 	Nickname *semantic.String
 	Level    *semantic.String
 	NpcClass []*semantic.String
+	Loadout  *semantic.String
 }
 
 type Config struct {
@@ -31,7 +32,9 @@ func Read(input_file *iniload.IniLoader) *Config {
 	}
 	if sections, ok := frelconfig.SectionMap["[npcshiparch]"]; ok {
 		for _, section := range sections {
-			npc_ship_arch := &NPCShipArch{}
+			npc_ship_arch := &NPCShipArch{
+				Loadout: semantic.NewString(section, "loadout", semantic.WithLowercaseS(), semantic.WithoutSpacesS()),
+			}
 			npc_ship_arch.Map(section)
 			npc_ship_arch.Nickname = semantic.NewString(section, "nickname", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			npc_ship_arch.Level = semantic.NewString(section, "level", semantic.WithLowercaseS(), semantic.WithoutSpacesS())
