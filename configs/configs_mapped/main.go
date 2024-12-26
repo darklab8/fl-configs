@@ -153,7 +153,9 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 	var file_prices *iniload.IniLoader
 	var file_base_recipe_items *iniload.IniLoader
 	var file_playercntl_rephacks *iniload.IniLoader
-	if flsr_config := filesystem.GetFile("flsr-launcher.ini"); flsr_config != nil {
+	if filesystem.GetFile("flsr-launcher.ini") != nil ||
+		filesystem.GetFile("flsr-texts.dll") != nil ||
+		filesystem.GetFile("flsr-dialogs.dll") != nil {
 		p.FLSR = &SiriusRevivalConfig{}
 		flsr_recipes_file := filesystem.GetFile(flsr_recipes.FILENAME)
 		if flsr_recipes_file != nil {
