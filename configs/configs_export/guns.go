@@ -177,6 +177,15 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		return gun, errors.New("not defined munition")
 	}
 
+	if gun.Nickname == "gd_ww_turret_laser_light02" {
+		logus.Log.Warn("FLSR broken gun potentially",
+			typelog.String("gun.Nickname", gun.Nickname),
+			typelog.String("projectile", gun_info.ProjectileArchetype.Get()),
+			typelog.Bool("is_flsr", e.configs.FLSR != nil),
+			typelog.Bool("found_munition", found_munition),
+		)
+	}
+
 	gun.MunitionHash = flhash.HashNickname(munition.Nickname.Get())
 	gun.FlashParticleName, _ = gun_info.FlashParticleName.GetValue()
 	gun.ConstEffect, _ = munition.ConstEffect.GetValue()
