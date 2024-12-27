@@ -61,7 +61,6 @@ var DiscoverySpeeds ShipSpeeds = ShipSpeeds{
 
 const (
 	// already accounted for
-	AvgTradeLaneSpeed = 2250
 
 	// Add for every pair of jumphole in path
 	JumpHoleDelaySec = 15 // and jump gate
@@ -103,11 +102,8 @@ func MapConfigsToFGraph(
 	with_freighter_paths WithFreighterPaths,
 	extra_bases_by_system map[string][]ExtraBase,
 ) *GameGraph {
-	average_trade_lane_speed := AvgTradeLaneSpeed
-	if configs.FLSR != nil {
-		// make this value part of config files some day
-		average_trade_lane_speed = 5000
-	}
+	average_trade_lane_speed := configs.GetAvgTradeLaneSpeed()
+
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
 	for _, system := range configs.Systems.Systems {
 		system_speed_multiplier := configs.Overrides.GetSystemSpeedMultiplier(system.Nickname)
@@ -310,7 +306,6 @@ func MapConfigsToFGraph(
 				if last_tradelane == nil {
 					continue
 				}
-
 				distance := DistanceForVecs(object.pos, last_tradelane.Pos.Get())
 				distance_inside_tradelane := distance * PrecisionMultipiler / float64(average_trade_lane_speed)
 				graph.SetEdge(object.nickname, last_tradelane.Nickname.Get(), distance_inside_tradelane)

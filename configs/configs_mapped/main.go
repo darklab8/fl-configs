@@ -99,6 +99,15 @@ func NewMappedConfigs() *MappedConfigs {
 	return &MappedConfigs{}
 }
 
+func (configs *MappedConfigs) GetAvgTradeLaneSpeed() int {
+	average_trade_lane_speed := 2250
+	if configs.FLSR != nil {
+		// make this value part of config files some day
+		average_trade_lane_speed = 5000
+	}
+	return average_trade_lane_speed
+}
+
 func getConfigs(filesystem *filefind.Filesystem, paths []*semantic.Path) []*iniload.IniLoader {
 	return utils.CompL(paths, func(x *semantic.Path) *iniload.IniLoader {
 		return iniload.NewLoader(filesystem.GetFile(utils_types.FilePath(x.FileName())))
