@@ -154,6 +154,11 @@ func MapConfigsToFGraph(
 				continue
 			}
 
+			object_nickname := system_obj.Nickname.Get()
+			if _, ok := configs.InitialWorld.LockedGates[flhash.HashNickname(object_nickname)]; ok {
+				continue
+			}
+
 			// get all objects with same Base?
 			// Check if any of them has docking sphere medium
 
