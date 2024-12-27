@@ -130,6 +130,10 @@ func (e *Exporter) Export() *Exporter {
 		e.ship_speeds = trades.DiscoverySpeeds
 	}
 
+	if e.configs.FLSR != nil {
+		e.ship_speeds = trades.FLSRSpeeds
+	}
+
 	if !configs_settings.Env.IsDisabledTradeRouting {
 		wg.Add(1)
 		go func() {

@@ -59,6 +59,12 @@ var DiscoverySpeeds ShipSpeeds = ShipSpeeds{
 	AvgFreighterCruiseSpeed: 500, // TODO You should grab those speeds from some ship example
 }
 
+var FLSRSpeeds ShipSpeeds = ShipSpeeds{
+	AvgTransportCruiseSpeed: 500, // TODO You should grab those speeds from some ship example
+	AvgFrigateCruiseSpeed:   500, // TODO You should grab those speeds from some ship example
+	AvgFreighterCruiseSpeed: 500, // TODO You should grab those speeds from some ship example
+}
+
 const (
 	// already accounted for
 
