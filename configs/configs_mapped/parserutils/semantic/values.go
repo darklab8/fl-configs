@@ -5,6 +5,8 @@ package semantic
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
@@ -84,10 +86,16 @@ func handleGetCrashReporting(value *Value) {
 			logus.Log.Panic("value is not defined. not possible. ;)")
 			return
 		} else {
+			var section strings.Builder
+			section.WriteString(string(value.section.Type))
+			for _, param := range value.section.Params {
+				section.WriteString(fmt.Sprintf("\"%s\"", param.ToString()))
+			}
 			logus.Log.Error("unable to Get() from semantic.",
 				typelog.Any("value", quickJson(value)),
 				typelog.Any("key", value.key),
-				typelog.NestedStruct("section", value.section),
+				typelog.String("section", section.String()),
+				typelog.Any("r", r),
 			)
 		}
 		panic(r)
