@@ -47,3 +47,12 @@ func TestReaderWithBOMPasses(t *testing.T) {
 
 	assert.Greater(t, len(config.Sections), 0, "market ships sections were not scanned")
 }
+
+func TestReadScientificNotation(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("hud.ini")
+	config := Read(fileref)
+
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+}

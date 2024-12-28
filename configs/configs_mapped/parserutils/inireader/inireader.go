@@ -215,8 +215,8 @@ func UniParse(input string) (UniValue, error) {
 		parsed_number, err := strconv.ParseFloat(input, 64)
 
 		if err != nil {
-			logus.Log.Warn("failed to read number", typelog.Any("input", input))
-			return nil, err
+			logus.Log.Warn("failed to read number. Converting to string", typelog.Any("input", input))
+			return ValueString(input), nil
 		}
 
 		var precision int
