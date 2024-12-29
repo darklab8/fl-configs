@@ -4,6 +4,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/semantic"
+	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 )
 
 type IniLoader struct {
@@ -19,6 +20,10 @@ func NewLoader(input_file *file.File) *IniLoader {
 
 // Scan is heavy operations for goroutine ^_^
 func (fileconfig *IniLoader) Scan() *IniLoader {
+	if fileconfig.input_file == nil {
+		logus.Log.Error("input_file is empty")
+	}
+
 	iniconfig := inireader.Read(fileconfig.input_file)
 	fileconfig.Init(iniconfig.Sections, iniconfig.Comments, iniconfig.File.GetFilepath())
 	fileconfig.INIFile = iniconfig

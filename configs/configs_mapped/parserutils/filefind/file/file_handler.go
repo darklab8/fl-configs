@@ -30,6 +30,9 @@ type File struct {
 	file     *os.File
 	lines    []string
 
+	// failback files escape fate of being written in
+	IsFailback bool
+
 	webfile *WebFile
 }
 
@@ -111,6 +114,14 @@ func (f *File) GetLines() []string {
 }
 
 func (f *File) WriteLines() {
+	if f.IsFailback {
+		// This feature is not working in full capacity for some reason ;) not getting skipped for some reason
+		logus.Log.Warn("file is taken from fallback, writing is skipped",
+			typelog.Any("filename", f.filepath.ToString()),
+		)
+		return
+	}
+
 	f.createToWriteF()
 	defer f.close()
 

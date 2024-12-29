@@ -89,7 +89,7 @@ func handleGetCrashReporting(value *Value) {
 			var section strings.Builder
 			section.WriteString(string(value.section.Type))
 			for _, param := range value.section.Params {
-				section.WriteString(fmt.Sprintf("\"%s\"", param.ToString()))
+				section.WriteString(fmt.Sprintf("\"%s\"", param.ToString(inireader.WithComments(true))))
 			}
 			logus.Log.Error("unable to Get() from semantic.",
 				typelog.Any("value", quickJson(value)),

@@ -6,6 +6,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 )
 
 var craftable_cached map[string]bool
@@ -115,7 +116,7 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 					sector := recipe.Model.RenderModel()
 					infocard_addition = append(infocard_addition, string(sector.OriginalType))
 					for _, param := range sector.Params {
-						infocard_addition = append(infocard_addition, string(param.ToString()))
+						infocard_addition = append(infocard_addition, string(param.ToString(inireader.WithComments(false))))
 					}
 					infocard_addition = append(infocard_addition, "")
 				}
@@ -129,13 +130,12 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 						sector := recipe.Model.RenderModel()
 						infocard_addition = append(infocard_addition, string(sector.OriginalType))
 						for _, param := range sector.Params {
-							infocard_addition = append(infocard_addition, string(param.ToString()))
+							infocard_addition = append(infocard_addition, string(param.ToString(inireader.WithComments(false))))
 						}
 						infocard_addition = append(infocard_addition, "")
 					}
 				}
 			}
-
 		}
 
 		var info Infocard
