@@ -55,8 +55,4 @@ hp_gun_type = some_hp_type
 
 	// Write without Dry Run for writing to files modified values back!
 	configs.Write(configs_mapped.IsDruRun(true))
-
-	// Output:
-	// some_gun
-	// some_hp_type
 }
