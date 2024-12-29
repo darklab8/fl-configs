@@ -86,7 +86,7 @@ func (s *Float) Set(value float64) {
 
 	processed_value := inireader.UniParseFloat(value, int(s.precision))
 	if len(s.section.ParamMap[s.key]) == 0 {
-		s.section.AddParamToStart(s.key, (&inireader.Param{IsComment: s.isComment()}).AddValue(processed_value))
+		s.section.AddParamToStart(s.key, (&inireader.Param{IsParamAsComment: s.isComment()}).AddValue(processed_value))
 	}
 	// implement SetValue in Section
 	s.section.ParamMap[s.key][0].First = processed_value
