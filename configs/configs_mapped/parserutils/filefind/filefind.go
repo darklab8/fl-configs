@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
+	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-typelog/typelog"
 
@@ -26,6 +27,18 @@ var FreelancerFolder Filesystem
 func FindConfigs(folderpath utils_types.FilePath) *Filesystem {
 	var filesystem *Filesystem = &Filesystem{}
 	filesystem.Hashmap = make(map[utils_types.FilePath]*file.File)
+
+	if configs_settings.Env.FreelancerFolderFailback != "" && folderpath != configs_settings.Env.FreelancerFolderFailback {
+		fs := FindConfigs(configs_settings.Env.FreelancerFolderFailback)
+		filesystem.Hashmap = fs.Hashmap
+		filesystem.Files = fs.Files
+		for _, file := range filesystem.Files {
+			file.IsFailback = true
+		}
+		for _, file := range filesystem.Hashmap {
+			file.IsFailback = true
+		}
+	}
 
 	err := filepath.WalkDir(string(folderpath), func(path string, d fs.DirEntry, err error) error {
 

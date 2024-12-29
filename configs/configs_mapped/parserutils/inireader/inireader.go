@@ -53,6 +53,18 @@ type Section struct {
 	ParamMap map[string][]*Param
 
 	INIFile *INIFile
+	Comment string
+}
+
+func (s Section) ToString(with_comments WithComments) string {
+	var sb strings.Builder
+	sb.WriteString(string(s.OriginalType))
+
+	if bool(with_comments) && s.Comment != "" {
+		sb.WriteString(fmt.Sprintf(" ; %s", s.Comment))
+	}
+
+	return sb.String()
 }
 
 const (
@@ -141,6 +153,7 @@ type Param struct {
 	Values    []UniValue
 	IsComment bool     // if commented out
 	First     UniValue // denormalization due to very often being needed
+	Comment   string
 }
 
 func (p *Param) AddValue(value UniValue) *Param {
@@ -151,7 +164,13 @@ func (p *Param) AddValue(value UniValue) *Param {
 	return p
 }
 
-func (p Param) ToString() string {
+type WithComments bool
+
+func (p Param) ToString(with_comments WithComments) string {
+
+	if p.IsComment && p.First.AsString() == "" {
+		return ""
+	}
 
 	if p.Key == KEY_COMMENT {
 		return fmt.Sprintf(";%s", string(p.First.(ValueString)))
@@ -172,6 +191,10 @@ func (p Param) ToString() string {
 		} else {
 			sb.WriteString(fmt.Sprintf("%v, ", str_to_write))
 		}
+	}
+
+	if bool(with_comments) && p.Comment != "" {
+		sb.WriteString(fmt.Sprintf(" ; %s", p.Comment))
 	}
 
 	return sb.String()
@@ -263,17 +286,23 @@ func UniParseFloat(input float64, precision int) UniValue {
 var regexNumber *regexp.Regexp
 var regexComment *regexp.Regexp
 var regexSection *regexp.Regexp
-var regexSectionRegExp = `^\x{FEFF}?\[.*\]`
+
+const (
+	optionalComment    = `(?:(?:[ ]*;[ ]*)(.+))?`
+	regexSectionRegExp = `^\x{FEFF}?(\[.*\])` + optionalComment
+	parameterExp       = `(;%|^)[ 	]*([a-zA-Z_][a-zA-Z_0-9]+)\s*=\s*([#+a-zA-Z_, 0-9-.\/\\]+)` + optionalComment
+)
+
 var regexParam *regexp.Regexp
 var regexLetter *regexp.Regexp
 
 func init() {
 	InitRegexExpression(&regexNumber, `^[0-9\-]+(?:\.)?(?:e)?(?:\+)?([0-9\-]*)(?:E[-0-9]+)?$`)
-	InitRegexExpression(&regexComment, `;(.*)`)
+	InitRegexExpression(&regexComment, `;(.*)`) // (?:[ ]+)?(?:;)?(?:[ ]+)?(.*)
 	InitRegexExpression(&regexSection, regexSectionRegExp)
 	InitRegexExpression(&regexLetter, `[a-zA-Z]`)
 	// param or commented out param
-	InitRegexExpression(&regexParam, `(;%|^)[ 	]*([a-zA-Z_][a-zA-Z_0-9]+)\s*=\s*([+a-zA-Z_, 0-9-.\/\\]+)`)
+	InitRegexExpression(&regexParam, parameterExp)
 }
 
 var CASE_SENSETIVE_KEYS = [...]string{"BGCS_base_run_by", "NavMapScale"}
@@ -318,6 +347,9 @@ func Read(fileref *file.File) *INIFile {
 				line_to_read = strings.ReplaceAll(line_to_read, " ", "")
 			}
 			splitted_values := strings.Split(line_to_read, ",")
+			for i, _ := range splitted_values {
+				splitted_values[i] = strings.TrimSpace(splitted_values[i])
+			}
 			first_value, err := UniParse(splitted_values[0])
 			logus.Log.CheckFatal(err, "ini reader, failing to parse line because of UniParse, line="+line, utils_logus.FilePath(fileref.GetFilepath()))
 
@@ -329,20 +361,25 @@ func Read(fileref *file.File) *INIFile {
 				values = append(values, univalue)
 			}
 
-			param := Param{Key: key, First: first_value, Values: values, IsComment: isComment}
+			param := Param{Key: key, First: first_value, Values: values, IsComment: isComment, Comment: param_match[4]}
 			cur_section.AddParam(key, &param)
 		} else if len(section_match) > 0 {
 			cur_section = &Section{
 				INIFile: config,
+				Comment: section_match[2],
 			} // create new
-			cur_section.OriginalType = inireader_types.IniHeader(section_match[0])
+			cur_section.OriginalType = inireader_types.IniHeader(section_match[1])
 			cur_section.Type = inireader_types.IniHeader(strings.ToLower(string(cur_section.OriginalType)))
 			config.AddSection(cur_section.Type, cur_section)
-		} else if len(comment_match) > 0 {
+		} else if len(comment_match) > 0 || line == "" {
+			var comment_value string
+			if len(comment_match) >= 2 {
+				comment_value = comment_match[1]
+			}
 			if cur_section == nil {
-				config.Comments = append(config.Comments, comment_match[1])
+				config.Comments = append(config.Comments, comment_value)
 			} else {
-				comment := UniParseStr(comment_match[1])
+				comment := UniParseStr(comment_value)
 				cur_section.AddParam(KEY_COMMENT, &Param{Key: KEY_COMMENT, First: comment, Values: []UniValue{comment}, IsComment: true})
 			}
 		}
@@ -365,24 +402,20 @@ const KEY_COMMENT string = "00e0fc91e00300ed" // random hash
 func (config INIFile) Write(fileref *file.File) *file.File {
 
 	for _, comment := range config.Comments {
+		if comment == "" {
+			fileref.ScheduleToWrite("")
+			continue
+		}
 		fileref.ScheduleToWrite(fmt.Sprintf(";%s", comment))
 	}
 
-	if len(config.Comments) > 0 {
-		fileref.ScheduleToWrite("")
-	}
-
-	section_length := config.Sections
-	for index, section := range config.Sections {
-		fileref.ScheduleToWrite(string(section.OriginalType))
+	for _, section := range config.Sections {
+		fileref.ScheduleToWrite(section.ToString(WithComments(true)))
 
 		for _, param := range section.Params {
-			fileref.ScheduleToWrite(param.ToString())
+			fileref.ScheduleToWrite(param.ToString(WithComments(true)))
 		}
 
-		if index < len(section_length)-1 {
-			fileref.ScheduleToWrite("")
-		}
 	}
 
 	return fileref

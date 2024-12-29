@@ -35,7 +35,7 @@ func Read(input_file *iniload.IniLoader) *Config {
 
 	if resources, ok := input_file.SectionMap["[resources]"]; ok {
 
-		for dll_index, _ := range resources[0].Params {
+		for dll_index, _ := range resources[0].ParamMap["dll"] {
 			frelconfig.Dlls = append(frelconfig.Dlls,
 				semantic.NewString(resources[0], "dll", semantic.WithoutSpacesS(), semantic.OptsS(semantic.Index(dll_index))),
 			)

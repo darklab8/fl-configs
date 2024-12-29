@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/filefind/file"
 	"github.com/darklab8/fl-configs/configs/tests"
 	"github.com/darklab8/go-utils/utils/utils_os"
 	"github.com/stretchr/testify/assert"
@@ -54,5 +55,69 @@ func TestReadScientificNotation(t *testing.T) {
 	fileref := fs.GetFile("hud.ini")
 	config := Read(fileref)
 
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+}
+
+func TestCommentsHandling(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments.ini")
+	config := Read(fileref)
+
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+
+}
+
+func TestCommentsHandling2(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments2.ini")
+	config := Read(fileref)
+
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+
+}
+
+func TestCommentsHandling3(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments3.ini")
+	config := Read(fileref)
+
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+
+}
+
+func TestCommentsHandling4(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments4.ini")
+	config := Read(fileref)
+
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+
+}
+
+func TestCommentsHandling5(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments5.ini")
+	config := Read(fileref)
+
+	write_file := file.NewFile(utils_os.GetCurrrentTestFolder().Join("comments5_rendered.ini"))
+	config.Write(write_file)
+	write_file.WriteLines()
+	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
+}
+
+func TestCommentsHandling6(t *testing.T) {
+
+	fs := filefind.FindConfigs(utils_os.GetCurrrentTestFolder())
+	fileref := fs.GetFile("comments6.ini")
+	config := Read(fileref)
+
+	write_file := file.NewFile(utils_os.GetCurrrentTestFolder().Join("comments6_rendered.ini"))
+	config.Write(write_file)
+	write_file.WriteLines()
 	assert.Greater(t, len(config.Sections), 0, "expected not zero section")
 }

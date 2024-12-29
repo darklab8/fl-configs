@@ -14,6 +14,7 @@ type ConfEnvVars struct {
 	FallbackInfonamesToNickname bool
 	Strict                      bool
 	FreelancerFolder            utils_types.FilePath
+	FreelancerFolderFailback    utils_types.FilePath
 	MaxCores                    *int
 	IsDisabledTradeRouting      bool
 }
@@ -30,6 +31,7 @@ func GetEnvs(envs *enverant.Enverant) ConfEnvVars {
 		FallbackInfonamesToNickname: envs.GetBool("CONFIGS_FALLBACK_TO_NICKNAMES", enverant.OrBool(false)),
 		Strict:                      envs.GetBool("CONFIGS_STRICT", enverant.OrBool(true)),
 		FreelancerFolder:            getGameLocation(envs),
+		FreelancerFolderFailback:    utils_types.FilePath(envs.GetStrOr("FREELANCER_FOLDER_FAILBACK", "")),
 		MaxCores:                    envs.GetPtrInt("CONFIGS_MAX_CORES"),
 		IsDisabledTradeRouting:      envs.GetBoolOr("CONFIGS_DISABLE_TRADE_ROUTES", false),
 	}

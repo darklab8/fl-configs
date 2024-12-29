@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
 	"github.com/darklab8/fl-configs/configs/configs_settings/logus"
 	"github.com/darklab8/go-utils/utils/utils_logus"
@@ -28,7 +29,7 @@ func Example_extractIniSection() {
 	output.WriteString(fmt.Sprintf("%s\n", string(order_gun_section.OriginalType)))
 
 	for _, param := range order_gun_section.Params {
-		output.WriteString(fmt.Sprintf("%s\n", param.ToString()))
+		output.WriteString(fmt.Sprintf("%s\n", param.ToString(inireader.WithComments(true))))
 	}
 
 	order_munition := configs.Equip.MunitionMap[order_gun.ProjectileArchetype.Get()]
@@ -37,7 +38,7 @@ func Example_extractIniSection() {
 	output.WriteString(fmt.Sprintf("%s\n", string(order_munition_section.OriginalType)))
 
 	for _, param := range order_munition_section.Params {
-		output.WriteString(fmt.Sprintf("%s\n", param.ToString()))
+		output.WriteString(fmt.Sprintf("%s\n", param.ToString(inireader.WithComments(true))))
 	}
 
 	fmt.Println(output.String())
