@@ -37,7 +37,7 @@ func main() {
 				configs.Read(freelancer_folder)
 			}, timeit.WithMsg("read mapping"))
 			timeit.NewTimerF(func() {
-				exported := configs_export.Export(configs)
+				exported := configs_export.Export(configs, configs_export.ExportOptions{})
 
 				// config := exe_mapped.FixtureFLINIConfig()
 				// ids := exe_mapped.GetAllInfocards(filefind.FindConfigs(real_game_loc), config.GetDlls())
