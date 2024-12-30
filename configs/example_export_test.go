@@ -27,7 +27,7 @@ func Example_exportingData() {
 
 	// For elegantly exporting enriched data objects with better type safety for just reading access
 	// it is already combined with multiple configs sources for flstat view
-	exported := configs_export.Export(configs)
+	exported := configs_export.Export(configs, configs_export.ExportOptions{})
 	for _, base := range exported.Bases {
 		// do smth with exported bases
 		fmt.Println(base.Name)

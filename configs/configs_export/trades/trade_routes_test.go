@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/go-utils/utils/ptr"
 	"github.com/darklab8/go-utils/utils/timeit"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,13 @@ import (
 func TestTradeRoutes(t *testing.T) {
 
 	configs := configs_mapped.TestFixtureConfigs()
-	graph := MapConfigsToFGraph(configs, DiscoverySpeeds.AvgTransportCruiseSpeed, WithFreighterPaths(false), make(map[string][]ExtraBase))
+	graph := MapConfigsToFGraph(
+		configs,
+		DiscoverySpeeds.AvgTransportCruiseSpeed,
+		WithFreighterPaths(false),
+		make(map[string][]ExtraBase),
+		MappingOptions{SimplifiedTradeLanesCalc: ptr.Ptr(true)},
+	)
 
 	edges_count := 0
 	for _, edges := range graph.matrix {

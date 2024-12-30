@@ -7,6 +7,7 @@ import (
 
 	"github.com/darklab8/fl-configs/configs/configs_export/trades"
 	"github.com/darklab8/fl-configs/configs/configs_mapped"
+	"github.com/darklab8/go-utils/utils/ptr"
 )
 
 func TestGetTrades(t *testing.T) {
@@ -26,20 +27,21 @@ func TestGetTrades(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
+	graph_options := trades.MappingOptions{SimplifiedTradeLanesCalc: ptr.Ptr(true)}
 
 	wg.Add(1)
 	go func() {
-		e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
+		e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, graph_options)
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
+		e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, graph_options)
 		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
-		e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system)
+		e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system, graph_options)
 		wg.Done()
 	}()
 	e.Bases = e.GetBases()

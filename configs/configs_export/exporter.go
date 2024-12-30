@@ -90,8 +90,15 @@ func NewGraphResults(
 	avgCruiserSpeed int,
 	can_visit_freighter_only_jhs trades.WithFreighterPaths,
 	mining_bases_by_system map[string][]trades.ExtraBase,
+	graph_options trades.MappingOptions,
 ) *GraphResults {
-	graph := trades.MapConfigsToFGraph(e.configs, avgCruiserSpeed, can_visit_freighter_only_jhs, mining_bases_by_system)
+	graph := trades.MapConfigsToFGraph(
+		e.configs,
+		avgCruiserSpeed,
+		can_visit_freighter_only_jhs,
+		mining_bases_by_system,
+		graph_options,
+	)
 	dijkstra_apsp := trades.NewDijkstraApspFromGraph(graph)
 	dists, parents := dijkstra_apsp.DijkstraApsp()
 
@@ -103,7 +110,11 @@ func NewGraphResults(
 	}
 }
 
-func (e *Exporter) Export() *Exporter {
+type ExportOptions struct {
+	trades.MappingOptions
+}
+
+func (e *Exporter) Export(options ExportOptions) *Exporter {
 	var wg sync.WaitGroup
 
 	e.Bases = e.GetBases()
@@ -135,19 +146,20 @@ func (e *Exporter) Export() *Exporter {
 	}
 
 	if !configs_settings.Env.IsDisabledTradeRouting {
+
 		wg.Add(1)
 		go func() {
-			e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
+			e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, options.MappingOptions)
 			wg.Done()
 		}()
 		wg.Add(1)
 		go func() {
-			e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system)
+			e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system, options.MappingOptions)
 			wg.Done()
 		}()
 		wg.Add(1)
 		go func() {
-			e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system)
+			e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, options.MappingOptions)
 			wg.Done()
 		}()
 	}
@@ -259,8 +271,8 @@ func (e *Exporter) EnhanceBasesWithIsTransportReachable(
 	}
 }
 
-func Export(configs *configs_mapped.MappedConfigs) *Exporter {
-	return NewExporter(configs).Export()
+func Export(configs *configs_mapped.MappedConfigs, options ExportOptions) *Exporter {
+	return NewExporter(configs).Export(options)
 }
 
 func Empty(phrase string) bool {

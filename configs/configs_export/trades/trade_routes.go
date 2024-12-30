@@ -9,6 +9,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/universe_mapped/systems_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_settings"
+	"github.com/darklab8/go-utils/utils/ptr"
 )
 
 type SystemObject struct {
@@ -102,12 +103,20 @@ And on click we show proffits of delivery to some location. With time of deliver
 ====
 Optionally print sum of two best routes that can be started within close range from each other.
 */
+type MappingOptions struct {
+	SimplifiedTradeLanesCalc *bool
+}
+
 func MapConfigsToFGraph(
 	configs *configs_mapped.MappedConfigs,
 	avgCruiseSpeed int,
 	with_freighter_paths WithFreighterPaths,
 	extra_bases_by_system map[string][]ExtraBase,
+	opts MappingOptions,
 ) *GameGraph {
+	if opts.SimplifiedTradeLanesCalc == nil {
+		opts.SimplifiedTradeLanesCalc = ptr.Ptr(configs_settings.Env.SimplifiedTradeRoutesCalc)
+	}
 	average_trade_lane_speed := configs.GetAvgTradeLaneSpeed()
 
 	graph := NewGameGraph(avgCruiseSpeed, with_freighter_paths)
@@ -277,7 +286,7 @@ func MapConfigsToFGraph(
 			next_tradelane, next_exists := tradelane.NextRing.GetValue()
 			prev_tradelane, prev_exists := tradelane.PrevRing.GetValue()
 
-			if configs_settings.Env.IsDevEnv {
+			if *opts.SimplifiedTradeLanesCalc {
 				// for dev env purposes to speed up test execution, we treat tradelanes as single entity
 				if next_exists && prev_exists {
 					continue
