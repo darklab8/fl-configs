@@ -66,7 +66,7 @@ type System struct {
 	// Pos        *semantic.Pos
 	Msg_id_prefix *semantic.String
 	Visit         *semantic.Int
-	Strid_name    *semantic.Int
+	StridName     *semantic.Int
 	Ids_info      *semantic.Int
 	File          *semantic.Path
 	NavMapScale   *semantic.Float
@@ -191,7 +191,7 @@ func Read(ini *iniload.IniLoader, filesystem *filefind.Filesystem) *Config {
 			system_to_add.Map(system)
 
 			system_to_add.Visit = semantic.NewInt(system, KEY_SYSTEM_VISIT, semantic.Optional())
-			system_to_add.Strid_name = semantic.NewInt(system, KEY_STRIDNAME, semantic.Optional())
+			system_to_add.StridName = semantic.NewInt(system, KEY_STRIDNAME, semantic.Optional())
 			system_to_add.Ids_info = semantic.NewInt(system, KEY_SYSTEM_IDS_INFO, semantic.Optional())
 			system_to_add.Nickname = semantic.NewString(system, KEY_NICKNAME, semantic.WithLowercaseS(), semantic.WithoutSpacesS())
 			system_to_add.File = semantic.NewPath(system, KEY_FILE, semantic.WithLowercaseP())

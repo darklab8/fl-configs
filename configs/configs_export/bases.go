@@ -44,7 +44,7 @@ func (e *Exporter) GetBases() []*Base {
 
 		if found_system {
 
-			system_name = infocard.Infoname(e.GetInfocardName(system.Strid_name.Get(), system.Nickname.Get()))
+			system_name = infocard.Infoname(e.GetInfocardName(system.StridName.Get(), system.Nickname.Get()))
 
 			Region = e.GetRegionName(system)
 		}

@@ -60,6 +60,7 @@ type Exporter struct {
 	CMs          []CounterMeasure
 	Scanners     []Scanner
 	Ammos        []Ammo
+	PoBs         []PoB
 }
 
 type OptExport func(e *Exporter)
@@ -207,6 +208,9 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
 	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 	e.Bases = e.EnhanceBasesWithLoot(e.Bases)
+	if e.configs.Discovery != nil {
+		e.PoBs = e.GetPoBs()
+	}
 
 	return e
 }

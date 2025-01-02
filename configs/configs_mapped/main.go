@@ -42,6 +42,7 @@ import (
 	"github.com/darklab8/fl-configs/configs/discovery/base_recipe_items"
 	"github.com/darklab8/fl-configs/configs/discovery/discoprices"
 	"github.com/darklab8/fl-configs/configs/discovery/playercntl_rephacks"
+	"github.com/darklab8/fl-configs/configs/discovery/pob_goods"
 	"github.com/darklab8/fl-configs/configs/discovery/techcompat"
 
 	"github.com/darklab8/go-utils/utils"
@@ -60,6 +61,7 @@ type DiscoveryConfig struct {
 	BaseRecipeItems    *base_recipe_items.Config
 	LatestPatch        autopatcher.Patch
 	PlayercntlRephacks *playercntl_rephacks.Config
+	PlayerOwnedBases   *pob_goods.Config
 }
 
 type MappedConfigs struct {
@@ -331,6 +333,8 @@ func (p *MappedConfigs) Read(file1path utils_types.FilePath) *MappedConfigs {
 				p.Discovery.PlayercntlRephacks = playercntl_rephacks.Read(file_playercntl_rephacks)
 				wg.Done()
 			}()
+			file_public_bases := file.NewWebFile("https://discoverygc.com/forums/base_admin.php?action=getjson")
+			p.Discovery.PlayerOwnedBases = pob_goods.Read(file_public_bases)
 		}
 		wg.Wait()
 	}, timeit.WithMsg("Mapped stuff"))

@@ -269,7 +269,7 @@ func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseI
 
 	system, system_ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(system_nickname)]
 	if system_ok {
-		result.SystemName = e.GetInfocardName(system.Strid_name.Get(), system_nickname)
+		result.SystemName = e.GetInfocardName(system.StridName.Get(), system_nickname)
 		result.Region = e.GetRegionName(system)
 	}
 
