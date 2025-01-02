@@ -10,8 +10,9 @@ import (
 func TestPobGoods(t *testing.T) {
 	configs := configs_mapped.TestFixtureConfigs()
 	exporter := NewExporter(configs)
-	if configs.Discovery != nil {
-		items := exporter.GetPoBs()
-		assert.Greater(t, len(items), 0)
+	if configs.Discovery == nil {
+		return
 	}
+	items := exporter.GetPoBs()
+	assert.Greater(t, len(items), 0)
 }
