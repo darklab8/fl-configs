@@ -118,6 +118,12 @@ func (e *Exporter) GetPoBs() []PoB {
 			pob.ShopItems = append(pob.ShopItems, good)
 		}
 
+		var sb []string
+		sb = append(sb, `This is Player Owned Base`)
+		sb = append(sb, `infocard placeholder`)
+
+		e.Infocards[InfocardKey(pob.Nickname)] = sb
+
 		pobs = append(pobs, pob)
 	}
 	return pobs
