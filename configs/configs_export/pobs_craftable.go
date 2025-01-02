@@ -9,30 +9,28 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/parserutils/inireader"
 )
 
-var craftable_cached map[string]bool
-
 func (e *Exporter) pob_produced() map[string]bool {
-	if craftable_cached != nil {
-		return craftable_cached
+	if e.craftable_cached != nil {
+		return e.craftable_cached
 	}
 
-	craftable_cached = make(map[string]bool)
+	e.craftable_cached = make(map[string]bool)
 
 	if e.configs.Discovery != nil {
 		for _, recipe := range e.configs.Discovery.BaseRecipeItems.Recipes {
 			for _, produced := range recipe.ProcucedItem {
-				craftable_cached[produced.Get()] = true
+				e.craftable_cached[produced.Get()] = true
 			}
 		}
 	}
 
 	if e.configs.FLSR != nil {
 		for _, recipe := range e.configs.FLSR.FLSRRecipes.Products {
-			craftable_cached[recipe.Product.Get()] = true
+			e.craftable_cached[recipe.Product.Get()] = true
 		}
 	}
 
-	return craftable_cached
+	return e.craftable_cached
 }
 
 const (

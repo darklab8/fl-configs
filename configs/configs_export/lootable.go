@@ -7,21 +7,19 @@ import (
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
 )
 
-var findable_in_loot map[string]bool
-
 func (e *Exporter) findable_in_loot() map[string]bool {
-	if findable_in_loot != nil {
-		return findable_in_loot
+	if e.findable_in_loot_cache != nil {
+		return e.findable_in_loot_cache
 	}
 
-	findable_in_loot = make(map[string]bool)
+	e.findable_in_loot_cache = make(map[string]bool)
 
 	for _, system := range e.configs.Systems.Systems {
 		for _, wreck := range system.Wrecks {
 			louadout_nickname := wreck.Loadout.Get()
 			if loadout, ok := e.configs.Loadouts.LoadoutsByNick[louadout_nickname]; ok {
 				for _, cargo := range loadout.Cargos {
-					findable_in_loot[cargo.Nickname.Get()] = true
+					e.findable_in_loot_cache[cargo.Nickname.Get()] = true
 				}
 			}
 		}
@@ -31,11 +29,11 @@ func (e *Exporter) findable_in_loot() map[string]bool {
 		loadout_nickname := npc_arch.Loadout.Get()
 		if loadout, ok := e.configs.Loadouts.LoadoutsByNick[loadout_nickname]; ok {
 			for _, cargo := range loadout.Cargos {
-				findable_in_loot[cargo.Nickname.Get()] = true
+				e.findable_in_loot_cache[cargo.Nickname.Get()] = true
 			}
 		}
 	}
-	return findable_in_loot
+	return e.findable_in_loot_cache
 }
 
 /*

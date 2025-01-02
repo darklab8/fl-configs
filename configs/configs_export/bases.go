@@ -138,6 +138,9 @@ func EnhanceBasesWithServerOverrides(bases []*Base, commodities []*Commodity) {
 			if base_location.BaseNickname == pob_crafts_nickname || base_location.BaseNickname == BaseLootableNickname {
 				continue
 			}
+			if base_location.IsServerSideOverride {
+				continue
+			}
 
 			var market_good MarketGood
 			commodity_key := GetCommodityKey(commodity.Nickname, commodity.ShipClass)

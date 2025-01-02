@@ -236,8 +236,37 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 				FactionName: BaseLootableFaction,
 			},
 		}
-		goods_per_base[pob_crafts_nickname] = good_to_add
+		goods_per_base[BaseLootableNickname] = good_to_add
 
+	}
+
+	if e.configs.Discovery != nil {
+		pob_buyable := e.get_pob_buyable()
+		if goods, ok := pob_buyable[commodity.Nickname]; ok {
+			for _, good := range goods {
+				good_to_add := &GoodAtBase{
+					BaseNickname:         cfgtype.BaseUniNick(good.PobNickname),
+					BaseSells:            good.Quantity > good.MinStock,
+					IsServerSideOverride: true,
+					PriceBaseBuysFor:     good.Price,
+					PriceBaseSellsFor:    good.SellPrice,
+					BaseInfo: BaseInfo{
+						BaseName:    "(PoB) " + good.PoBName,
+						SystemName:  good.SystemName,
+						FactionName: good.FactionName,
+					},
+				}
+
+				if good.System != nil {
+					good_to_add.BaseInfo.Region = e.GetRegionName(good.System)
+				}
+				if good.BasePos != nil && good.System != nil {
+					good_to_add.BasePos = *good.BasePos
+					good_to_add.SectorCoord = VectorToSectorCoord(good.System, *good.BasePos)
+				}
+				goods_per_base[cfgtype.BaseUniNick(good.PobNickname)] = good_to_add
+			}
+		}
 	}
 
 	return goods_per_base

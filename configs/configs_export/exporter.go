@@ -61,6 +61,10 @@ type Exporter struct {
 	Scanners     []Scanner
 	Ammos        []Ammo
 	PoBs         []PoB
+
+	findable_in_loot_cache map[string]bool
+	craftable_cached       map[string]bool
+	pob_buyable_cache      map[string][]*PobShopItem
 }
 
 type OptExport func(e *Exporter)
