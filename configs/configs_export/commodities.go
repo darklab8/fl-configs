@@ -248,8 +248,8 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 					BaseNickname:         cfgtype.BaseUniNick(good.PobNickname),
 					BaseSells:            good.Quantity > good.MinStock,
 					IsServerSideOverride: true,
-					PriceBaseBuysFor:     good.Price,
-					PriceBaseSellsFor:    good.SellPrice,
+					PriceBaseBuysFor:     good.SellPrice,
+					PriceBaseSellsFor:    good.Price,
 					BaseInfo: BaseInfo{
 						BaseName:    "(PoB) " + good.PoBName,
 						SystemName:  good.SystemName,
