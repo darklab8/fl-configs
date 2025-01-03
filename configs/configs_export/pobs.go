@@ -55,6 +55,10 @@ type PoB struct {
 	FactionNick *string
 	FactionName *string // AffiliationHash *flhash.HashCode `json:"affiliation"` //: 2620,
 
+	BasePos     *cfgtype.Vector
+	SectorCoord *string
+	Region      *string
+
 	ShopItems []ShopItem
 }
 
@@ -101,13 +105,21 @@ func (e *Exporter) GetPoBs() []PoB {
 		if pob_info.DefenseMode != nil {
 			pob.DefenseMode = (*DefenseMode)(pob_info.DefenseMode)
 		}
-
+		if pob_info.Pos != nil {
+			pob.BasePos = StrPosToVectorPos(*pob_info.Pos)
+		}
 		if pob_info.SystemHash != nil {
 			if system, ok := systems_by_hash[*pob_info.SystemHash]; ok {
 				pob.SystemNick = ptr.Ptr(system.Nickname.Get())
 				pob.SystemName = ptr.Ptr(e.GetInfocardName(system.StridName.Get(), system.Nickname.Get()))
+
+				pob.Region = ptr.Ptr(e.GetRegionName(system))
+				if pob.BasePos != nil {
+					pob.SectorCoord = ptr.Ptr(VectorToSectorCoord(system, *pob.BasePos))
+				}
 			}
 		}
+
 		if pob_info.AffiliationHash != nil {
 			if faction, ok := factions_by_hash[*pob_info.AffiliationHash]; ok {
 				pob.FactionNick = ptr.Ptr(faction.Nickname.Get())
@@ -236,19 +248,23 @@ func (e *Exporter) get_pob_buyable() map[string][]*PobShopItem {
 			}
 
 			if pob_info.Pos != nil {
-				coords := strings.Split(*pob_info.Pos, ",")
-				x, err1 := strconv.ParseFloat(strings.ReplaceAll(coords[0], " ", ""), 64)
-				y, err2 := strconv.ParseFloat(strings.ReplaceAll(coords[1], " ", ""), 64)
-				z, err3 := strconv.ParseFloat(strings.ReplaceAll(coords[2], " ", ""), 64)
-				logus.Log.CheckPanic(err1, "failed parsing x coord", typelog.Any("pos", *pob_info.Pos))
-				logus.Log.CheckPanic(err2, "failed parsing y coord", typelog.Any("pos", *pob_info.Pos))
-				logus.Log.CheckPanic(err3, "failed parsing z coord", typelog.Any("pos", *pob_info.Pos))
-
-				pob_item.BasePos = &cfgtype.Vector{X: x, Y: y, Z: z}
+				pob_item.BasePos = StrPosToVectorPos(*pob_info.Pos)
 			}
 
 			e.pob_buyable_cache[good.Nickname] = append(e.pob_buyable_cache[good.Nickname], pob_item)
 		}
 	}
 	return e.pob_buyable_cache
+}
+
+func StrPosToVectorPos(value string) *cfgtype.Vector {
+	coords := strings.Split(value, ",")
+	x, err1 := strconv.ParseFloat(strings.ReplaceAll(coords[0], " ", ""), 64)
+	y, err2 := strconv.ParseFloat(strings.ReplaceAll(coords[1], " ", ""), 64)
+	z, err3 := strconv.ParseFloat(strings.ReplaceAll(coords[2], " ", ""), 64)
+	logus.Log.CheckPanic(err1, "failed parsing x coord", typelog.Any("pos", value))
+	logus.Log.CheckPanic(err2, "failed parsing y coord", typelog.Any("pos", value))
+	logus.Log.CheckPanic(err3, "failed parsing z coord", typelog.Any("pos", value))
+
+	return &cfgtype.Vector{X: x, Y: y, Z: z}
 }
