@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
+	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/equipment_mapped/equip_mapped"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld"
 	"github.com/darklab8/fl-configs/configs/configs_mapped/freelancer_mapped/data_mapped/initialworld/flhash"
@@ -80,6 +81,13 @@ func (e *Exporter) GetPoBs() []PoB {
 		e.exportInfocards(InfocardKey(nickname), item.IdsInfo.Get())
 	}
 
+	ships_by_hash := make(map[flhash.HashCode]*equipment_mapped.Ship)
+	for _, item := range e.configs.Goods.Ships {
+		nickname := item.Nickname.Get()
+		hash := flhash.HashNickname(nickname)
+		ships_by_hash[hash] = item
+	}
+
 	for _, pob_info := range e.configs.Discovery.PlayerOwnedBases.Bases {
 
 		var pob PoB = PoB{
@@ -114,6 +122,17 @@ func (e *Exporter) GetPoBs() []PoB {
 				good.Nickname = item.Nickname.Get()
 				good.Name = e.GetInfocardName(item.IdsName.Get(), item.Nickname.Get())
 				good.Category = item.Category
+			} else {
+				if ship, ok := ships_by_hash[flhash.HashCode(shop_item.Id)]; ok {
+					ship_hull := e.configs.Goods.ShipHullsMap[ship.Hull.Get()]
+					ship_nickname := ship_hull.Ship.Get()
+					shiparch := e.configs.Shiparch.ShipsMap[ship_nickname]
+					good.Nickname = ship_nickname
+					good.Category = "ship"
+					good.Name = e.GetInfocardName(shiparch.IdsName.Get(), ship_nickname)
+				} else {
+					logus.Log.Warn("unidentified shop item", typelog.Any("shop_item.Id", shop_item.Id))
+				}
 			}
 
 			pob.ShopItems = append(pob.ShopItems, good)
@@ -170,6 +189,12 @@ func (e *Exporter) get_pob_buyable() map[string][]*PobShopItem {
 		goods_by_hash[hash] = item
 		e.exportInfocards(InfocardKey(nickname), item.IdsInfo.Get())
 	}
+	ships_by_hash := make(map[flhash.HashCode]*equipment_mapped.Ship)
+	for _, item := range e.configs.Goods.Ships {
+		nickname := item.Nickname.Get()
+		hash := flhash.HashNickname(nickname)
+		ships_by_hash[hash] = item
+	}
 
 	for _, pob_info := range e.configs.Discovery.PlayerOwnedBases.Bases {
 		for _, shop_item := range pob_info.ShopItems {
@@ -178,8 +203,18 @@ func (e *Exporter) get_pob_buyable() map[string][]*PobShopItem {
 				good.Nickname = item.Nickname.Get()
 				good.Name = e.GetInfocardName(item.IdsName.Get(), item.Nickname.Get())
 				good.Category = item.Category
+			} else {
+				if ship, ok := ships_by_hash[flhash.HashCode(shop_item.Id)]; ok {
+					ship_hull := e.configs.Goods.ShipHullsMap[ship.Hull.Get()]
+					ship_nickname := ship_hull.Ship.Get()
+					shiparch := e.configs.Shiparch.ShipsMap[ship_nickname]
+					good.Nickname = ship_nickname
+					good.Category = "ship"
+					good.Name = e.GetInfocardName(shiparch.IdsName.Get(), ship_nickname)
+				} else {
+					logus.Log.Warn("unidentified shop item", typelog.Any("shop_item.Id", shop_item.Id))
+				}
 			}
-
 			pob_item := &PobShopItem{
 				ShopItem:    good,
 				PobNickname: pob_info.Nickname,
