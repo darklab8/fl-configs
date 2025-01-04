@@ -37,22 +37,11 @@ const (
 	pob_crafts_nickname = "crafts"
 )
 
-func (e *Exporter) CraftableBaseName() string {
-	if e.configs.Discovery != nil {
-		return "PoB crafts"
-	}
-	if e.configs.FLSR != nil {
-		return "Craftable"
-	}
-
-	return "NoCrafts"
-}
-
 func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 	pob_produced := e.pob_produced()
 
 	base := &Base{
-		Name:               e.CraftableBaseName(),
+		Name:               e.configs.CraftableBaseName(),
 		MarketGoodsPerNick: make(map[CommodityKey]MarketGood),
 		Nickname:           cfgtype.BaseUniNick(pob_crafts_nickname),
 		Infocard:           InfocardKey(pob_crafts_nickname),

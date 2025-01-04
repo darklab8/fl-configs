@@ -212,7 +212,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 				BaseSells:            true,
 				IsServerSideOverride: true,
 				BaseInfo: BaseInfo{
-					BaseName:    e.CraftableBaseName(),
+					BaseName:    e.configs.CraftableBaseName(),
 					SystemName:  "Neverwhere",
 					Region:      "Neverwhere",
 					FactionName: "Neverwhere",

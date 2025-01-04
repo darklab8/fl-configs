@@ -18,6 +18,13 @@ type ShopItem struct {
 	MaxStock  int `json:"max_stock"`
 }
 
+func (good ShopItem) BaseSells() bool {
+	return good.Quantity > good.MinStock
+}
+func (good ShopItem) BaseBuys() bool {
+	return good.Quantity < good.MaxStock
+}
+
 type Base struct {
 	Name      string
 	Nickname  string

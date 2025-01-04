@@ -60,7 +60,8 @@ type Exporter struct {
 	CMs          []CounterMeasure
 	Scanners     []Scanner
 	Ammos        []Ammo
-	PoBs         []PoB
+	PoBs         []*PoB
+	PoBGoods     []*PoBGood
 
 	findable_in_loot_cache map[string]bool
 	craftable_cached       map[string]bool
@@ -214,6 +215,7 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	e.Bases = e.EnhanceBasesWithLoot(e.Bases)
 	if e.configs.Discovery != nil {
 		e.PoBs = e.GetPoBs()
+		e.PoBGoods = e.GetPoBGoods(e.PoBs)
 	}
 
 	return e

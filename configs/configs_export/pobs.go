@@ -59,11 +59,86 @@ type PoB struct {
 	SectorCoord *string
 	Region      *string
 
-	ShopItems []ShopItem
+	ShopItems []*ShopItem
 }
 
-func (e *Exporter) GetPoBs() []PoB {
-	var pobs []PoB
+type PoBGood struct {
+	Nickname              string
+	Name                  string
+	TotalBuyableFromBases int
+	TotalSellableToBases  int
+
+	BestPriceToBuy  *int
+	BestPriceToSell *int
+
+	Category string
+	Bases    []*PoBGoodBase
+
+	AnyBaseSells bool
+	AnyBaseBuys  bool
+}
+
+func (good PoBGood) BaseSells() bool { return good.AnyBaseSells }
+func (good PoBGood) BaseBuys() bool  { return good.AnyBaseBuys }
+
+type PoBGoodBase struct {
+	ShopItem *ShopItem
+	Base     *PoB
+}
+
+func (e *Exporter) GetPoBGoods(pobs []*PoB) []*PoBGood {
+	pobs_goods_by_nick := make(map[string]*PoBGood)
+	var pob_goods []*PoBGood
+
+	for _, pob := range pobs {
+		for _, good := range pob.ShopItems {
+			pob_good, found_good := pobs_goods_by_nick[good.Nickname]
+			if !found_good {
+				pob_good = &PoBGood{
+					Nickname: good.Nickname,
+					Name:     good.Name,
+					Category: good.Category,
+				}
+				pobs_goods_by_nick[good.Nickname] = pob_good
+			}
+			pob_good.Bases = append(pob_good.Bases, &PoBGoodBase{Base: pob, ShopItem: good})
+		}
+	}
+
+	for _, item := range pobs_goods_by_nick {
+		for _, pob := range item.Bases {
+			if pob.ShopItem.BaseSells() {
+				item.AnyBaseSells = true
+				item.TotalBuyableFromBases += pob.ShopItem.Quantity
+
+				if item.BestPriceToBuy == nil {
+					item.BestPriceToBuy = ptr.Ptr(pob.ShopItem.Price)
+				}
+				if pob.ShopItem.Price < *item.BestPriceToBuy {
+					item.BestPriceToBuy = ptr.Ptr(pob.ShopItem.Price)
+				}
+			}
+			if pob.ShopItem.BaseBuys() {
+				item.AnyBaseBuys = true
+				item.TotalSellableToBases += pob.ShopItem.Quantity
+
+				if item.BestPriceToSell == nil {
+					item.BestPriceToSell = ptr.Ptr(pob.ShopItem.SellPrice)
+				}
+				if pob.ShopItem.SellPrice > *item.BestPriceToSell {
+					item.BestPriceToSell = ptr.Ptr(pob.ShopItem.SellPrice)
+				}
+			}
+		}
+
+		pob_goods = append(pob_goods, item)
+	}
+
+	return pob_goods
+}
+
+func (e *Exporter) GetPoBs() []*PoB {
+	var pobs []*PoB
 
 	systems_by_hash := make(map[flhash.HashCode]*universe_mapped.System)
 	factions_by_hash := make(map[flhash.HashCode]*initialworld.Group)
@@ -94,7 +169,7 @@ func (e *Exporter) GetPoBs() []PoB {
 
 	for _, pob_info := range e.configs.Discovery.PlayerOwnedBases.Bases {
 
-		var pob PoB = PoB{
+		var pob *PoB = &PoB{
 			Nickname: pob_info.Nickname,
 			Name:     pob_info.Name,
 			Pos:      pob_info.Pos,
@@ -128,7 +203,7 @@ func (e *Exporter) GetPoBs() []PoB {
 		}
 
 		for _, shop_item := range pob_info.ShopItems {
-			var good ShopItem = ShopItem{ShopItem: shop_item}
+			good := &ShopItem{ShopItem: shop_item}
 
 			if item, ok := goods_by_hash[flhash.HashCode(shop_item.Id)]; ok {
 				good.Nickname = item.Nickname.Get()
