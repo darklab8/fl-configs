@@ -109,7 +109,7 @@ func (e *Exporter) GetPoBGoods(pobs []*PoB) []*PoBGood {
 		for _, pob := range item.Bases {
 			if pob.ShopItem.BaseSells() {
 				item.AnyBaseSells = true
-				item.TotalBuyableFromBases += pob.ShopItem.Quantity
+				item.TotalBuyableFromBases += pob.ShopItem.Quantity - pob.ShopItem.MinStock
 
 				if item.BestPriceToBuy == nil {
 					item.BestPriceToBuy = ptr.Ptr(pob.ShopItem.Price)
@@ -120,7 +120,7 @@ func (e *Exporter) GetPoBGoods(pobs []*PoB) []*PoBGood {
 			}
 			if pob.ShopItem.BaseBuys() {
 				item.AnyBaseBuys = true
-				item.TotalSellableToBases += pob.ShopItem.Quantity
+				item.TotalSellableToBases += pob.ShopItem.MaxStock - pob.ShopItem.Quantity
 
 				if item.BestPriceToSell == nil {
 					item.BestPriceToSell = ptr.Ptr(pob.ShopItem.SellPrice)
