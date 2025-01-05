@@ -54,9 +54,9 @@ func GetPricePerVoume(price int, volume float64) float64 {
 func (e *Exporter) GetCommodities() []*Commodity {
 	commodities := make([]*Commodity, 0, 100)
 
-	for _, comm := range e.configs.Goods.Commodities {
+	for _, comm := range e.Configs.Goods.Commodities {
 		equipment_name := comm.Equipment.Get()
-		equipment := e.configs.Equip.CommoditiesMap[equipment_name]
+		equipment := e.Configs.Equip.CommoditiesMap[equipment_name]
 
 		for _, volume_info := range equipment.Volumes {
 			commodity := &Commodity{
@@ -123,7 +123,7 @@ type GetCommodityAtBasesInput struct {
 func (e *Exporter) ServerSideMarketGoodsOverrides(commodity GetCommodityAtBasesInput) map[cfgtype.BaseUniNick]*GoodAtBase {
 	var bases_already_found map[cfgtype.BaseUniNick]*GoodAtBase = make(map[cfgtype.BaseUniNick]*GoodAtBase)
 
-	for _, base_market := range e.configs.Discovery.Prices.BasesPerGood[commodity.Nickname] {
+	for _, base_market := range e.Configs.Discovery.Prices.BasesPerGood[commodity.Nickname] {
 		var base_info *GoodAtBase
 		base_nickname := cfgtype.BaseUniNick(base_market.BaseNickname.Get())
 
@@ -163,7 +163,7 @@ func (e *Exporter) ServerSideMarketGoodsOverrides(commodity GetCommodityAtBasesI
 func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtype.BaseUniNick]*GoodAtBase {
 	var goods_per_base map[cfgtype.BaseUniNick]*GoodAtBase = make(map[cfgtype.BaseUniNick]*GoodAtBase)
 
-	for _, base_market := range e.configs.Market.BasesPerGood[commodity.Nickname] {
+	for _, base_market := range e.Configs.Market.BasesPerGood[commodity.Nickname] {
 		base_nickname := base_market.Base
 
 		market_good := base_market.MarketGood
@@ -177,7 +177,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 
 		base_info.PriceBaseSellsFor = int(market_good.PriceModifier.Get() * float64(commodity.Price))
 
-		if e.configs.Discovery != nil {
+		if e.Configs.Discovery != nil {
 			base_info.PriceBaseBuysFor = market_good.BaseSellsIPositiveAndDiscoSellPrice.Get()
 		} else {
 			base_info.PriceBaseBuysFor = base_info.PriceBaseSellsFor
@@ -197,14 +197,14 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 		goods_per_base[base_info.BaseNickname] = base_info
 	}
 
-	if e.configs.Discovery != nil {
+	if e.Configs.Discovery != nil {
 		serverside_overrides := e.ServerSideMarketGoodsOverrides(commodity)
 		for _, item := range serverside_overrides {
 			goods_per_base[item.BaseNickname] = item
 		}
 
 	}
-	if e.configs.Discovery != nil || e.configs.FLSR != nil {
+	if e.Configs.Discovery != nil || e.Configs.FLSR != nil {
 		pob_produced := e.pob_produced()
 		if _, ok := pob_produced[commodity.Nickname]; ok {
 			good_to_add := &GoodAtBase{
@@ -212,7 +212,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 				BaseSells:            true,
 				IsServerSideOverride: true,
 				BaseInfo: BaseInfo{
-					BaseName:    e.configs.CraftableBaseName(),
+					BaseName:    e.Configs.CraftableBaseName(),
 					SystemName:  "Neverwhere",
 					Region:      "Neverwhere",
 					FactionName: "Neverwhere",
@@ -240,7 +240,7 @@ func (e *Exporter) GetAtBasesSold(commodity GetCommodityAtBasesInput) map[cfgtyp
 
 	}
 
-	if e.configs.Discovery != nil {
+	if e.Configs.Discovery != nil {
 		pob_buyable := e.get_pob_buyable()
 		if goods, ok := pob_buyable[commodity.Nickname]; ok {
 			for _, good := range goods {
@@ -282,12 +282,12 @@ type BaseInfo struct {
 }
 
 func (e *Exporter) GetRegionName(system *universe_mapped.System) string {
-	return e.configs.GetRegionName(system)
+	return e.Configs.GetRegionName(system)
 }
 
 func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseInfo {
 	var result BaseInfo
-	universe_base, found_universe_base := e.configs.Universe.BasesMap[universe_mapped.BaseNickname(base_nickname)]
+	universe_base, found_universe_base := e.Configs.Universe.BasesMap[universe_mapped.BaseNickname(base_nickname)]
 
 	if !found_universe_base {
 		return result
@@ -296,14 +296,14 @@ func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseI
 	result.BaseName = e.GetInfocardName(universe_base.StridName.Get(), string(base_nickname))
 	system_nickname := universe_base.System.Get()
 
-	system, system_ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(system_nickname)]
+	system, system_ok := e.Configs.Universe.SystemMap[universe_mapped.SystemNickname(system_nickname)]
 	if system_ok {
 		result.SystemName = e.GetInfocardName(system.StridName.Get(), system_nickname)
 		result.Region = e.GetRegionName(system)
 	}
 
 	var reputation_nickname string
-	if system, ok := e.configs.Systems.SystemsMap[universe_base.System.Get()]; ok {
+	if system, ok := e.Configs.Systems.SystemsMap[universe_base.System.Get()]; ok {
 		for _, system_base := range system.Bases {
 			if system_base.IdsName.Get() != universe_base.StridName.Get() {
 				continue
@@ -318,7 +318,7 @@ func (e *Exporter) GetBaseInfo(base_nickname universe_mapped.BaseNickname) BaseI
 	result.SectorCoord = VectorToSectorCoord(system, result.BasePos)
 
 	var factionName string
-	if group, exists := e.configs.InitialWorld.GroupsMap[reputation_nickname]; exists {
+	if group, exists := e.Configs.InitialWorld.GroupsMap[reputation_nickname]; exists {
 		factionName = e.GetInfocardName(group.IdsName.Get(), reputation_nickname)
 	}
 

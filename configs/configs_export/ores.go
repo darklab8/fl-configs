@@ -27,9 +27,9 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 		comm_by_nick[GetCommodityKey(comm.Nickname, comm.ShipClass)] = comm
 	}
 
-	for _, system := range e.configs.Systems.Systems {
+	for _, system := range e.Configs.Systems.Systems {
 
-		system_uni, system_uni_ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(system.Nickname)]
+		system_uni, system_uni_ok := e.Configs.Universe.SystemMap[universe_mapped.SystemNickname(system.Nickname)]
 
 		for _, asteroids := range system.Asteroids {
 
@@ -78,7 +78,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			base.SystemNickname = system.Nickname
 			base.SystemNicknameHash = flhash.HashNickname(base.SystemNickname)
-			if system, ok := e.configs.Universe.SystemMap[universe_mapped.SystemNickname(base.SystemNickname)]; ok {
+			if system, ok := e.Configs.Universe.SystemMap[universe_mapped.SystemNickname(base.SystemNickname)]; ok {
 				base.System = e.GetInfocardName(system.StridName.Get(), base.SystemNickname)
 				base.Region = e.GetRegionName(system)
 				base.SectorCoord = VectorToSectorCoord(system_uni, base.Pos)
@@ -86,7 +86,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			logus.Log.Debug("GetOres", typelog.String("commodity=", commodity))
 
-			equipment := e.configs.Equip.CommoditiesMap[commodity]
+			equipment := e.Configs.Equip.CommoditiesMap[commodity]
 			for _, volume_info := range equipment.Volumes {
 
 				market_good := MarketGood{
@@ -101,7 +101,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 					Type:          "commodity",
 				}
 
-				if equipment, ok := e.configs.Equip.CommoditiesMap[commodity]; ok {
+				if equipment, ok := e.Configs.Equip.CommoditiesMap[commodity]; ok {
 					market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 				}
 				base.Name = market_good.Name
@@ -135,16 +135,16 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 
 			}
 
-			if e.configs.Discovery != nil {
+			if e.Configs.Discovery != nil {
 
-				if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerConsumed[commodity]; ok {
+				if recipes, ok := e.Configs.Discovery.BaseRecipeItems.RecipePerConsumed[commodity]; ok {
 
 					for _, recipe := range recipes {
 						recipe_produces_only_commodities := true
 
 						for _, produced := range recipe.ProcucedItem {
 
-							_, is_commodity := e.configs.Equip.CommoditiesMap[produced.Get()]
+							_, is_commodity := e.Configs.Equip.CommoditiesMap[produced.Get()]
 							if !is_commodity {
 								recipe_produces_only_commodities = false
 								break
@@ -159,7 +159,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 								if _, ok := added_goods[commodity_produced]; ok {
 									continue
 								}
-								equipment := e.configs.Equip.CommoditiesMap[commodity_produced]
+								equipment := e.Configs.Equip.CommoditiesMap[commodity_produced]
 								for _, volume_info := range equipment.Volumes {
 									market_good := MarketGood{
 										Nickname:      commodity_produced,
@@ -173,7 +173,7 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 										ShipClass:     volume_info.GetShipClass(),
 									}
 									market_good_key := GetCommodityKey(market_good.Nickname, market_good.ShipClass)
-									if equipment, ok := e.configs.Equip.CommoditiesMap[commodity_produced]; ok {
+									if equipment, ok := e.Configs.Equip.CommoditiesMap[commodity_produced]; ok {
 										market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 									}
 									base.MarketGoodsPerNick[market_good_key] = market_good
@@ -218,7 +218,7 @@ It is a mining field with droppable ores`)
 			sb = append(sb, "")
 			sb = append(sb, "Trade routes shown do not account for a time it takes to mine those ores.")
 
-			if e.configs.Discovery != nil {
+			if e.Configs.Discovery != nil {
 				sb = append(sb, "")
 				sb = append(sb, `<a href="https://discoverygc.com/wiki2/Mining">Check mining tutorial</a> to see how they can be mined`)
 

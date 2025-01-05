@@ -16,16 +16,16 @@ func (e *Exporter) pob_produced() map[string]bool {
 
 	e.craftable_cached = make(map[string]bool)
 
-	if e.configs.Discovery != nil {
-		for _, recipe := range e.configs.Discovery.BaseRecipeItems.Recipes {
+	if e.Configs.Discovery != nil {
+		for _, recipe := range e.Configs.Discovery.BaseRecipeItems.Recipes {
 			for _, produced := range recipe.ProcucedItem {
 				e.craftable_cached[produced.Get()] = true
 			}
 		}
 	}
 
-	if e.configs.FLSR != nil {
-		for _, recipe := range e.configs.FLSR.FLSRRecipes.Products {
+	if e.Configs.FLSR != nil {
+		for _, recipe := range e.Configs.FLSR.FLSRRecipes.Products {
 			e.craftable_cached[recipe.Product.Get()] = true
 		}
 	}
@@ -41,7 +41,7 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 	pob_produced := e.pob_produced()
 
 	base := &Base{
-		Name:               e.configs.CraftableBaseName(),
+		Name:               e.Configs.CraftableBaseName(),
 		MarketGoodsPerNick: make(map[CommodityKey]MarketGood),
 		Nickname:           cfgtype.BaseUniNick(pob_crafts_nickname),
 		Infocard:           InfocardKey(pob_crafts_nickname),
@@ -65,28 +65,28 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		}
 		e.Hashes[market_good.Nickname] = market_good.NicknameHash
 
-		if good, found_good := e.configs.Goods.GoodsMap[market_good.Nickname]; found_good {
+		if good, found_good := e.Configs.Goods.GoodsMap[market_good.Nickname]; found_good {
 			category := good.Category.Get()
 			market_good.Type = fmt.Sprintf("%s craft", category)
-			if equip, ok := e.configs.Equip.ItemsMap[market_good.Nickname]; ok {
+			if equip, ok := e.Configs.Equip.ItemsMap[market_good.Nickname]; ok {
 				market_good.Type = fmt.Sprintf("%s craft", equip.Category)
 				e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 			}
 
 		}
 		var ship_nickname string
-		if good_ship, ok := e.configs.Goods.ShipsMap[produced]; ok {
+		if good_ship, ok := e.Configs.Goods.ShipsMap[produced]; ok {
 			hull_name := good_ship.Hull.Get()
-			if good_shiphull, ok := e.configs.Goods.ShipHullsMap[hull_name]; ok {
+			if good_shiphull, ok := e.Configs.Goods.ShipHullsMap[hull_name]; ok {
 				ship_nick := good_shiphull.Ship.Get()
 				ship_nickname = ship_nick
-				if equipment, ok := e.configs.Shiparch.ShipsMap[ship_nick]; ok {
+				if equipment, ok := e.Configs.Shiparch.ShipsMap[ship_nick]; ok {
 					market_good.Name = e.GetInfocardName(equipment.IdsName.Get(), market_good.Nickname)
 					e.exportInfocards(InfocardKey(market_good.Nickname), equipment.IdsInfo1.Get(), equipment.IdsInfo.Get())
 				}
 			}
 		} else {
-			if equip, ok := e.configs.Equip.ItemsMap[produced]; ok {
+			if equip, ok := e.Configs.Equip.ItemsMap[produced]; ok {
 				market_good.Name = e.GetInfocardName(equip.IdsName.Get(), produced)
 				e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 			}
@@ -96,8 +96,8 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		base.MarketGoodsPerNick[market_good_key] = market_good
 
 		var infocard_addition []string
-		if e.configs.Discovery != nil {
-			if recipes, ok := e.configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
+		if e.Configs.Discovery != nil {
+			if recipes, ok := e.Configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
 				infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
 				for _, recipe := range recipes {
 					sector := recipe.Model.RenderModel()
@@ -109,9 +109,9 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 				}
 			}
 		}
-		if e.configs.FLSR != nil {
-			if e.configs.FLSR.FLSRRecipes != nil {
-				if recipes, ok := e.configs.FLSR.FLSRRecipes.ProductsByNick[market_good.Nickname]; ok {
+		if e.Configs.FLSR != nil {
+			if e.Configs.FLSR.FLSRRecipes != nil {
+				if recipes, ok := e.Configs.FLSR.FLSRRecipes.ProductsByNick[market_good.Nickname]; ok {
 					infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
 					for _, recipe := range recipes {
 						sector := recipe.Model.RenderModel()

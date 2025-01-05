@@ -15,16 +15,16 @@ type TechCompatOrderer struct {
 
 func NewOrderedTechCompat(e *Exporter) *TechCompatOrderer {
 	orderer := &TechCompatOrderer{
-		configs:  e.configs,
+		configs:  e.Configs,
 		exporter: e,
 	}
 
 	orderer.cached_techcell_nil = append(orderer.cached_techcell_nil, CompatibleIDsForTractor{
-		TechCompat: e.configs.Discovery.Techcompat.General.UnlistedTech.Get(),
+		TechCompat: e.Configs.Discovery.Techcompat.General.UnlistedTech.Get(),
 		Tractor:    Tractor{Name: "Most Factions"},
 	})
 
-	for _, faction := range e.configs.Discovery.Techcompat.Factions {
+	for _, faction := range e.Configs.Discovery.Techcompat.Factions {
 		if unlisted_faction_modifier, ok := faction.DefaultUnlisted.GetValue(); ok {
 			orderer.cached_techcell_nil = append(orderer.cached_techcell_nil, CompatibleIDsForTractor{
 				TechCompat: unlisted_faction_modifier,

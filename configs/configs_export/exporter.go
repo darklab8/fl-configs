@@ -20,7 +20,7 @@ func (e *Exporter) exportInfocards(nickname InfocardKey, infocard_ids ...int) {
 	}
 
 	for _, info_id := range infocard_ids {
-		if value, ok := e.configs.Infocards.Infocards[info_id]; ok {
+		if value, ok := e.Configs.Infocards.Infocards[info_id]; ok {
 			e.Infocards[InfocardKey(nickname)] = append(e.Infocards[InfocardKey(nickname)], value.Lines...)
 		}
 	}
@@ -33,7 +33,7 @@ func (e *Exporter) exportInfocards(nickname InfocardKey, infocard_ids ...int) {
 type Infocards map[InfocardKey]Infocard
 
 type Exporter struct {
-	configs *configs_mapped.MappedConfigs
+	Configs *configs_mapped.MappedConfigs
 	Hashes  map[string]flhash.HashCode
 
 	Bases                []*Base
@@ -72,7 +72,7 @@ type OptExport func(e *Exporter)
 
 func NewExporter(configs *configs_mapped.MappedConfigs, opts ...OptExport) *Exporter {
 	e := &Exporter{
-		configs:     configs,
+		Configs:     configs,
 		Infocards:   map[InfocardKey]Infocard{},
 		ship_speeds: trades.VanillaSpeeds,
 		Hashes:      make(map[string]flhash.HashCode),
@@ -99,7 +99,7 @@ func NewGraphResults(
 	graph_options trades.MappingOptions,
 ) *GraphResults {
 	graph := trades.MapConfigsToFGraph(
-		e.configs,
+		e.Configs,
 		avgCruiserSpeed,
 		can_visit_freighter_only_jhs,
 		mining_bases_by_system,
@@ -143,11 +143,11 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 			Nickname: base.Nickname,
 		})
 	}
-	if e.configs.Discovery != nil {
+	if e.Configs.Discovery != nil {
 		e.ship_speeds = trades.DiscoverySpeeds
 	}
 
-	if e.configs.FLSR != nil {
+	if e.Configs.FLSR != nil {
 		e.ship_speeds = trades.FLSRSpeeds
 	}
 
@@ -196,7 +196,7 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	e.MiningOperations, e.Commodities = e.TradePaths(e.MiningOperations, e.Commodities)
 	e.Bases = e.AllRoutes(e.Bases)
 
-	for _, system := range e.configs.Systems.Systems {
+	for _, system := range e.Configs.Systems.Systems {
 		for zone_nick := range system.ZonesByNick {
 			e.Hashes[zone_nick] = flhash.HashNickname(zone_nick)
 		}
@@ -205,7 +205,7 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 			e.Hashes[nickname] = flhash.HashNickname(nickname)
 		}
 	}
-	for _, good := range e.configs.Goods.Goods {
+	for _, good := range e.Configs.Goods.Goods {
 		nickname, _ := good.Nickname.GetValue()
 		e.Hashes[nickname] = flhash.HashNickname(nickname)
 	}
@@ -213,7 +213,7 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
 	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 	e.Bases = e.EnhanceBasesWithLoot(e.Bases)
-	if e.configs.Discovery != nil {
+	if e.Configs.Discovery != nil {
 		e.PoBs = e.GetPoBs()
 		e.PoBGoods = e.GetPoBGoods(e.PoBs)
 	}
@@ -338,5 +338,5 @@ func CalculateTechCompat(Discovery *configs_mapped.DiscoveryConfig, ids []Tracto
 }
 
 func (e *Exporter) GetInfocardName(ids_name int, nickname string) string {
-	return e.configs.GetInfocardName(ids_name, nickname)
+	return e.Configs.GetInfocardName(ids_name, nickname)
 }

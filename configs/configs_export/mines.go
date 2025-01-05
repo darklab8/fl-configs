@@ -56,7 +56,7 @@ type AmmoLimit struct {
 func (e *Exporter) GetMines(ids []Tractor) []Mine {
 	var mines []Mine
 
-	for _, mine_dropper := range e.configs.Equip.MineDroppers {
+	for _, mine_dropper := range e.Configs.Equip.MineDroppers {
 		mine := Mine{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
@@ -73,7 +73,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine.Toughness = mine_dropper.Toughness.Get()
 		mine.HitPts = mine_dropper.HitPts.Get()
 
-		if good_info, ok := e.configs.Goods.GoodsMap[mine.Nickname]; ok {
+		if good_info, ok := e.Configs.Goods.GoodsMap[mine.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				mine.Price = price
 				mine.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
@@ -85,16 +85,16 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 
 		mine.Name = e.GetInfocardName(mine.IdsName, mine.Nickname)
 
-		mine_info := e.configs.Equip.MinesMap[mine_dropper.ProjectileArchetype.Get()]
+		mine_info := e.Configs.Equip.MinesMap[mine_dropper.ProjectileArchetype.Get()]
 		mine.ProjectileArchetype = mine_info.Nickname.Get()
 		mine.MineHash = flhash.HashNickname(mine.ProjectileArchetype)
 		e.Hashes[mine.ProjectileArchetype] = mine.MineHash
 
-		explosion := e.configs.Equip.ExplosionMap[mine_info.ExplosionArch.Get()]
+		explosion := e.Configs.Equip.ExplosionMap[mine_info.ExplosionArch.Get()]
 
 		mine.HullDamage = explosion.HullDamage.Get()
 		mine.EnergyDamange = explosion.EnergyDamange.Get()
-		mine.ShieldDamage = int(float64(mine.HullDamage)*float64(e.configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(mine.EnergyDamange))
+		mine.ShieldDamage = int(float64(mine.HullDamage)*float64(e.Configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(mine.EnergyDamange))
 
 		mine.Radius = float64(explosion.Radius.Get())
 
@@ -108,7 +108,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		mine.LifeTime = mine_info.Lifetime.Get()
 		mine.LinearDrag = mine_info.LinearDrag.Get()
 
-		if mine_good_info, ok := e.configs.Goods.GoodsMap[mine_info.Nickname.Get()]; ok {
+		if mine_good_info, ok := e.Configs.Goods.GoodsMap[mine_info.Nickname.Get()]; ok {
 			if price, ok := mine_good_info.Price.GetValue(); ok {
 				mine.AmmoPrice = price
 				mine.Value = math.Max(float64(mine.HullDamage), float64(mine.ShieldDamage)) / float64(mine.AmmoPrice)
@@ -123,7 +123,7 @@ func (e *Exporter) GetMines(ids []Tractor) []Mine {
 		}
 
 		e.exportInfocards(InfocardKey(mine.Nickname), mine.IdsInfo)
-		mine.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, mine.Nickname)
+		mine.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, mine.Nickname)
 		mines = append(mines, mine)
 	}
 

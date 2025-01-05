@@ -14,10 +14,10 @@ func (e *Exporter) findable_in_loot() map[string]bool {
 
 	e.findable_in_loot_cache = make(map[string]bool)
 
-	for _, system := range e.configs.Systems.Systems {
+	for _, system := range e.Configs.Systems.Systems {
 		for _, wreck := range system.Wrecks {
 			louadout_nickname := wreck.Loadout.Get()
-			if loadout, ok := e.configs.Loadouts.LoadoutsByNick[louadout_nickname]; ok {
+			if loadout, ok := e.Configs.Loadouts.LoadoutsByNick[louadout_nickname]; ok {
 				for _, cargo := range loadout.Cargos {
 					e.findable_in_loot_cache[cargo.Nickname.Get()] = true
 				}
@@ -25,9 +25,9 @@ func (e *Exporter) findable_in_loot() map[string]bool {
 		}
 	}
 
-	for _, npc_arch := range e.configs.NpcShips.NpcShips {
+	for _, npc_arch := range e.Configs.NpcShips.NpcShips {
 		loadout_nickname := npc_arch.Loadout.Get()
-		if loadout, ok := e.configs.Loadouts.LoadoutsByNick[loadout_nickname]; ok {
+		if loadout, ok := e.Configs.Loadouts.LoadoutsByNick[loadout_nickname]; ok {
 			for _, cargo := range loadout.Cargos {
 				e.findable_in_loot_cache[cargo.Nickname.Get()] = true
 			}
@@ -74,16 +74,16 @@ func (e *Exporter) EnhanceBasesWithLoot(bases []*Base) []*Base {
 		}
 		e.Hashes[market_good.Nickname] = market_good.NicknameHash
 
-		if good, found_good := e.configs.Goods.GoodsMap[market_good.Nickname]; found_good {
+		if good, found_good := e.Configs.Goods.GoodsMap[market_good.Nickname]; found_good {
 			category := good.Category.Get()
 			market_good.Type = fmt.Sprintf("%s loot", category)
-			if equip, ok := e.configs.Equip.ItemsMap[market_good.Nickname]; ok {
+			if equip, ok := e.Configs.Equip.ItemsMap[market_good.Nickname]; ok {
 				market_good.Type = fmt.Sprintf("%s loot", equip.Category)
 				e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 			}
 
 		}
-		if equip, ok := e.configs.Equip.ItemsMap[wreck]; ok {
+		if equip, ok := e.Configs.Equip.ItemsMap[wreck]; ok {
 			market_good.Name = e.GetInfocardName(equip.IdsName.Get(), wreck)
 			e.exportInfocards(InfocardKey(market_good.Nickname), equip.IdsInfo.Get())
 		}

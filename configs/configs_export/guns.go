@@ -168,9 +168,9 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	gun.HpType, _ = gun_info.HPGunType.GetValue()
 	gun.HpTypeHash = flhash.HashNickname(gun.HpType)
 
-	munition, found_munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
+	munition, found_munition := e.Configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
 
-	if e.configs.FLSR != nil && !found_munition && gun.Nickname == "gd_ww_turret_laser_light02" && gun_info.ProjectileArchetype.Get() == "gd_ww_laser_light02_ammo" {
+	if e.Configs.FLSR != nil && !found_munition && gun.Nickname == "gd_ww_turret_laser_light02" && gun_info.ProjectileArchetype.Get() == "gd_ww_laser_light02_ammo" {
 		logus.Log.Error("gun does not have defined munition",
 			typelog.Any("nickname", gun.Nickname),
 			typelog.Any("projectile_archetype", gun_info.ProjectileArchetype.Get()))
@@ -181,7 +181,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 		logus.Log.Warn("FLSR broken gun potentially",
 			typelog.String("gun.Nickname", gun.Nickname),
 			typelog.String("projectile", gun_info.ProjectileArchetype.Get()),
-			typelog.Bool("is_flsr", e.configs.FLSR != nil),
+			typelog.Bool("is_flsr", e.Configs.FLSR != nil),
 			typelog.Bool("found_munition", found_munition),
 		)
 	}
@@ -199,7 +199,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 		if explosion_arch, ok := munition.ExplosionArch.GetValue(); ok {
 			// rocket launcher
-			explosion := e.configs.Equip.ExplosionMap[explosion_arch]
+			explosion := e.Configs.Equip.ExplosionMap[explosion_arch]
 			gun.HullDamage = explosion.HullDamage.Get()
 			gun.EnergyDamage = explosion.EnergyDamange.Get()
 		} else {
@@ -232,7 +232,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	}
 	gun.Range = gun.LifeTime * gun.Speed
 
-	if weapon_type, ok := e.configs.WeaponMods.WeaponTypesMap[gun.DamageType]; ok {
+	if weapon_type, ok := e.Configs.WeaponMods.WeaponTypesMap[gun.DamageType]; ok {
 		for _, weapon_modifier := range weapon_type.ShieldMods {
 			gun.DamageBonuses = append(gun.DamageBonuses,
 				DamageBonus{
@@ -244,7 +244,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	}
 
 	gun.Price = -1
-	if good_info, ok := e.configs.Goods.GoodsMap[gun.Nickname]; ok {
+	if good_info, ok := e.Configs.Goods.GoodsMap[gun.Nickname]; ok {
 		if price, ok := good_info.Price.GetValue(); ok {
 			gun.Price = price
 			gun.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
@@ -262,7 +262,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 	e.exportInfocards(InfocardKey(gun.Nickname), gun.IdsInfo)
 
-	gun.ShieldDamage = int(float64(gun.HullDamage)*float64(e.configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(gun.EnergyDamage))
+	gun.ShieldDamage = int(float64(gun.HullDamage)*float64(e.Configs.Consts.ShieldEquipConsts.HULL_DAMAGE_FACTOR.Get()) + float64(gun.EnergyDamage))
 
 	avg_shield_modifier := 0.0
 	shield_modifier_count := 0
@@ -308,9 +308,9 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 	}
 
 	// fmt.Println("CalculateTEchCompat", e.configs.Discovery != nil, gun.Nickname)
-	gun.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, gun.Nickname)
+	gun.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, gun.Nickname)
 
-	if e.configs.Discovery != nil {
+	if e.Configs.Discovery != nil {
 		gun.DiscoGun = &DiscoGun{}
 		if armor_pen, ok := munition.ArmorPen.GetValue(); ok {
 			gun.DiscoGun.ArmorPen = armor_pen
@@ -318,7 +318,7 @@ func (e *Exporter) getGunInfo(gun_info *equip_mapped.Gun, ids []Tractor, buyable
 
 		if explosion_arch, ok := munition.ExplosionArch.GetValue(); ok {
 			// rocket launcher
-			explosion := e.configs.Equip.ExplosionMap[explosion_arch]
+			explosion := e.Configs.Equip.ExplosionMap[explosion_arch]
 			if armor_pen, ok := explosion.ArmorPen.GetValue(); ok {
 				gun.DiscoGun.ArmorPen = armor_pen
 			}
@@ -346,14 +346,14 @@ func (e *Exporter) GetBuyableShields(shields []Shield) map[string]bool {
 func (e *Exporter) GetGuns(ids []Tractor, buyable_ship_tech map[string]bool) []Gun {
 	var guns []Gun
 
-	for _, gun_info := range e.configs.Equip.Guns {
+	for _, gun_info := range e.Configs.Equip.Guns {
 		gun, err := e.getGunInfo(gun_info, ids, buyable_ship_tech)
 
 		if err != nil {
 			continue
 		}
 
-		munition := e.configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
+		munition := e.Configs.Equip.MunitionMap[gun_info.ProjectileArchetype.Get()]
 		if _, ok := munition.Motor.GetValue(); ok {
 			// Excluded rocket launching stuff
 			continue

@@ -30,7 +30,7 @@ func (e *Exporter) NewEnemyFaction(faction Faction, npc_ranks []int) EnemyFactio
 		Faction: faction,
 	}
 
-	faction_prop, prop_exists := e.configs.FactionProps.FactionPropMapByNickname[faction.Nickname]
+	faction_prop, prop_exists := e.Configs.FactionProps.FactionPropMapByNickname[faction.Nickname]
 
 	if !prop_exists {
 		return result
@@ -38,7 +38,7 @@ func (e *Exporter) NewEnemyFaction(faction Faction, npc_ranks []int) EnemyFactio
 
 	for _, npc_ship := range faction_prop.NpcShips {
 		npc_ship_nickname := npc_ship.Get()
-		if npc_shiparch, ok := e.configs.NpcShips.NpcShipsByNickname[npc_ship_nickname]; ok {
+		if npc_shiparch, ok := e.Configs.NpcShips.NpcShipsByNickname[npc_ship_nickname]; ok {
 
 			has_class_fighter := false
 			for _, npc_class := range npc_shiparch.NpcClass {
@@ -108,7 +108,7 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 	}
 
 	var diffs_to_money []DiffToMoney
-	for _, diff_to_money := range e.configs.DiffToMoney.DiffToMoney {
+	for _, diff_to_money := range e.Configs.DiffToMoney.DiffToMoney {
 		diffs_to_money = append(diffs_to_money, DiffToMoney{
 			MinLevel:   diff_to_money.MinLevel.Get(),
 			MoneyAward: diff_to_money.MoneyAward.Get(),
@@ -122,14 +122,14 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 		base.Missions.NpcRanksAtBaseMap = make(map[int]bool)
 		base.Missions.EnemiesAtBaseMap = make(map[string]EnemyFaction)
 
-		base_info, ok := e.configs.MBases.BaseMap[base.Nickname]
+		base_info, ok := e.Configs.MBases.BaseMap[base.Nickname]
 		if !ok {
 			base.Missions.Err = errors.New("base is not defined in mbases")
 			bases[base_index] = base
 			continue
 		}
 
-		if universe_base, ok := e.configs.Universe.BasesMap[universe_mapped.BaseNickname(base.Nickname)]; ok {
+		if universe_base, ok := e.Configs.Universe.BasesMap[universe_mapped.BaseNickname(base.Nickname)]; ok {
 
 			_, bar_exists := universe_base.ConfigBase.RoomMapByRoomNickname["bar"]
 			if !bar_exists {
@@ -140,7 +140,7 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 		}
 
 		// Firstly finding SystemBase coresponding to base
-		system, system_exists := e.configs.Systems.SystemsMap[base.SystemNickname]
+		system, system_exists := e.Configs.Systems.SystemsMap[base.SystemNickname]
 		if !system_exists {
 			base.Missions.Err = errors.New("system is not found for base")
 			bases[base_index] = base
@@ -241,7 +241,7 @@ func (e *Exporter) GetMissions(bases []*Base, factions []Faction) []*Base {
 			}
 
 			// NpcRank appropriate to current mission difficulty based on set range.
-			for _, rank_to_diff := range e.configs.NpcRankToDiff.NPCRankToDifficulties {
+			for _, rank_to_diff := range e.Configs.NpcRankToDiff.NPCRankToDifficulties {
 
 				min_diff := rank_to_diff.Difficulties[0].Get()
 				max_diff := rank_to_diff.Difficulties[len(rank_to_diff.Difficulties)-1].Get()

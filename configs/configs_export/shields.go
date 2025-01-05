@@ -48,7 +48,7 @@ type Shield struct {
 func (e *Exporter) GetShields(ids []Tractor) []Shield {
 	var shields []Shield
 
-	for _, shield_gen := range e.configs.Equip.ShieldGens {
+	for _, shield_gen := range e.Configs.Equip.ShieldGens {
 		shield := Shield{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
@@ -82,7 +82,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		shield.Toughness, _ = shield_gen.Toughness.GetValue()
 		shield.HitPts = shield_gen.HitPts.Get()
 
-		if good_info, ok := e.configs.Goods.GoodsMap[shield.Nickname]; ok {
+		if good_info, ok := e.Configs.Goods.GoodsMap[shield.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				shield.Price = price
 				shield.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
@@ -117,7 +117,7 @@ func (e *Exporter) GetShields(ids []Tractor) []Shield {
 		}
 
 		e.exportInfocards(InfocardKey(shield.Nickname), shield.IdsInfo)
-		shield.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, shield.Nickname)
+		shield.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, shield.Nickname)
 		shields = append(shields, shield)
 	}
 

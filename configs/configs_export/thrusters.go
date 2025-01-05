@@ -29,7 +29,7 @@ type Thruster struct {
 func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 	var thrusters []Thruster
 
-	for _, thruster_info := range e.configs.Equip.Thrusters {
+	for _, thruster_info := range e.Configs.Equip.Thrusters {
 		thruster := Thruster{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
@@ -46,7 +46,7 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 		thruster.NameID = thruster_info.IdsName.Get()
 		thruster.InfoID = thruster_info.IdsInfo.Get()
 
-		if good_info, ok := e.configs.Goods.GoodsMap[thruster.Nickname]; ok {
+		if good_info, ok := e.Configs.Goods.GoodsMap[thruster.Nickname]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				thruster.Price = price
 				thruster.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
@@ -82,7 +82,7 @@ func (e *Exporter) GetThrusters(ids []Tractor) []Thruster {
 
 		thruster.Rating = float64(thruster.MaxForce) / float64(thruster.PowerUsage-100) * thruster.Value / 1000
 		e.exportInfocards(InfocardKey(thruster.Nickname), thruster.InfoID)
-		thruster.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, thruster.Nickname)
+		thruster.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, thruster.Nickname)
 		thrusters = append(thrusters, thruster)
 	}
 	return thrusters

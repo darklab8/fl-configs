@@ -43,7 +43,7 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 
 	var goods_per_base map[cfgtype.BaseUniNick]map[CommodityKey]MarketGood = make(map[cfgtype.BaseUniNick]map[CommodityKey]MarketGood)
 
-	for _, base_good := range e.configs.Market.BaseGoods {
+	for _, base_good := range e.Configs.Market.BaseGoods {
 		base_nickname := cfgtype.BaseUniNick(base_good.Base.Get())
 
 		var MarketGoods map[CommodityKey]MarketGood
@@ -59,27 +59,27 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 			var Name string
 			var category string
 			var hptype string
-			if good, found_good := e.configs.Goods.GoodsMap[market_good_nickname]; found_good {
+			if good, found_good := e.Configs.Goods.GoodsMap[market_good_nickname]; found_good {
 				price_base = good.Price.Get()
 
 				category = good.Category.Get()
 				switch category {
 				default:
-					if equip, ok := e.configs.Equip.ItemsMap[market_good_nickname]; ok {
+					if equip, ok := e.Configs.Equip.ItemsMap[market_good_nickname]; ok {
 						category = equip.Category
 						Name = e.GetInfocardName(equip.IdsName.Get(), market_good_nickname)
 
 						e.exportInfocards(InfocardKey(market_good_nickname), equip.IdsInfo.Get())
 					}
 				case "ship":
-					ship := e.configs.Goods.ShipsMap[good.Nickname.Get()]
+					ship := e.Configs.Goods.ShipsMap[good.Nickname.Get()]
 
-					ship_hull := e.configs.Goods.ShipHullsMap[ship.Hull.Get()]
+					ship_hull := e.Configs.Goods.ShipHullsMap[ship.Hull.Get()]
 					price_base = ship_hull.Price.Get()
 
 					// Infocard data
 					ship_nickname := ship_hull.Ship.Get()
-					shiparch := e.configs.Shiparch.ShipsMap[ship_nickname]
+					shiparch := e.Configs.Shiparch.ShipsMap[ship_nickname]
 
 					Name = e.GetInfocardName(shiparch.IdsName.Get(), ship_nickname)
 
@@ -89,13 +89,13 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 						shiparch.IdsInfo1.Get(), shiparch.IdsInfo.Get())
 				}
 
-				if gun, ok := e.configs.Equip.GunMap[market_good_nickname]; ok {
+				if gun, ok := e.Configs.Equip.GunMap[market_good_nickname]; ok {
 					hptype, _ = gun.HPGunType.GetValue()
 				}
-				if shield, ok := e.configs.Equip.ShidGenMap[market_good_nickname]; ok {
+				if shield, ok := e.Configs.Equip.ShidGenMap[market_good_nickname]; ok {
 					hptype, _ = shield.HpType.GetValue()
 				}
-				if engine, ok := e.configs.Equip.EnginesMap[market_good_nickname]; ok {
+				if engine, ok := e.Configs.Equip.EnginesMap[market_good_nickname]; ok {
 					hptype, _ = engine.HpType.GetValue()
 				}
 
@@ -125,12 +125,12 @@ func (e *Exporter) getMarketGoods() map[cfgtype.BaseUniNick]map[CommodityKey]Mar
 
 			if category == "commodity" {
 
-				if e.configs.Discovery != nil {
+				if e.Configs.Discovery != nil {
 					good_to_add.PriceToSell = ptr.Ptr(market_good.BaseSellsIPositiveAndDiscoSellPrice.Get())
 				} else {
 					good_to_add.PriceToSell = &good_to_add.PriceToBuy
 				}
-				equipment := e.configs.Equip.CommoditiesMap[market_good_nickname]
+				equipment := e.Configs.Equip.CommoditiesMap[market_good_nickname]
 
 				for _, volume := range equipment.Volumes {
 					good_to_add2 := good_to_add

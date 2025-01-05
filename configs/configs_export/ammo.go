@@ -33,7 +33,7 @@ type Ammo struct {
 func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 	var tractors []Ammo
 
-	for _, munition_info := range e.configs.Equip.Munitions {
+	for _, munition_info := range e.Configs.Equip.Munitions {
 		munition := Ammo{
 			Bases: make(map[cfgtype.BaseUniNick]*GoodAtBase),
 		}
@@ -67,7 +67,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		}
 
 		munition.Price = -1
-		if good_info, ok := e.configs.Goods.GoodsMap[munition_info.Nickname.Get()]; ok {
+		if good_info, ok := e.Configs.Goods.GoodsMap[munition_info.Nickname.Get()]; ok {
 			if price, ok := good_info.Price.GetValue(); ok {
 				munition.Price = price
 				munition.Bases = e.GetAtBasesSold(GetCommodityAtBasesInput{
@@ -82,7 +82,7 @@ func (e *Exporter) GetAmmo(ids []Tractor) []Ammo {
 		}
 
 		e.exportInfocards(InfocardKey(munition.Nickname), munition.InfoID)
-		munition.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, munition.Nickname)
+		munition.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, munition.Nickname)
 		tractors = append(tractors, munition)
 	}
 	return tractors
