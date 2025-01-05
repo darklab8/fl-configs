@@ -86,11 +86,7 @@ func (e *Exporter) GetEngines(ids []Tractor) []Engine {
 
 		e.exportInfocards(InfocardKey(engine.Nickname), engine.InfoID)
 
-		if engine.HpType == "" {
-			continue
-		}
-
-		engine.DiscoveryTechCompat = CalculateTechCompat(e.configs.Discovery, ids, engine.Nickname)
+		engine.DiscoveryTechCompat = CalculateTechCompat(e.Configs.Discovery, ids, engine.Nickname)
 		engine.NicknameHash = flhash.HashNickname(engine.Nickname)
 		engine.HpTypeHash = flhash.HashNickname(engine.HpType)
 		engine.FlameEffectHash = flhash.HashNickname(engine.FlameEffect)
