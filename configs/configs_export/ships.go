@@ -39,6 +39,7 @@ type Ship struct {
 	PowerRechargeRate int
 	CruiseSpeed       int
 	LinearDrag        float64
+	EngineMaxForce    int
 	ImpulseSpeed      float64
 	ThrusterSpeed     []int
 	ReverseFraction   float64
@@ -263,9 +264,9 @@ func (e *Exporter) GetShips(ids []Tractor, TractorsByID map[cfgtype.TractorID]Tr
 							ship.CruiseSpeed = e.GetEngineSpeed(engine)
 							engine_linear_drag, _ := engine.LinearDrag.GetValue()
 							ship_linear_drag, _ := ship_info.LinearDrag.GetValue()
-							engine_max_force, _ := engine.MaxForce.GetValue()
+							ship.EngineMaxForce, _ = engine.MaxForce.GetValue()
 							ship.LinearDrag = (float64(engine_linear_drag) + float64(ship_linear_drag))
-							ship.ImpulseSpeed = float64(engine_max_force) / ship.LinearDrag
+							ship.ImpulseSpeed = float64(ship.EngineMaxForce) / ship.LinearDrag
 
 							ship.ReverseFraction = engine.ReverseFraction.Get()
 
