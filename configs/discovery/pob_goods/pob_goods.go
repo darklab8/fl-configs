@@ -40,9 +40,18 @@ type Base struct {
 }
 
 type Config struct {
+	file        *file.File
 	BasesByName map[string]*Base `json:"bases"`
 	Timestamp   string           `json:"timestamp"`
 	Bases       []*Base
+}
+
+func (c *Config) Refresh() {
+	reread := Read(c.file)
+	c.file = reread.file
+	c.BasesByName = reread.BasesByName
+	c.Timestamp = reread.Timestamp
+	c.Bases = reread.Bases
 }
 
 func Read(file *file.File) *Config {
@@ -60,6 +69,7 @@ func Read(file *file.File) *Config {
 		conf.Bases = append(conf.Bases, base)
 	}
 
+	conf.file = file
 	return conf
 }
 
