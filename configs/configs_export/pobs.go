@@ -229,6 +229,12 @@ func (e *Exporter) GetPoBs() []*PoB {
 		var sb InfocardBuilder
 		sb.WriteLineStr(pob.Name)
 		sb.WriteLineStr("")
+
+		if pob_info.Pos == nil && len(pob_info.InfocardParagraphs) == 0 {
+			sb.WriteLineStr("no access to infocard (toggle pos permission)")
+			sb.WriteLineStr("")
+		}
+
 		for _, paragraph := range pob_info.InfocardParagraphs {
 			sb.WriteLineStr(paragraph)
 			sb.WriteLineStr("")
@@ -237,6 +243,9 @@ func (e *Exporter) GetPoBs() []*PoB {
 		if pob_info.DefenseMode != nil {
 			sb.WriteLine(InfocardPhrase{Phrase: "Defense mode:", Bold: true})
 			sb.WriteLineStr((*DefenseMode)(pob_info.DefenseMode).ToStr())
+			sb.WriteLineStr("")
+		} else {
+			sb.WriteLineStr("no access to docking (toggle defense mode permission)")
 			sb.WriteLineStr("")
 		}
 		if len(pob_info.SrpFactionHashList) > 0 || len(pob_info.SrpTagList) > 0 || len(pob_info.SrpNameList) > 0 {
