@@ -30,13 +30,24 @@ type Base struct {
 	Nickname  string
 	ShopItems []ShopItem `json:"shop_items"`
 
-	SystemHash      *flhash.HashCode `json:"system"`      //: 2745655887,
-	Pos             *string          `json:"pos"`         //: "299016, 33, -178",
-	AffiliationHash *flhash.HashCode `json:"affiliation"` //: 2620,
-	Level           *int             `json:"level"`       //: 1,
-	Money           *int             `json:"money"`       //: 0,
-	Health          *int             `json:"health"`      //: 50,
-	DefenseMode     *int             `json:"defensemode"` //: 1,
+	SystemHash         *flhash.HashCode `json:"system"`      //: 2745655887,
+	Pos                *string          `json:"pos"`         //: "299016, 33, -178",
+	AffiliationHash    *flhash.HashCode `json:"affiliation"` //: 2620,
+	Level              *int             `json:"level"`       //: 1,
+	Money              *int             `json:"money"`       //: 0,
+	Health             *int             `json:"health"`      //: 50,
+	DefenseMode        *int             `json:"defensemode"` //: 1,
+	InfocardParagraphs []string         `json:"infocard_paragraphs"`
+
+	HostileFactionHashList []*flhash.HashCode `json:"hostile_list"`
+	HostileTagList         []string           `json:"hostile_tag_list"`
+	HostileNameList        []string           `json:"hostile_name_list"`
+	AllyFactionHashList    []*flhash.HashCode `json:"ally_list"`
+	AllyTagList            []string           `json:"ally_tag_list"`
+	AllyNameList           []string           `json:"ally_name_list"`
+	SrpFactionHashList     []*flhash.HashCode `json:"srp_list"`
+	SrpTagList             []string           `json:"srp_tag_list"`
+	SrpNameList            []string           `json:"srp_name_list"`
 }
 
 type Config struct {

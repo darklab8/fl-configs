@@ -92,10 +92,10 @@ func (e *Exporter) EnhanceBasesWithLoot(bases []*Base) []*Base {
 		base.MarketGoodsPerNick[market_good_key] = market_good
 	}
 
-	var sb []string
-	sb = append(sb, base.Name)
-	sb = append(sb, `This is only pseudo base to show availability of lootable content`)
-	sb = append(sb, `The content is findable in wrecks or drops from ships at missions`)
+	var sb []InfocardLine
+	sb = append(sb, NewInfocardSimpleLine(base.Name))
+	sb = append(sb, NewInfocardSimpleLine(`This is only pseudo base to show availability of lootable content`))
+	sb = append(sb, NewInfocardSimpleLine(`The content is findable in wrecks or drops from ships at missions`))
 
 	e.Infocards[InfocardKey(base.Nickname)] = sb
 

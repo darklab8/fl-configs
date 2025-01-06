@@ -95,65 +95,65 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 		market_good_key := GetCommodityKey(market_good.Nickname, market_good.ShipClass)
 		base.MarketGoodsPerNick[market_good_key] = market_good
 
-		var infocard_addition []string
+		var infocard_addition InfocardBuilder
 		if e.Configs.Discovery != nil {
 			if recipes, ok := e.Configs.Discovery.BaseRecipeItems.RecipePerProduced[market_good.Nickname]; ok {
-				infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
+				infocard_addition.WriteLineStr(`CRAFTING RECIPES:`)
 				for _, recipe := range recipes {
 					sector := recipe.Model.RenderModel()
-					infocard_addition = append(infocard_addition, string(sector.OriginalType))
+					infocard_addition.WriteLineStr(string(sector.OriginalType))
 					for _, param := range sector.Params {
-						infocard_addition = append(infocard_addition, string(param.ToString(inireader.WithComments(false))))
+						infocard_addition.WriteLineStr(string(param.ToString(inireader.WithComments(false))))
 					}
-					infocard_addition = append(infocard_addition, "")
+					infocard_addition.WriteLineStr("")
 				}
 			}
 		}
 		if e.Configs.FLSR != nil {
 			if e.Configs.FLSR.FLSRRecipes != nil {
 				if recipes, ok := e.Configs.FLSR.FLSRRecipes.ProductsByNick[market_good.Nickname]; ok {
-					infocard_addition = append(infocard_addition, `CRAFTING RECIPES:`)
+					infocard_addition.WriteLineStr(`CRAFTING RECIPES:`)
 					for _, recipe := range recipes {
 						sector := recipe.Model.RenderModel()
-						infocard_addition = append(infocard_addition, string(sector.OriginalType))
+						infocard_addition.WriteLineStr(string(sector.OriginalType))
 						for _, param := range sector.Params {
-							infocard_addition = append(infocard_addition, string(param.ToString(inireader.WithComments(false))))
+							infocard_addition.WriteLineStr(string(param.ToString(inireader.WithComments(false))))
 						}
-						infocard_addition = append(infocard_addition, "")
+						infocard_addition.WriteLineStr("")
 					}
 				}
 			}
 		}
 
-		var info Infocard
+		var info InfocardBuilder
 		if value, ok := e.Infocards[market_good.Infocard]; ok {
-			info = value
+			info.Lines = value
 		}
 
 		add_line_about_recipes := func(info Infocard) Infocard {
-			add_line := func(index int, line string) {
+			add_line := func(index int, line InfocardLine) {
 				info = append(info[:index+1], info[index:]...)
 				info[index] = line
 			}
 			strip_line := func(line string) string {
 				return strings.ReplaceAll(strings.ReplaceAll(line, " ", ""), "\u00a0", "")
 			}
-			if len(infocard_addition) > 0 {
+			if len(infocard_addition.Lines) > 0 {
 				line_position := 1
-				add_line(line_position, `<b>Item has crafting recipes below</b>`)
-				if strip_line(info[0]) != "" {
-					add_line(1, "")
+				add_line(line_position, InfocardLine{Phrases: []InfocardPhrase{{Phrase: `Item has crafting recipes below`, Bold: true}}})
+				if strip_line(info[0].ToStr()) != "" {
+					add_line(1, NewInfocardSimpleLine(""))
 					line_position += 1
 				}
-				if strip_line(info[line_position+1]) != "" {
-					add_line(line_position+1, "")
+				if strip_line(info[line_position+1].ToStr()) != "" {
+					add_line(line_position+1, NewInfocardSimpleLine(""))
 				}
 			}
 			return info
 		}
-		info = add_line_about_recipes(info)
+		info.Lines = add_line_about_recipes(info.Lines)
 
-		e.Infocards[market_good.Infocard] = append(info, infocard_addition...)
+		e.Infocards[market_good.Infocard] = append(info.Lines, infocard_addition.Lines...)
 
 		if ship_nickname != "" {
 			var info Infocard
@@ -161,17 +161,17 @@ func (e *Exporter) EnhanceBasesWithPobCrafts(bases []*Base) []*Base {
 				info = value
 			}
 			info = add_line_about_recipes(info)
-			e.Infocards[InfocardKey(ship_nickname)] = append(info, infocard_addition...)
+			e.Infocards[InfocardKey(ship_nickname)] = append(info, infocard_addition.Lines...)
 		}
 	}
 
-	var sb []string
-	sb = append(sb, base.Name)
-	sb = append(sb, `This is only pseudo base to show availability of player crafts`)
-	sb = append(sb, ``)
-	sb = append(sb, `At the bottom of each item infocard it shows CRAFTING RECIPES`)
+	var sb InfocardBuilder
+	sb.WriteLineStr(base.Name)
+	sb.WriteLineStr(`This is only pseudo base to show availability of player crafts`)
+	sb.WriteLineStr(``)
+	sb.WriteLineStr(`At the bottom of each item infocard it shows CRAFTING RECIPES`)
 
-	e.Infocards[InfocardKey(base.Nickname)] = sb
+	e.Infocards[InfocardKey(base.Nickname)] = sb.Lines
 
 	bases = append(bases, base)
 	return bases

@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/darklab8/fl-configs/configs/cfgtype"
@@ -12,7 +13,59 @@ import (
 
 type InfocardKey string
 
-type Infocard []string
+type InfocardPhrase struct {
+	Phrase string
+	Link   *string
+	Bold   bool
+}
+
+type InfocardLine struct {
+	Phrases []InfocardPhrase
+}
+
+func (i InfocardLine) ToStr() string {
+	var sb strings.Builder
+	for _, phrase := range i.Phrases {
+		sb.WriteString(phrase.Phrase)
+	}
+	return sb.String()
+}
+
+func NewInfocardSimpleLine(line string) InfocardLine {
+	return InfocardLine{Phrases: []InfocardPhrase{{Phrase: line}}}
+}
+
+func NewInfocardBuilder() InfocardBuilder {
+	return InfocardBuilder{}
+}
+func (i *InfocardBuilder) WriteLine(phrases ...InfocardPhrase) {
+	i.Lines = append(i.Lines, InfocardLine{Phrases: phrases})
+}
+func (i *InfocardBuilder) WriteLineStr(phrase_strs ...string) {
+	var phrases []InfocardPhrase
+	for _, phrase := range phrase_strs {
+		phrases = append(phrases, InfocardPhrase{Phrase: phrase})
+	}
+	i.Lines = append(i.Lines, InfocardLine{Phrases: phrases})
+}
+
+type InfocardBuilder struct {
+	Lines Infocard
+}
+
+type Infocard []InfocardLine
+
+func (i Infocard) StringsJoin(delimiter string) string {
+	var sb strings.Builder
+
+	for _, line := range i {
+		for _, phrase := range line.Phrases {
+			sb.WriteString(phrase.Phrase)
+		}
+		sb.WriteString(delimiter)
+	}
+	return sb.String()
+}
 
 func (e *Exporter) exportInfocards(nickname InfocardKey, infocard_ids ...int) {
 	if _, ok := e.Infocards[InfocardKey(nickname)]; ok {
@@ -21,12 +74,15 @@ func (e *Exporter) exportInfocards(nickname InfocardKey, infocard_ids ...int) {
 
 	for _, info_id := range infocard_ids {
 		if value, ok := e.Configs.Infocards.Infocards[info_id]; ok {
-			e.Infocards[InfocardKey(nickname)] = append(e.Infocards[InfocardKey(nickname)], value.Lines...)
+			for _, line := range value.Lines {
+				e.Infocards[InfocardKey(nickname)] = append(e.Infocards[InfocardKey(nickname)], NewInfocardSimpleLine(line))
+			}
+
 		}
 	}
 
 	if len(e.Infocards[InfocardKey(nickname)]) == 0 {
-		e.Infocards[InfocardKey(nickname)] = []string{"no infocard"}
+		e.Infocards[InfocardKey(nickname)] = []InfocardLine{NewInfocardSimpleLine("no infocard")}
 	}
 }
 

@@ -1,6 +1,7 @@
 package configs_export
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -225,11 +226,42 @@ func (e *Exporter) GetPoBs() []*PoB {
 			pob.ShopItems = append(pob.ShopItems, good)
 		}
 
-		var sb []string
-		sb = append(sb, `This is Player Owned Base`)
-		sb = append(sb, `infocard placeholder`)
+		var sb InfocardBuilder
+		sb.WriteLineStr(pob.Name)
+		sb.WriteLineStr("")
+		for _, paragraph := range pob_info.InfocardParagraphs {
+			sb.WriteLineStr(paragraph)
+			sb.WriteLineStr("")
+		}
 
-		e.Infocards[InfocardKey(pob.Nickname)] = sb
+		if pob_info.DefenseMode != nil {
+			sb.WriteLine(InfocardPhrase{Phrase: "Defense mode:", Bold: true})
+			sb.WriteLineStr((*DefenseMode)(pob_info.DefenseMode).ToStr())
+			sb.WriteLineStr("")
+		}
+		if len(pob_info.SrpFactionHashList) > 0 || len(pob_info.SrpTagList) > 0 || len(pob_info.SrpNameList) > 0 {
+			sb.WriteLine(InfocardPhrase{Phrase: "Docking allias(srp,ignore rep):", Bold: true})
+			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.SrpFactionHashList))
+			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.SrpTagList)))
+			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.SrpNameList)))
+		}
+
+		if len(pob_info.AllyFactionHashList) > 0 || len(pob_info.AllyTagList) > 0 || len(pob_info.AllyNameList) > 0 {
+			sb.WriteLine(InfocardPhrase{Phrase: "Docking allias(IFF rep still affects):", Bold: true})
+			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.AllyFactionHashList))
+			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.AllyTagList)))
+			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.AllyNameList)))
+		}
+
+		if len(pob_info.HostileFactionHashList) > 0 || len(pob_info.HostileTagList) > 0 || len(pob_info.HostileNameList) > 0 {
+			sb.WriteLine(InfocardPhrase{Phrase: "Docking enemies:", Bold: true})
+			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.HostileFactionHashList))
+			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.HostileTagList)))
+			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.HostileNameList)))
+		}
+
+		// TODO add pob infocards here
+		e.Infocards[InfocardKey(pob.Nickname)] = sb.Lines
 
 		pobs = append(pobs, pob)
 	}
@@ -330,6 +362,29 @@ func (e *Exporter) get_pob_buyable() map[string][]*PobShopItem {
 		}
 	}
 	return e.pob_buyable_cache
+}
+
+func (e *Exporter) fmt_factions_to_str(factions_by_hash map[flhash.HashCode]*initialworld.Group, faction_hashes []*flhash.HashCode) string {
+	var sb strings.Builder
+
+	sb.WriteString("factions: [")
+
+	for index, faction_hash := range faction_hashes {
+		if faction, ok := factions_by_hash[*faction_hash]; ok {
+			sb.WriteString(e.GetInfocardName(faction.IdsName.Get(), faction.Nickname.Get()))
+			if index != len(faction_hashes)-1 {
+				sb.WriteString(", ")
+			}
+		} else {
+			logus.Log.Error("faction hash is invalid", typelog.Any("hash", *faction_hash))
+		}
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
+func fmt_docking_tags(tags_or_names []string) string {
+	return fmt.Sprintf("[%s]", strings.Join(tags_or_names, ", "))
 }
 
 func StrPosToVectorPos(value string) *cfgtype.Vector {

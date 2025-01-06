@@ -211,34 +211,34 @@ func (e *Exporter) GetOres(Commodities []*Commodity) []*Base {
 				}
 			}
 
-			var sb []string
-			sb = append(sb, base.Name)
-			sb = append(sb, `This is is not a base.
-It is a mining field with droppable ores`)
-			sb = append(sb, "")
-			sb = append(sb, "Trade routes shown do not account for a time it takes to mine those ores.")
+			var sb InfocardBuilder
+			sb.WriteLineStr(base.Name)
+			sb.WriteLineStr((`This is is not a base.
+It is a mining field with droppable ores`))
+			sb.WriteLineStr((""))
+			sb.WriteLineStr(("Trade routes shown do not account for a time it takes to mine those ores."))
 
 			if e.Configs.Discovery != nil {
-				sb = append(sb, "")
-				sb = append(sb, `<a href="https://discoverygc.com/wiki2/Mining">Check mining tutorial</a> to see how they can be mined`)
+				sb.WriteLineStr("")
+				sb.WriteLine(InfocardPhrase{Link: ptr.Ptr("https://discoverygc.com/wiki2/Mining"), Phrase: "Check mining tutorial"}, InfocardPhrase{Phrase: " to see how they can be mined"})
 
-				sb = append(sb, "")
-				sb = append(sb, `NOTE:
+				sb.WriteLineStr("")
+				sb.WriteLineStr(`NOTE:
 for Freelancer Discovery we also add possible sub products of refinery at player bases to possible trade routes from mining field.
 				`)
 			}
 
-			sb = append(sb, "")
-			sb = append(sb, "commodities:")
+			sb.WriteLineStr("")
+			sb.WriteLineStr("commodities:")
 			for _, good := range base.MarketGoodsPerNick {
 				if good.Nickname == base.MinedGood.Nickname {
-					sb = append(sb, fmt.Sprintf("Minable: %s (%s)", good.Name, good.Nickname))
+					sb.WriteLineStr(fmt.Sprintf("Minable: %s (%s)", good.Name, good.Nickname))
 				} else {
-					sb = append(sb, fmt.Sprintf("Refined at POB: %s (%s)", good.Name, good.Nickname))
+					sb.WriteLineStr(fmt.Sprintf("Refined at POB: %s (%s)", good.Name, good.Nickname))
 				}
 			}
 
-			e.Infocards[InfocardKey(base.Nickname)] = sb
+			e.Infocards[InfocardKey(base.Nickname)] = sb.Lines
 
 			bases = append(bases, base)
 
