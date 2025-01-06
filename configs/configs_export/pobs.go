@@ -231,7 +231,7 @@ func (e *Exporter) GetPoBs() []*PoB {
 		sb.WriteLineStr("")
 
 		if pob_info.Pos == nil && len(pob_info.InfocardParagraphs) == 0 {
-			sb.WriteLineStr("no access to infocard (toggle pos permission)")
+			sb.WriteLineStr("no access to infocard (toggle pos permission in pob account manager)")
 			sb.WriteLineStr("")
 		}
 
@@ -245,7 +245,7 @@ func (e *Exporter) GetPoBs() []*PoB {
 			sb.WriteLineStr((*DefenseMode)(pob_info.DefenseMode).ToStr())
 			sb.WriteLineStr("")
 		} else {
-			sb.WriteLineStr("no access to docking (toggle defense mode permission)")
+			sb.WriteLineStr("no access to docking permissions (toggle defense mode in pob account manager)")
 			sb.WriteLineStr("")
 		}
 		if len(pob_info.SrpFactionHashList) > 0 || len(pob_info.SrpTagList) > 0 || len(pob_info.SrpNameList) > 0 {
