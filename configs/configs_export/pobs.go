@@ -231,7 +231,8 @@ func (e *Exporter) GetPoBs() []*PoB {
 		sb.WriteLineStr("")
 
 		if pob_info.Pos == nil && len(pob_info.InfocardParagraphs) == 0 {
-			sb.WriteLineStr("no access to infocard (toggle pos permission in pob account manager)")
+			sb.WriteLine(InfocardPhrase{Phrase: "infocard:", Bold: true})
+			sb.WriteLineStr("no access (toggle pos permission in pob account manager)")
 			sb.WriteLineStr("")
 		}
 
@@ -245,7 +246,8 @@ func (e *Exporter) GetPoBs() []*PoB {
 			sb.WriteLineStr((*DefenseMode)(pob_info.DefenseMode).ToStr())
 			sb.WriteLineStr("")
 		} else {
-			sb.WriteLineStr("no access to docking permissions (toggle defense mode in pob account manager)")
+			sb.WriteLine(InfocardPhrase{Phrase: "docking permissions:", Bold: true})
+			sb.WriteLineStr("no access (toggle defense mode in pob account manager)")
 			sb.WriteLineStr("")
 		}
 		if len(pob_info.SrpFactionHashList) > 0 || len(pob_info.SrpTagList) > 0 || len(pob_info.SrpNameList) > 0 {
@@ -253,6 +255,7 @@ func (e *Exporter) GetPoBs() []*PoB {
 			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.SrpFactionHashList))
 			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.SrpTagList)))
 			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.SrpNameList)))
+			sb.WriteLineStr("")
 		}
 
 		if len(pob_info.AllyFactionHashList) > 0 || len(pob_info.AllyTagList) > 0 || len(pob_info.AllyNameList) > 0 {
@@ -260,6 +263,7 @@ func (e *Exporter) GetPoBs() []*PoB {
 			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.AllyFactionHashList))
 			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.AllyTagList)))
 			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.AllyNameList)))
+			sb.WriteLineStr("")
 		}
 
 		if len(pob_info.HostileFactionHashList) > 0 || len(pob_info.HostileTagList) > 0 || len(pob_info.HostileNameList) > 0 {
@@ -267,6 +271,7 @@ func (e *Exporter) GetPoBs() []*PoB {
 			sb.WriteLineStr(e.fmt_factions_to_str(factions_by_hash, pob_info.HostileFactionHashList))
 			sb.WriteLineStr(fmt.Sprintf("tags: %s", fmt_docking_tags(pob_info.HostileTagList)))
 			sb.WriteLineStr(fmt.Sprintf("names: %s", fmt_docking_tags(pob_info.HostileNameList)))
+			sb.WriteLineStr("")
 		}
 
 		// TODO add pob infocards here
