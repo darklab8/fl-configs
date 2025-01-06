@@ -192,11 +192,25 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	EnhanceBasesWithServerOverrides(e.Bases, e.Commodities)
 
 	e.MiningOperations = e.GetOres(e.Commodities)
-	mining_bases_by_system := make(map[string][]trades.ExtraBase)
+	if e.Configs.Discovery != nil {
+		e.PoBs = e.GetPoBs()
+		e.PoBGoods = e.GetPoBGoods(e.PoBs)
+	}
+
+	extra_graph_bases := make(map[string][]trades.ExtraBase)
 	for _, base := range e.MiningOperations {
-		mining_bases_by_system[base.SystemNickname] = append(mining_bases_by_system[base.SystemNickname], trades.ExtraBase{
+		extra_graph_bases[base.SystemNickname] = append(extra_graph_bases[base.SystemNickname], trades.ExtraBase{
 			Pos:      base.Pos,
 			Nickname: base.Nickname,
+		})
+	}
+	for _, base := range e.PoBs {
+		if base.SystemNick == nil || base.Pos == nil {
+			continue
+		}
+		extra_graph_bases[*base.SystemNick] = append(extra_graph_bases[*base.SystemNick], trades.ExtraBase{
+			Pos:      *StrPosToVectorPos(*base.Pos),
+			Nickname: cfgtype.BaseUniNick(base.Nickname),
 		})
 	}
 	if e.Configs.Discovery != nil {
@@ -211,17 +225,17 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 
 		wg.Add(1)
 		go func() {
-			e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, options.MappingOptions)
+			e.transport = NewGraphResults(e, e.ship_speeds.AvgTransportCruiseSpeed, trades.WithFreighterPaths(false), extra_graph_bases, options.MappingOptions)
 			wg.Done()
 		}()
 		wg.Add(1)
 		go func() {
-			e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), mining_bases_by_system, options.MappingOptions)
+			e.freighter = NewGraphResults(e, e.ship_speeds.AvgFreighterCruiseSpeed, trades.WithFreighterPaths(true), extra_graph_bases, options.MappingOptions)
 			wg.Done()
 		}()
 		wg.Add(1)
 		go func() {
-			e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), mining_bases_by_system, options.MappingOptions)
+			e.frigate = NewGraphResults(e, e.ship_speeds.AvgFrigateCruiseSpeed, trades.WithFreighterPaths(false), extra_graph_bases, options.MappingOptions)
 			wg.Done()
 		}()
 	}
@@ -269,10 +283,6 @@ func (e *Exporter) Export(options ExportOptions) *Exporter {
 	e.EnhanceBasesWithIsTransportReachable(e.Bases, e.transport)
 	e.Bases = e.EnhanceBasesWithPobCrafts(e.Bases)
 	e.Bases = e.EnhanceBasesWithLoot(e.Bases)
-	if e.Configs.Discovery != nil {
-		e.PoBs = e.GetPoBs()
-		e.PoBGoods = e.GetPoBGoods(e.PoBs)
-	}
 
 	return e
 }
