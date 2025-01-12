@@ -56,6 +56,8 @@ type PoB struct {
 	FactionNick *string
 	FactionName *string // AffiliationHash *flhash.HashCode `json:"affiliation"` //: 2620,
 
+	ForumThreadUrl *string
+
 	BasePos     *cfgtype.Vector
 	SectorCoord *string
 	Region      *string
@@ -184,6 +186,8 @@ func (e *Exporter) GetPoBs() []*PoB {
 		if pob_info.Pos != nil {
 			pob.BasePos = StrPosToVectorPos(*pob_info.Pos)
 		}
+
+		pob.ForumThreadUrl = pob_info.ForumThreadUrl
 		if pob_info.SystemHash != nil {
 			if system, ok := systems_by_hash[*pob_info.SystemHash]; ok {
 				pob.SystemNick = ptr.Ptr(system.Nickname.Get())

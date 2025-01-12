@@ -30,6 +30,8 @@ type Base struct {
 	Nickname  string
 	ShopItems []ShopItem `json:"shop_items"`
 
+	ForumThreadUrl *string `json:"thread"`
+
 	SystemHash         *flhash.HashCode `json:"system"`      //: 2745655887,
 	Pos                *string          `json:"pos"`         //: "299016, 33, -178",
 	AffiliationHash    *flhash.HashCode `json:"affiliation"` //: 2620,

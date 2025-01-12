@@ -25,3 +25,13 @@ func TestReader2(t *testing.T) {
 	config := Read(fileref)
 	assert.Greater(t, len(config.BasesByName), 0)
 }
+
+func TestReaderThread(t *testing.T) {
+	test_directory := utils_os.GetCurrrentTestFolder()
+	fileref := file.NewFile(utils_types.FilePath(utils_filepath.Join(test_directory, "example_thread.json")))
+
+	config := Read(fileref)
+	assert.Greater(t, len(config.BasesByName), 0)
+
+	assert.NotNil(t, config.BasesByName["Fortitudine"].ForumThreadUrl)
+}
